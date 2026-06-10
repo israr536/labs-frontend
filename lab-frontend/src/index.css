@@ -1,0 +1,380 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Courier+Prime&display=swap');
+
+:root {
+  /* Theme Colors - Light Mode (Medical Teal/Cyan theme) */
+  --primary-hsl: 198, 93%, 37%; /* #066089 */
+  --primary: hsl(var(--primary-hsl));
+  --primary-hover: hsl(198, 93%, 30%);
+  --primary-light: hsl(198, 93%, 95%);
+  
+  --secondary-hsl: 174, 86%, 41%; /* #0eb89d */
+  --secondary: hsl(var(--secondary-hsl));
+  --secondary-light: hsl(174, 86%, 96%);
+
+  --dark-hsl: 215, 28%, 17%;
+  --dark: hsl(var(--dark-hsl));
+
+  --bg: #f5f8fa;
+  --panel-bg: rgba(255, 255, 255, 0.85);
+  --border: rgba(226, 232, 240, 0.8);
+  --border-focus: hsl(198, 93%, 70%);
+  --text: #475569;
+  --text-bold: #0f172a;
+  --shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.08);
+  --shadow-hover: 0 20px 40px -15px rgba(15, 23, 42, 0.12);
+
+  /* Status Colors */
+  --success: #10b981;
+  --success-bg: rgba(16, 185, 129, 0.1);
+  --warning: #f59e0b;
+  --warning-bg: rgba(245, 158, 11, 0.1);
+  --danger: #ef4444;
+  --danger-bg: rgba(239, 68, 68, 0.1);
+  --info: #3b82f6;
+  --info-bg: rgba(59, 130, 246, 0.1);
+  --draft: #6366f1;
+  --draft-bg: rgba(99, 102, 241, 0.1);
+
+  /* Typography */
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Outfit', sans-serif;
+  --font-mono: 'Courier Prime', monospace;
+  
+  --sidebar-width: 260px;
+  --border-radius-lg: 16px;
+  --border-radius-md: 12px;
+  --border-radius-sm: 8px;
+}
+
+/* Dark mode overrides */
+.dark-theme {
+  --primary-hsl: 198, 93%, 47%;
+  --primary: hsl(var(--primary-hsl));
+  --primary-hover: hsl(198, 93%, 57%);
+  --primary-light: hsl(198, 93%, 12%);
+  
+  --secondary-hsl: 174, 86%, 45%;
+  --secondary: hsl(var(--secondary-hsl));
+  --secondary-light: hsl(174, 86%, 10%);
+
+  --bg: #0b0f17;
+  --panel-bg: rgba(20, 27, 41, 0.85);
+  --border: rgba(38, 50, 72, 0.6);
+  --border-focus: hsl(198, 93%, 50%);
+  --text: #94a3b8;
+  --text-bold: #f8fafc;
+  --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  --shadow-hover: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+}
+
+/* Global Reset & Base Styling */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.5;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: var(--text-bold);
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+/* App Layout Grid */
+#root {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.app-container {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+}
+
+.main-content {
+  flex: 1;
+  padding: 2.5rem;
+  margin-left: var(--sidebar-width);
+  overflow-y: auto;
+  transition: margin-left 0.3s ease;
+}
+
+@media (max-width: 1024px) {
+  .main-content {
+    margin-left: 0;
+    padding: 1.5rem;
+    padding-top: 5rem; /* Space for a top mobile nav if needed */
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.5);
+}
+
+/* Component: Glass Panel & Card */
+.glass-panel {
+  background: var(--panel-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow);
+  padding: 1.75rem;
+  transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
+}
+
+.glass-panel:hover {
+  box-shadow: var(--shadow-hover);
+}
+
+/* Form Controls */
+.form-group {
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-bold);
+  font-family: var(--font-heading);
+}
+
+.form-input, .form-select, .form-textarea {
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-bold);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(6, 96, 137, 0.15);
+}
+
+.dark-theme .form-input, .dark-theme .form-select, .dark-theme .form-textarea {
+  background: rgba(15, 23, 42, 0.4);
+}
+
+/* Table Style */
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border);
+}
+
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.925rem;
+}
+
+.custom-table th {
+  background: var(--primary-light);
+  color: var(--primary);
+  font-weight: 700;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-heading);
+  letter-spacing: 0.5px;
+}
+
+.custom-table td {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  background: transparent;
+}
+
+.custom-table tr:last-child td {
+  border-bottom: none;
+}
+
+.custom-table tr:hover td {
+  background: rgba(6, 96, 137, 0.02);
+}
+
+.dark-theme .custom-table tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Badge Layouts */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-normal { background: var(--success-bg); color: var(--success); }
+.badge-abnormal { background: var(--warning-bg); color: var(--warning); }
+.badge-critical { background: var(--danger-bg); color: var(--danger); }
+.badge-pending { background: var(--info-bg); color: var(--info); }
+.badge-draft { background: var(--draft-bg); color: var(--draft); }
+
+/* Buttons */
+.btn {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--border-radius-md);
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), hsl(198, 93%, 45%));
+  color: white;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(6, 96, 137, 0.3);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, var(--secondary), hsl(174, 86%, 48%));
+  color: white;
+}
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(14, 184, 157, 0.3);
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: white;
+}
+.btn-danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.3);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-bold);
+}
+.btn-outline:hover {
+  background: rgba(148, 163, 184, 0.05);
+  border-color: var(--text);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+/* Print CSS Styles Rules */
+@media print {
+  /* Hide standard screen components */
+  body, html {
+    background: #fff !important;
+    color: #000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 11pt !important;
+  }
+
+  .app-container, .main-content, #root {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    box-shadow: none !important;
+  }
+
+  .sidebar-container, 
+  .no-print, 
+  button, 
+  .btn, 
+  .quick-actions, 
+  .filters-container, 
+  .stats-grid, 
+  .chart-section {
+    display: none !important;
+  }
+
+  /* Printable Report Document Specific Styles */
+  .printable-report {
+    display: block !important;
+    width: 210mm; /* A4 width */
+    min-height: 297mm; /* A4 height */
+    padding: 20mm;
+    margin: 0 auto;
+    background: white !important;
+    box-sizing: border-box;
+    page-break-after: always;
+  }
+
+  .print-header {
+    border-bottom: 2px solid #066089 !important;
+    padding-bottom: 10px !important;
+    margin-bottom: 20px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+  }
+
+  /* Ensure background colors in printable version display properly */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .print-highlight {
+    background-color: #fee2e2 !important; /* Critical light red */
+    color: #b91c1c !important;
+    font-weight: bold !important;
+  }
+}
+
+/* Helper to hide print preview on standard viewport screens */
+.printable-report-container-screen {
+  display: none;
+}

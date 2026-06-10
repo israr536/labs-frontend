@@ -1,0 +1,692 @@
+import { 
+  Users, 
+  Clock, 
+  AlertTriangle, 
+  FileCheck, 
+  ArrowRight,
+  ShieldCheck,
+  PlusCircle,
+  FileText,
+  Settings as SettingsIcon
+} from 'lucide-react';
+import type { LabReport } from '../data/samples';
+
+interface DashboardOverviewProps {
+  reports: LabReport[];
+  setActiveTab: (tab: 'dashboard' | 'reports' | 'new-report' | 'settings') => void;
+  setSelectedReportId: (id: string | null) => void;
+}
+
+export default function DashboardOverview({ 
+  reports, 
+  setActiveTab,
+  setSelectedReportId 
+}: DashboardOverviewProps) {
+  
+  // Calculate statistics
+  const totalPatients = reports.length;
+  const pendingCount = reports.filter(r => r.status === 'Pending' || r.status === 'Draft').length;
+  const criticalCount = reports.filter(r => r.status === 'Critical').length;
+  const completedCount = reports.filter(r => r.status === 'Completed').length;
+  
+
+  
+  const criticalReports = reports.filter(r => r.status === 'Critical');
+
+  // Stats Card data
+  const statCards = [
+    {
+      title: "Total Registered Patients",
+      value: totalPatients,
+      sub: "Active database",
+      icon: Users,
+      color: "var(--primary)",
+      bgColor: "var(--primary-light)",
+      gradient: "linear-gradient(135deg, rgba(6, 96, 137, 0.1), rgba(6, 96, 137, 0.02))"
+    },
+    {
+      title: "Completed Reports",
+      value: completedCount,
+      sub: "Authorized & signed",
+      icon: FileCheck,
+      color: "var(--success)",
+      bgColor: "var(--success-bg)",
+      gradient: "linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.02))"
+    },
+    {
+      title: "Pending Approval",
+      value: pendingCount,
+      sub: "In queue / Drafts",
+      icon: Clock,
+      color: "var(--warning)",
+      bgColor: "var(--warning-bg)",
+      gradient: "linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.02))"
+    },
+    {
+      title: "Critical Alerts",
+      value: criticalCount,
+      sub: "Require immediate action",
+      icon: AlertTriangle,
+      color: "var(--danger)",
+      bgColor: "var(--danger-bg)",
+      gradient: "linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.02))",
+      alert: criticalCount > 0
+    }
+  ];
+
+  return (
+    <div className="dashboard-content animate-fade-in">
+      <div className="dashboard-header">
+        <div>
+          <h1>Laboratory Dashboard</h1>
+          <p className="subtitle">Real-time analytical insights and clinical worklists</p>
+        </div>
+        <div className="dashboard-actions">
+          <button onClick={() => { setActiveTab('new-report'); }} className="btn btn-primary">
+            <PlusCircle size={18} />
+            <span>Create New Report</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="stats-grid">
+        {statCards.map((card, i) => {
+          const Icon = card.icon;
+          return (
+            <div 
+              key={i} 
+              className={`glass-panel stat-card ${card.alert ? 'critical-pulse' : ''}`}
+              style={{ background: card.gradient }}
+            >
+              <div className="stat-header">
+                <span className="stat-title">{card.title}</span>
+                <div className="stat-icon" style={{ color: card.color, background: card.bgColor }}>
+                  <Icon size={20} />
+                </div>
+              </div>
+              <div className="stat-value">{card.value}</div>
+              <div className="stat-sub">{card.sub}</div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Main Grid: Charts and Critical list */}
+      <div className="dashboard-main-grid">
+        {/* Trend Chart (SVG) */}
+        <div className="glass-panel chart-card col-span-2">
+          <div className="card-header">
+            <div>
+              <h3>Daily Patient Flow</h3>
+              <p className="card-sub">Daily admission trend over the past week</p>
+            </div>
+            <div className="chart-legend">
+              <span className="legend-item"><span className="legend-dot primary"></span>Patients</span>
+            </div>
+          </div>
+          <div className="chart-wrapper">
+            {/* SVG line chart */}
+            <svg viewBox="0 0 500 200" className="svg-chart">
+              <defs>
+                <linearGradient id="chart-grad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.25"/>
+                  <stop offset="100%" stopColor="var(--primary)" stopOpacity="0.00"/>
+                </linearGradient>
+              </defs>
+              {/* Grid Lines */}
+              <line x1="40" y1="20" x2="480" y2="20" stroke="var(--border)" strokeWidth="1" strokeDasharray="4" />
+              <line x1="40" y1="70" x2="480" y2="70" stroke="var(--border)" strokeWidth="1" strokeDasharray="4" />
+              <line x1="40" y1="120" x2="480" y2="120" stroke="var(--border)" strokeWidth="1" strokeDasharray="4" />
+              <line x1="40" y1="170" x2="480" y2="170" stroke="var(--border)" strokeWidth="1" />
+
+              {/* Chart Line Path */}
+              {/* Days points: Mon (40, 160), Tue (113, 110), Wed (186, 130), Thu (259, 80), Fri (332, 95), Sat (405, 145), Sun (478, 165) */}
+              <path 
+                d="M 40 160 Q 113 110 186 130 T 332 95 T 478 165" 
+                fill="none" 
+                stroke="var(--primary)" 
+                strokeWidth="3.5" 
+                strokeLinecap="round"
+              />
+              {/* Gradient fill underneath path */}
+              <path 
+                d="M 40 160 Q 113 110 186 130 T 332 95 T 478 165 L 478 170 L 40 170 Z" 
+                fill="url(#chart-grad)"
+              />
+
+              {/* Data points */}
+              <circle cx="40" cy="160" r="5" fill="white" stroke="var(--primary)" strokeWidth="3" />
+              <circle cx="113" cy="110" r="5" fill="white" stroke="var(--primary)" strokeWidth="3" />
+              <circle cx="186" cy="130" r="5" fill="white" stroke="var(--primary)" strokeWidth="3" />
+              <circle cx="259" cy="80" r="5" fill="white" stroke="var(--primary)" strokeWidth="3" />
+              <circle cx="332" cy="95" r="5" fill="white" stroke="var(--primary)" strokeWidth="3" />
+              <circle cx="405" cy="145" r="5" fill="white" stroke="var(--primary)" strokeWidth="3" />
+              <circle cx="478" cy="165" r="5" fill="white" stroke="var(--primary)" strokeWidth="3" />
+
+              {/* Axis Labels */}
+              <text x="40" y="188" textAnchor="middle" fontSize="10" fill="var(--text)" fontWeight="500">Mon</text>
+              <text x="113" y="188" textAnchor="middle" fontSize="10" fill="var(--text)" fontWeight="500">Tue</text>
+              <text x="186" y="188" textAnchor="middle" fontSize="10" fill="var(--text)" fontWeight="500">Wed</text>
+              <text x="259" y="188" textAnchor="middle" fontSize="10" fill="var(--text)" fontWeight="500">Thu</text>
+              <text x="332" y="188" textAnchor="middle" fontSize="10" fill="var(--text)" fontWeight="500">Fri</text>
+              <text x="405" y="188" textAnchor="middle" fontSize="10" fill="var(--text)" fontWeight="500">Sat</text>
+              <text x="478" y="188" textAnchor="middle" fontSize="10" fill="var(--text)" fontWeight="500">Sun</text>
+              
+              <text x="30" y="163" textAnchor="end" fontSize="9" fill="var(--text)">5</text>
+              <text x="30" y="123" textAnchor="end" fontSize="9" fill="var(--text)">10</text>
+              <text x="30" y="73" textAnchor="end" fontSize="9" fill="var(--text)">15</text>
+              <text x="30" y="23" textAnchor="end" fontSize="9" fill="var(--text)">20</text>
+            </svg>
+          </div>
+        </div>
+
+        {/* Categories Distribution (Donut layout using SVG) */}
+        <div className="glass-panel chart-card">
+          <div className="card-header">
+            <h3>Test Distribution</h3>
+            <p className="card-sub">Top clinical parameters requested</p>
+          </div>
+          <div className="donut-chart-container">
+            <svg width="150" height="150" viewBox="0 0 42 42" className="donut-chart">
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--border)" strokeWidth="4.5" />
+              {/* Segment 1: CBC (35%) - Dasharray 35, Dashoffset 100 */}
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--primary)" strokeWidth="4.5" 
+                      strokeDasharray="35 65" strokeDashoffset="100" />
+              {/* Segment 2: Lipid (25%) - Dasharray 25, Dashoffset 65 */}
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--secondary)" strokeWidth="4.5" 
+                      strokeDasharray="25 75" strokeDashoffset="65" />
+              {/* Segment 3: Thyroid (20%) - Dasharray 20, Dashoffset 40 */}
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--warning)" strokeWidth="4.5" 
+                      strokeDasharray="20 80" strokeDashoffset="40" />
+              {/* Segment 4: Diabetes (15%) - Dasharray 15, Dashoffset 20 */}
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--info)" strokeWidth="4.5" 
+                      strokeDasharray="15 85" strokeDashoffset="20" />
+              {/* Segment 5: Others (5%) - Dasharray 5, Dashoffset 5 */}
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--draft)" strokeWidth="4.5" 
+                      strokeDasharray="5 95" strokeDashoffset="5" />
+            </svg>
+            <div className="donut-legend">
+              <div className="donut-legend-item">
+                <span className="legend-dot primary"></span>
+                <span>Hematology (35%)</span>
+              </div>
+              <div className="donut-legend-item">
+                <span className="legend-dot secondary"></span>
+                <span>Lipid Profile (25%)</span>
+              </div>
+              <div className="donut-legend-item">
+                <span className="legend-dot warning"></span>
+                <span>Endocrinology (20%)</span>
+              </div>
+              <div className="donut-legend-item">
+                <span className="legend-dot info"></span>
+                <span>Glycemia (15%)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Critical Cases List */}
+      <div className="dashboard-sub-grid">
+        <div className="glass-panel alert-section">
+          <div className="card-header border-b">
+            <div className="flex-align">
+              <AlertTriangle size={20} className="text-danger animate-pulse-slow" />
+              <h3>Critical Alerts Panel</h3>
+            </div>
+            <span className="badge badge-critical">{criticalReports.length} Cases</span>
+          </div>
+          <div className="alerts-list">
+            {criticalReports.length > 0 ? (
+              criticalReports.map((report) => (
+                <div key={report.id} className="alert-item">
+                  <div className="alert-body">
+                    <span className="alert-patient">{report.patientName} ({report.gender}, {report.age}y)</span>
+                    <span className="alert-test">{report.testType}</span>
+                    <p className="alert-note">
+                      {report.parameters.filter(p => p.status === 'High' || p.status === 'Low' || p.status === 'Abnormal')
+                        .map(p => `${p.name}: ${p.value} ${p.unit} (${p.status})`)
+                        .join(', ')}
+                    </p>
+                  </div>
+                  <button 
+                    onClick={() => {
+                      setSelectedReportId(report.id);
+                      setActiveTab('reports');
+                    }}
+                    className="alert-action-btn"
+                  >
+                    <span>Inspect</span>
+                    <ArrowRight size={14} />
+                  </button>
+                </div>
+              ))
+            ) : (
+              <div className="empty-alerts">
+                <ShieldCheck size={40} className="text-success" />
+                <p>No critical biochemical alerts detected. All reports are stable.</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Quick Operations panel */}
+        <div className="glass-panel operations-section">
+          <h3>Quick Operations</h3>
+          <p className="card-sub">Common workflows and tools for lab managers</p>
+          <div className="ops-grid">
+            <button onClick={() => { setActiveTab('new-report'); }} className="op-card">
+              <div className="op-icon bg-primary">
+                <PlusCircle size={22} />
+              </div>
+              <div className="op-body">
+                <h4>Create Report</h4>
+                <p>Create patient diagnostics records using smart templates.</p>
+              </div>
+            </button>
+            <button onClick={() => { setActiveTab('reports'); }} className="op-card">
+              <div className="op-icon bg-secondary">
+                <FileText size={22} />
+              </div>
+              <div className="op-body">
+                <h4>Patient Records</h4>
+                <p>Search, filter, view, print, or edit diagnostic reports.</p>
+              </div>
+            </button>
+            <button onClick={() => { setActiveTab('settings'); }} className="op-card">
+              <div className="op-icon bg-info">
+                <SettingsIcon size={22} />
+              </div>
+              <div className="op-body">
+                <h4>Lab Settings</h4>
+                <p>Configure lab name, address, licenses, and pathologist signatures.</p>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <style>{`
+        .dashboard-content {
+          display: flex;
+          flex-direction: column;
+          gap: 2rem;
+        }
+
+        .dashboard-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .subtitle {
+          color: var(--text);
+          font-size: 0.95rem;
+          margin-top: 0.25rem;
+        }
+
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          gap: 1.5rem;
+        }
+
+        .stat-card {
+          display: flex;
+          flex-direction: column;
+          position: relative;
+          overflow: hidden;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .stat-card:hover {
+          transform: translateY(-5px);
+        }
+
+        .stat-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 1rem;
+        }
+
+        .stat-title {
+          font-size: 0.85rem;
+          font-weight: 600;
+          color: var(--text);
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .stat-icon {
+          width: 38px;
+          height: 38px;
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .stat-value {
+          font-family: var(--font-heading);
+          font-size: 2.25rem;
+          font-weight: 700;
+          color: var(--text-bold);
+          line-height: 1.1;
+          margin-bottom: 0.25rem;
+        }
+
+        .stat-sub {
+          font-size: 0.75rem;
+          color: var(--text);
+          font-weight: 500;
+        }
+
+        .critical-pulse {
+          border-color: rgba(239, 68, 68, 0.4);
+          animation: card-alert-pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes card-alert-pulse {
+          0%, 100% { border-color: rgba(239, 68, 68, 0.4); box-shadow: var(--shadow); }
+          50% { border-color: rgba(239, 68, 68, 0.8); box-shadow: 0 0 15px rgba(239, 68, 68, 0.15); }
+        }
+
+        .dashboard-main-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 1.5rem;
+        }
+
+        .col-span-2 {
+          grid-column: span 2;
+        }
+
+        @media (max-width: 1024px) {
+          .dashboard-main-grid {
+            grid-template-columns: 1fr;
+          }
+          .col-span-2 {
+            grid-column: span 1;
+          }
+        }
+
+        .chart-card {
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
+        }
+
+        .card-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .card-header.border-b {
+          border-bottom: 1px solid var(--border);
+          padding-bottom: 1rem;
+          margin-bottom: 0.5rem;
+        }
+
+        .flex-align {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+        }
+
+        .card-sub {
+          font-size: 0.8rem;
+          color: var(--text);
+        }
+
+        .chart-legend {
+          display: flex;
+          gap: 1rem;
+        }
+
+        .legend-item {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-size: 0.8rem;
+          font-weight: 600;
+          color: var(--text);
+        }
+
+        .legend-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          display: inline-block;
+        }
+
+        .legend-dot.primary { background: var(--primary); }
+        .legend-dot.secondary { background: var(--secondary); }
+        .legend-dot.warning { background: var(--warning); }
+        .legend-dot.info { background: var(--info); }
+
+        .chart-wrapper {
+          width: 100%;
+          height: 200px;
+        }
+
+        .svg-chart {
+          width: 100%;
+          height: 100%;
+          overflow: visible;
+        }
+
+        .donut-chart-container {
+          display: flex;
+          align-items: center;
+          justify-content: space-around;
+          gap: 1rem;
+          flex-wrap: wrap;
+        }
+
+        .donut-chart {
+          transform: rotate(-90deg);
+        }
+
+        .donut-legend {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+
+        .donut-legend-item {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-size: 0.8rem;
+          color: var(--text);
+          font-weight: 500;
+        }
+
+        .dashboard-sub-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+          .dashboard-sub-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        .alert-section {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .alerts-list {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+          max-height: 280px;
+          overflow-y: auto;
+          margin-top: 1rem;
+          padding-right: 0.25rem;
+        }
+
+        .alert-item {
+          border: 1px solid var(--border);
+          background: var(--bg);
+          border-radius: var(--border-radius-md);
+          padding: 0.85rem 1rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 1rem;
+          transition: all 0.2s;
+        }
+
+        .alert-item:hover {
+          border-color: rgba(239, 68, 68, 0.3);
+          background: rgba(239, 68, 68, 0.01);
+        }
+
+        .alert-body {
+          display: flex;
+          flex-direction: column;
+          gap: 0.15rem;
+        }
+
+        .alert-patient {
+          font-weight: 700;
+          font-size: 0.9rem;
+          color: var(--text-bold);
+        }
+
+        .alert-test {
+          font-size: 0.75rem;
+          font-weight: 600;
+          color: var(--primary);
+        }
+
+        .alert-note {
+          font-size: 0.75rem;
+          color: var(--danger);
+          font-weight: 500;
+        }
+
+        .alert-action-btn {
+          background: var(--danger-bg);
+          border: none;
+          border-radius: var(--border-radius-sm);
+          color: var(--danger);
+          padding: 0.4rem 0.65rem;
+          font-size: 0.75rem;
+          font-weight: 700;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+          transition: all 0.2s;
+        }
+
+        .alert-action-btn:hover {
+          background: var(--danger);
+          color: white;
+        }
+
+        .empty-alerts {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 1rem;
+          text-align: center;
+          padding: 2.5rem;
+          height: 100%;
+        }
+
+        .empty-alerts p {
+          font-size: 0.85rem;
+          color: var(--text);
+          max-width: 250px;
+        }
+
+        .animate-pulse-slow {
+          animation: pulse-slow 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-slow {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(1.05); }
+        }
+
+        .operations-section {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .ops-grid {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          margin-top: 1.25rem;
+        }
+
+        .op-card {
+          background: var(--bg);
+          border: 1px solid var(--border);
+          border-radius: var(--border-radius-md);
+          padding: 1rem;
+          cursor: pointer;
+          text-align: left;
+          display: flex;
+          gap: 1.25rem;
+          align-items: center;
+          transition: all 0.2s ease;
+          width: 100%;
+        }
+
+        .op-card:hover {
+          border-color: var(--primary);
+          transform: translateX(4px);
+        }
+
+        .op-icon {
+          width: 48px;
+          height: 48px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          flex-shrink: 0;
+        }
+
+        .bg-primary { background: linear-gradient(135deg, var(--primary), hsl(198, 93%, 45%)); }
+        .bg-secondary { background: linear-gradient(135deg, var(--secondary), hsl(174, 86%, 48%)); }
+        .bg-info { background: linear-gradient(135deg, var(--info), #2563eb); }
+
+        .op-body h4 {
+          font-size: 0.95rem;
+          font-weight: 700;
+          color: var(--text-bold);
+          margin-bottom: 0.15rem;
+        }
+
+        .op-body p {
+          font-size: 0.75rem;
+          color: var(--text);
+        }
+
+        .animate-fade-in {
+          animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+    </div>
+  );
+}

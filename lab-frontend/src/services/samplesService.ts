@@ -1,25 +1,35 @@
 import { request } from './api';
+import { getOrder } from './ordersService';
 
-export function createSamples(orderId: string) {
-  return request(`samples/orders/${orderId}`, { method: 'POST' });
+export function createSamples(orderId: string, body?: { specimenType?: string; container?: string }) {
+  return request(`samples/orders/${encodeURIComponent(orderId)}`, {
+    method: 'POST',
+    body: body ? JSON.stringify(body) : undefined,
+  }).then(() => getOrder(orderId));
 }
 
-export function listSamples(params?: { status?: string; orderId?: string }) {
+export function listSamples(params?: { orderId?: string }) {
   const search = new URLSearchParams();
-  if (params?.status) search.set('status', params.status);
   if (params?.orderId) search.set('orderId', params.orderId);
   const query = search.toString();
   return request(`samples${query ? `?${query}` : ''}`);
 }
 
 export function getSample(id: string) {
-  return request(`samples/${id}`);
+  return request(`samples/${encodeURIComponent(id)}`);
 }
 
-export function updateSampleStatus(id: string, status: string, rejectedReason?: string) {
-  return request(`samples/${id}/status`, {
+export function updateSampleStatus(
+  id: string,
+  status: string,
+  rejectedReason?: string,
+) {
+  const body: { status: string; rejectedReason?: string } = { status };
+  if (rejectedReason?.trim()) body.rejectedReason = rejectedReason.trim();
+
+  return request(`samples/${encodeURIComponent(id)}/status`, {
     method: 'PATCH',
-    body: JSON.stringify({ status, rejectedReason }),
+    body: JSON.stringify(body),
   });
 }
 

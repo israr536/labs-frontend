@@ -1,16 +1,46 @@
-import { request } from './api';
+import { request, requestBlob } from './api';
 
-export function finalizeReport(orderId: string) { return request(`orders/${orderId}/finalize`, { method: 'POST' }); }
-export function getFinalReport(orderId: string) { return request(`orders/${orderId}/report`); }
-export function listReportVersions(orderId: string) { return request(`orders/${orderId}/report/versions`); }
-export function amendReport(orderId: string, reason: string) { return request(`orders/${orderId}/report/amend`, { method: 'POST', body: JSON.stringify({ reason }) }); }
-
-export async function downloadFinalReport(orderId: string) {
-  const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
-  const token = localStorage.getItem('lab_access_token');
-  const res = await fetch(`${API_BASE}/orders/${orderId}/report/pdf`, { headers: token ? { Authorization: `Bearer ${token}` } : undefined });
-  if (!res.ok) throw new Error('Unable to download final report');
-  return res.blob();
+export interface FinalReport {
+  id: string;
+  reportNumber: string;
+  version: number;
+  finalizedAt: string;
+  finalizedBy?: { id: string; username: string; role: string };
+  [key: string]: unknown;
 }
 
-export default { finalizeReport, getFinalReport, listReportVersions, amendReport, downloadFinalReport };
+export function finalizeReport(orderId: string): Promise<FinalReport> {
+  return request<FinalReport>(`orders/${orderId}/finalize`, { method: 'POST' });
+}
+
+export function getFinalReport(orderId: string): Promise<FinalReport> {
+  return request<FinalReport>(`orders/${orderId}/report`);
+}
+
+export function listReportVersions(orderId: string) {
+  return request(`orders/${orderId}/report/versions`);
+}
+
+export function amendReport(orderId: string, reason: string) {
+  const normalizedReason = reason.trim();
+  if (normalizedReason.length < 5) {
+    throw new Error('Amendment reason must be at least 5 characters');
+  }
+
+  return request(`orders/${orderId}/report/amend`, {
+    method: 'POST',
+    body: JSON.stringify({ reason: normalizedReason }),
+  });
+}
+
+export function downloadFinalReport(orderId: string): Promise<Blob> {
+  return requestBlob(`orders/${orderId}/report/pdf`);
+}
+
+export default {
+  finalizeReport,
+  getFinalReport,
+  listReportVersions,
+  amendReport,
+  downloadFinalReport,
+};

@@ -1,9 +1,21 @@
-const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+const API_BASE = (import.meta.env.VITE_API_URL ?? 'http://localhost:3000').replace(/\/$/, '');
 import logger from '../utils/logger';
 
 interface RequestOptions extends RequestInit {
   retry?: number;
   timeout?: number;
+}
+
+export class ApiError extends Error {
+  status: number;
+  body: unknown;
+
+  constructor(message: string, status: number, body?: unknown) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.body = body;
+  }
 }
 
 function getStoredTokens() {
@@ -13,9 +25,9 @@ function getStoredTokens() {
   };
 }
 
-export function setTokens({ accessToken, refreshToken }: { accessToken?: string; refreshToken?: string }) {
-  if (accessToken) localStorage.setItem('lab_access_token', accessToken);
-  if (refreshToken) localStorage.setItem('lab_refresh_token', refreshToken);
+export function setTokens(tokens: { accessToken?: string; refreshToken?: string }) {
+  if (tokens.accessToken) localStorage.setItem('lab_access_token', tokens.accessToken);
+  if (tokens.refreshToken) localStorage.setItem('lab_refresh_token', tokens.refreshToken);
 }
 
 export function clearTokens() {
@@ -24,71 +36,140 @@ export function clearTokens() {
 }
 
 async function refreshAccessToken(): Promise<boolean> {
-  try {
-    const { refreshToken } = getStoredTokens();
-    if (!refreshToken) return false;
+  const { refreshToken } = getStoredTokens();
+  if (!refreshToken) return false;
 
-    const res = await fetch(`${API_BASE}/auth/refresh`, {
+  try {
+    const response = await fetch(`${API_BASE}/auth/refresh`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refreshToken }),
     });
 
-    if (!res.ok) return false;
-    const data = await res.json();
+    if (!response.ok) return false;
+    const data = await response.json();
     if (!data?.accessToken || !data?.refreshToken) return false;
 
-    setTokens({ accessToken: data.accessToken, refreshToken: data.refreshToken });
+    setTokens(data);
     return true;
   } catch {
     return false;
   }
 }
 
-export async function request(path: string, opts: RequestOptions = {}) {
-  const url = `${API_BASE}/${path.replace(/^\/+/, '')}`;
-  const maxRetries = opts.retry ?? 1;
+function buildHeaders(options: RequestInit): Headers {
+  const headers = new Headers(options.headers);
+  if (!headers.has('Content-Type') && options.body && !(options.body instanceof FormData)) {
+    headers.set('Content-Type', 'application/json');
+  }
 
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    let timeoutId: ReturnType<typeof setTimeout> | undefined;
-    try {
-      const tokens = getStoredTokens();
-      const headers = new Headers(opts.headers);
-      if (!headers.has('Content-Type') && opts.body) headers.set('Content-Type', 'application/json');
-      if (tokens.accessToken) headers.set('Authorization', `Bearer ${tokens.accessToken}`);
+  const { accessToken } = getStoredTokens();
+  if (accessToken) headers.set('Authorization', `Bearer ${accessToken}`);
+  return headers;
+}
 
-      const controller = new AbortController();
-      timeoutId = setTimeout(() => controller.abort(), opts.timeout ?? 30000);
-      const res = await fetch(url, { ...opts, headers, signal: controller.signal });
+function isRetryableMethod(method?: string) {
+  return ['GET', 'HEAD', 'OPTIONS'].includes((method ?? 'GET').toUpperCase());
+}
 
-      if (res.status === 401 && attempt < maxRetries) {
-        const refreshed = await refreshAccessToken();
-        if (refreshed) continue;
+async function fetchWithAuth(path: string, options: RequestInit, timeout: number): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    let response = await fetch(`${API_BASE}/${path.replace(/^\/+/, '')}`, {
+      ...options,
+      headers: buildHeaders(options),
+      signal: controller.signal,
+    });
+
+    if (response.status === 401) {
+      const refreshed = await refreshAccessToken();
+      if (refreshed) {
+        response = await fetch(`${API_BASE}/${path.replace(/^\/+/, '')}`, {
+          ...options,
+          headers: buildHeaders(options),
+          signal: controller.signal,
+        });
+      }
+
+      if (response.status === 401) {
         clearTokens();
-        const error = new Error('Unauthorized. Please login again.');
-        (error as any).status = 401;
-        throw error;
+        throw new ApiError('Unauthorized. Please login again.', 401);
       }
-
-      const text = await res.text();
-      let data: any = null;
-      try { data = text ? JSON.parse(text) : null; } catch { data = text; }
-
-      if (!res.ok) {
-        const error = new Error(data?.message || res.statusText || 'API error');
-        (error as any).status = res.status;
-        (error as any).body = data;
-        try { logger.error(error); } catch {}
-        throw error;
-      }
-
-      return data;
-    } catch (error) {
-      if (attempt === maxRetries) throw error;
-    } finally {
-      if (timeoutId) clearTimeout(timeoutId);
     }
+
+    return response;
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 
-export default { API_BASE, request, setTokens, clearTokens };
+async function parseResponse(response: Response): Promise<unknown> {
+  const text = await response.text();
+  if (!text) return null;
+
+  const contentType = response.headers.get('content-type') ?? '';
+  if (contentType.includes('application/json')) {
+    try {
+      return JSON.parse(text);
+    } catch {
+      return text;
+    }
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
+}
+
+export async function request<T = unknown>(path: string, options: RequestOptions = {}): Promise<T> {
+  const method = (options.method ?? 'GET').toUpperCase();
+  const maxRetries = options.retry ?? (isRetryableMethod(method) ? 1 : 0);
+  const timeout = options.timeout ?? 30000;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt += 1) {
+    try {
+      const response = await fetchWithAuth(path, options, timeout);
+      const data = await parseResponse(response);
+
+      if (!response.ok) {
+        const message = typeof data === 'object' && data && 'message' in data
+          ? String((data as { message?: unknown }).message)
+          : response.statusText || 'API request failed';
+        const error = new ApiError(message, response.status, data);
+        try { logger.error(error); } catch { /* logging must never break requests */ }
+        throw error;
+      }
+
+      return data as T;
+    } catch (error) {
+      if (attempt >= maxRetries || error instanceof ApiError || !isRetryableMethod(method)) {
+        throw error;
+      }
+    }
+  }
+
+  throw new Error('API request failed');
+}
+
+export async function requestBlob(path: string, options: RequestOptions = {}): Promise<Blob> {
+  const method = (options.method ?? 'GET').toUpperCase();
+  const response = await fetchWithAuth(path, options, options.timeout ?? 60000);
+
+  if (!response.ok) {
+    const data = await parseResponse(response);
+    const message = typeof data === 'object' && data && 'message' in data
+      ? String((data as { message?: unknown }).message)
+      : response.statusText || 'API request failed';
+    throw new ApiError(message, response.status, data);
+  }
+
+  if (method !== 'GET') throw new Error('Blob requests currently support GET only');
+  return response.blob();
+}
+
+export { API_BASE };
+export default { API_BASE, request, requestBlob, setTokens, clearTokens };

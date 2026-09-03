@@ -25,23 +25,21 @@ export function clearTokens() {
 
 async function refreshAccessToken(): Promise<boolean> {
   try {
-    const tokens = getStoredTokens();
-    if (!tokens.refreshToken) return false;
+    const { refreshToken } = getStoredTokens();
+    if (!refreshToken) return false;
 
     const res = await fetch(`${API_BASE}/auth/refresh`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken: tokens.refreshToken }),
+      body: JSON.stringify({ refreshToken }),
     });
 
     if (!res.ok) return false;
-
     const data = await res.json();
-    if (data?.accessToken) {
-      setTokens({ accessToken: data.accessToken });
-      return true;
-    }
-    return false;
+    if (!data?.accessToken || !data?.refreshToken) return false;
+
+    setTokens({ accessToken: data.accessToken, refreshToken: data.refreshToken });
+    return true;
   } catch {
     return false;
   }
@@ -49,48 +47,32 @@ async function refreshAccessToken(): Promise<boolean> {
 
 export async function request(path: string, opts: RequestOptions = {}) {
   const url = `${API_BASE}/${path.replace(/^\/+/, '')}`;
-  const tokens = getStoredTokens();
-  const maxRetries = opts.retry ?? 0;
+  const maxRetries = opts.retry ?? 1;
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
     try {
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-        ...(opts.headers as Record<string, string> || {}),
-      };
-
-      if (tokens.accessToken) {
-        headers['Authorization'] = `Bearer ${tokens.accessToken}`;
-      }
+      const tokens = getStoredTokens();
+      const headers = new Headers(opts.headers);
+      if (!headers.has('Content-Type') && opts.body) headers.set('Content-Type', 'application/json');
+      if (tokens.accessToken) headers.set('Authorization', `Bearer ${tokens.accessToken}`);
 
       const controller = new AbortController();
-      const timeout = opts.timeout || 30000;
-      const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-      const res = await fetch(url, {
-        ...opts,
-        headers,
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      const text = await res.text();
-      let data: any = null;
-      try { data = text ? JSON.parse(text) : null; } catch (e) { data = text; }
+      timeoutId = setTimeout(() => controller.abort(), opts.timeout ?? 30000);
+      const res = await fetch(url, { ...opts, headers, signal: controller.signal });
 
       if (res.status === 401 && attempt < maxRetries) {
         const refreshed = await refreshAccessToken();
-        if (refreshed) {
-          const newTokens = getStoredTokens();
-          headers['Authorization'] = `Bearer ${newTokens.accessToken}`;
-          continue;
-        }
+        if (refreshed) continue;
         clearTokens();
         const error = new Error('Unauthorized. Please login again.');
         (error as any).status = 401;
         throw error;
       }
+
+      const text = await res.text();
+      let data: any = null;
+      try { data = text ? JSON.parse(text) : null; } catch { data = text; }
 
       if (!res.ok) {
         const error = new Error(data?.message || res.statusText || 'API error');
@@ -103,13 +85,10 @@ export async function request(path: string, opts: RequestOptions = {}) {
       return data;
     } catch (error) {
       if (attempt === maxRetries) throw error;
+    } finally {
+      if (timeoutId) clearTimeout(timeoutId);
     }
   }
 }
 
-export default {
-  API_BASE,
-  request,
-  setTokens,
-  clearTokens,
-};
+export default { API_BASE, request, setTokens, clearTokens };

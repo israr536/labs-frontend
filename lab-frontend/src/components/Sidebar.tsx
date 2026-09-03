@@ -15,6 +15,8 @@ interface SidebarProps {
   settings: LabSettings;
   darkMode: boolean;
   setDarkMode: (dark: boolean) => void;
+  isAuthenticated?: boolean;
+  onLogout?: () => void;
 }
 
 export default function Sidebar({ 
@@ -22,8 +24,14 @@ export default function Sidebar({
   setActiveTab, 
   settings, 
   darkMode, 
-  setDarkMode 
+  setDarkMode,
+  isAuthenticated,
+  onLogout,
 }: SidebarProps) {
+  if (!isAuthenticated) {
+    return null;
+  }
+
   const menuItems = [
     { id: 'dashboard' as const, label: 'Dashboard', icon: ActivitySquare },
     { id: 'reports' as const, label: 'Patient Register', icon: FileText },
@@ -66,6 +74,11 @@ export default function Sidebar({
       </nav>
 
       <div className="sidebar-footer">
+        {isAuthenticated ? (
+          <button onClick={() => onLogout && onLogout()} className="theme-toggle-btn">
+            <span>Logout</span>
+          </button>
+        ) : null}
         <button 
           onClick={() => setDarkMode(!darkMode)}
           className="theme-toggle-btn"
@@ -91,7 +104,7 @@ export default function Sidebar({
       <style>{`
         .sidebar-container {
           position: fixed;
-          top: 0;
+          top: var(--header-height, 0px);
           left: 0;
           bottom: 0;
           width: var(--sidebar-width);

@@ -1,0 +1,44 @@
+import { Link } from 'react-router-dom';
+
+export default function Footer() {
+  return (
+    <footer className="site-footer">
+      <div className="footer-grid">
+        <div className="footer-brand">
+          <div className="footer-logo">ApexLab</div>
+          <p>
+            Clinical lab reporting software designed for modern diagnostic
+            teams. Secure, efficient, and built to keep workflows moving.
+          </p>
+        </div>
+
+        <div>
+          <h4>Product</h4>
+          <nav className="footer-links">
+            <Link to="/pricing">Pricing</Link>
+            <Link to="/about">About</Link>
+            <Link to="/privacy">Privacy</Link>
+            <Link to="/contact">Contact</Link>
+          </nav>
+        </div>
+
+        <div>
+          <h4>Solutions</h4>
+          <nav className="footer-links">
+            <Link to="/">Report management</Link>
+            <Link to="/">Patient tracking</Link>
+            <Link to="/">Secure access</Link>
+            <Link to="/">PDF export</Link>
+          </nav>
+        </div>
+
+        <div>
+          <h4>Contact</h4>
+          <p className="footer-contact">support@apexlab.com</p>
+          <p className="footer-contact">+1 (555) 123-4567</p>
+          <p className="footer-contact">210 Health Avenue, Medical City</p>
+        </div>
+      </div>
+    </footer>
+  );
+}

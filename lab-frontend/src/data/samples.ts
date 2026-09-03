@@ -5,7 +5,34 @@ export interface TestParameter {
   refRange: string;
   minRef?: number;
   maxRef?: number;
+  inputType?: 'NUMBER' | 'TEXT' | 'SELECT';
+  options?: string[];
   status: 'Normal' | 'High' | 'Low' | 'Abnormal';
+}
+
+export interface TestParameterDefinition {
+  name: string;
+  inputType?: 'NUMBER' | 'TEXT' | 'SELECT';
+  unit?: string;
+  normalMin?: number;
+  normalMax?: number;
+  options?: string[];
+  displayOrder?: number;
+  isRequired?: boolean;
+}
+
+export interface LabTest {
+  id?: string;
+  labId?: string;
+  code?: string;
+  name: string;
+  category?: string;
+  sampleType?: string;
+  price?: number;
+  tat?: string;
+  method?: string;
+  isActive?: boolean;
+  parameters?: TestParameterDefinition[];
 }
 
 export interface LabReport {

@@ -9,29 +9,69 @@ import {
   FileText,
   Settings as SettingsIcon
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import type { LabReport } from '../data/samples';
+import reportsService from '../services/reportsService';
+import patientsService from '../services/patientsService';
 
 interface DashboardOverviewProps {
   reports: LabReport[];
   setActiveTab: (tab: 'dashboard' | 'reports' | 'new-report' | 'settings') => void;
   setSelectedReportId: (id: string | null) => void;
+  pollIntervalMs?: number; // optional polling interval, default 30s
 }
 
 export default function DashboardOverview({ 
   reports, 
   setActiveTab,
-  setSelectedReportId 
+  setSelectedReportId,
+  pollIntervalMs = 30 * 1000,
 }: DashboardOverviewProps) {
-  
-  // Calculate statistics
-  const totalPatients = reports.length;
-  const pendingCount = reports.filter(r => r.status === 'Pending' || r.status === 'Draft').length;
-  const criticalCount = reports.filter(r => r.status === 'Critical').length;
-  const completedCount = reports.filter(r => r.status === 'Completed').length;
-  
+  const [liveReports, setLiveReports] = useState<LabReport[] | null>(null);
+  const [patientsCount, setPatientsCount] = useState<number | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  
-  const criticalReports = reports.filter(r => r.status === 'Critical');
+  const fetchLive = async () => {
+    try {
+      setIsRefreshing(true);
+      const [r, p] = await Promise.all([
+        reportsService.listReports().catch(() => null),
+        patientsService.listPatients().catch(() => null),
+      ]);
+
+      if (r && Array.isArray(r)) setLiveReports(r as LabReport[]);
+      if (p && Array.isArray(p)) setPatientsCount((p as any[]).length);
+    } catch (e) {
+      // ignore errors, keep fallback
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    let mounted = true;
+    let timer: number | undefined;
+
+    // initial fetch
+    fetchLive();
+
+    // polling with configurable interval
+    timer = window.setInterval(() => {
+      if (mounted) fetchLive();
+    }, pollIntervalMs) as unknown as number;
+
+    return () => { mounted = false; if (timer) window.clearInterval(timer); };
+  }, [pollIntervalMs]);
+
+  const sourceReports = liveReports ?? reports;
+
+  // Calculate statistics
+  const totalPatients = patientsCount ?? sourceReports.length;
+  const pendingCount = sourceReports.filter((r) => r.status === 'Pending' || r.status === 'Draft').length;
+  const criticalCount = sourceReports.filter((r) => r.status === 'Critical').length;
+  const completedCount = sourceReports.filter((r) => r.status === 'Completed').length;
+
+  const criticalReports = sourceReports.filter((r) => r.status === 'Critical');
 
   // Stats Card data
   const statCards = [
@@ -85,6 +125,9 @@ export default function DashboardOverview({
           <button onClick={() => { setActiveTab('new-report'); }} className="btn btn-primary">
             <PlusCircle size={18} />
             <span>Create New Report</span>
+          </button>
+          <button onClick={() => fetchLive()} className="btn btn-outline" disabled={isRefreshing} style={{ marginLeft: 8 }}>
+            <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
           </button>
         </div>
       </div>
@@ -680,6 +723,8 @@ export default function DashboardOverview({
 
         .animate-fade-in {
           animation: fadeIn 0.4s ease-out;
+          padding-top: 2rem;
+     
         }
 
         @keyframes fadeIn {

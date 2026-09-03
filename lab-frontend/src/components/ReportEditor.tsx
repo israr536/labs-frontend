@@ -8,6 +8,8 @@ import {
 } from 'lucide-react';
 import { TEST_TEMPLATES } from '../data/samples';
 import type { LabReport, TestParameter } from '../data/samples';
+import reportsService from '../services/reportsService';
+import { useToast } from './Toast';
 
 interface ReportEditorProps {
   editingReport: LabReport | null;
@@ -17,6 +19,7 @@ interface ReportEditorProps {
 
 export default function ReportEditor({ editingReport, onSaveReport, onCancel }: ReportEditorProps) {
   const isEditMode = !!editingReport;
+  const toast = useToast();
 
   // Initialize report form state
   const [patientName, setPatientName] = useState('');
@@ -32,6 +35,8 @@ export default function ReportEditor({ editingReport, onSaveReport, onCancel }: 
   const [parameters, setParameters] = useState<TestParameter[]>([]);
   const [interpretation, setInterpretation] = useState('');
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [, setFieldErrors] = useState<Record<string, string>>({});
+  const [, setIsSubmitting] = useState(false);
 
   // Set default timestamps
   useEffect(() => {
@@ -81,6 +86,8 @@ export default function ReportEditor({ editingReport, onSaveReport, onCancel }: 
         refRange: field.refRange,
         minRef: field.minRef,
         maxRef: field.maxRef,
+        inputType: field.inputType,
+        options: field.options,
         status: 'Normal'
       }));
       setParameters(paramsList);
@@ -165,19 +172,27 @@ export default function ReportEditor({ editingReport, onSaveReport, onCancel }: 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Clear previous errors
+    setValidationError(null);
+    setFieldErrors({});
 
-    if (!patientName.trim()) {
-      setValidationError("Patient Name is a required field.");
-      return;
-    }
-    if (!phone.trim()) {
-      setValidationError("Patient Contact Number is a required field.");
+    const errors: Record<string, string> = {};
+    if (!patientName.trim()) errors.patientName = 'Patient name is required';
+    if (!phone.trim()) errors.phone = 'Contact phone is required';
+    if (!Number.isFinite(Number(age)) || Number(age) < 0 || Number(age) > 130) errors.age = 'Age must be between 0 and 130';
+    if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) errors.email = 'Invalid email address';
+    if (!dateCollected) errors.dateCollected = 'Collection date is required';
+    if (!dateReported) errors.dateReported = 'Report date is required';
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setValidationError('Fix the highlighted fields before saving.');
       return;
     }
 
     const reportId = editingReport ? editingReport.id : `REP-2026-${Math.floor(100 + Math.random() * 900)}`;
 
-    const savedReport: LabReport = {
+    const payload: LabReport = {
       id: reportId,
       patientName,
       age: Number(age),
@@ -190,10 +205,49 @@ export default function ReportEditor({ editingReport, onSaveReport, onCancel }: 
       testType,
       status,
       parameters,
-      interpretation
+      interpretation,
     };
 
-    onSaveReport(savedReport);
+    // Submit to API and show inline errors if any
+    (async () => {
+      setIsSubmitting(true);
+      try {
+        let saved: any = null;
+        if (editingReport) {
+          saved = await reportsService.updateReport(payload.id, payload);
+        } else {
+          saved = await reportsService.createReport(payload);
+        }
+
+        const savedReport = saved && saved.id ? (saved as LabReport) : payload;
+        onSaveReport(savedReport);
+      } catch (err: any) {
+        // Try to extract field-level errors from the API response if present
+        const body = err?.body || err?.message || null;
+        if (body && typeof body === 'object') {
+          // If API returned an object with validation details
+          const newFieldErrors: Record<string, string> = {};
+          if (body.errors && typeof body.errors === 'object') {
+            for (const k of Object.keys(body.errors)) {
+              newFieldErrors[k] = String(body.errors[k]);
+            }
+          }
+          if (Object.keys(newFieldErrors).length) {
+            setFieldErrors(newFieldErrors);
+            setValidationError('Server validation errors.');
+            toast.show({ type: 'error', message: 'Server validation errors' });
+          } else {
+            setValidationError(String(body.message || 'Failed to save report'));
+            toast.show({ type: 'error', message: String(body.message || 'Failed to save report') });
+          }
+        } else {
+          setValidationError(String(err?.message || 'Failed to save report'));
+          toast.show({ type: 'error', message: String(err?.message || 'Failed to save report') });
+        }
+      } finally {
+        setIsSubmitting(false);
+      }
+    })();
   };
 
   return (
@@ -365,13 +419,26 @@ export default function ReportEditor({ editingReport, onSaveReport, onCancel }: 
                     <span className="param-form-ref">Range: {param.refRange} ({param.unit || "no unit"})</span>
                   </div>
                   <div className="param-value-flag-row">
-                    <input 
-                      type="text" 
-                      value={param.value} 
-                      onChange={(e) => handleParameterValueChange(index, e.target.value)}
-                      className="form-input param-val-input"
-                      placeholder="Observed Value" 
-                    />
+                    {param.inputType === 'SELECT' && Array.isArray(param.options) ? (
+                      <select
+                        value={param.value || ''}
+                        onChange={(e) => handleParameterValueChange(index, e.target.value)}
+                        className="form-select param-val-input"
+                      >
+                        <option value="">Select value</option>
+                        {param.options.map((option) => (
+                          <option key={option} value={option}>{option}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input 
+                        type={param.inputType === 'NUMBER' ? 'number' : 'text'} 
+                        value={param.value} 
+                        onChange={(e) => handleParameterValueChange(index, e.target.value)}
+                        className="form-input param-val-input"
+                        placeholder="Observed Value" 
+                      />
+                    )}
                     <select
                       value={param.status}
                       onChange={(e) => handleParameterStatusChange(index, e.target.value as any)}
@@ -537,6 +604,12 @@ export default function ReportEditor({ editingReport, onSaveReport, onCancel }: 
           justify-content: flex-end;
           gap: 0.75rem;
           margin-top: 0.5rem;
+        }
+        .field-error {
+          color: var(--danger);
+          font-size: 0.85rem;
+          margin-top: 0.375rem;
+          font-weight: 600;
         }
       `}</style>
     </div>

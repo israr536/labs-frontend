@@ -16,6 +16,7 @@ import {
   HeartPulse
 } from 'lucide-react';
 import { generateReportPdf } from '../utils/pdfGenerator';
+import { useToast } from './Toast';
 import type { LabReport, LabSettings } from '../data/samples';
 
 interface ReportListProps {
@@ -38,6 +39,11 @@ export default function ReportList({
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [testFilter, setTestFilter] = useState<string>('All');
+  const toast = (() => {
+    try { return useToast(); } catch { return null as any; }
+  })();
+  const [, setDeletingId] = useState<string | null>(null);
+  const [, setActionId] = useState<string | null>(null);
 
   // Find currently selected report object
   const activeReport = reports.find(r => r.id === selectedReportId) || null;
@@ -165,7 +171,7 @@ export default function ReportList({
                       className={`clickable-row ${selectedReportId === report.id ? 'active-row' : ''}`}
                       onClick={() => setSelectedReportId(report.id)}
                     >
-                      <td className="font-bold">{report.id}</td>
+                      <td className="font-bold">{(report as any).reportNumber ?? report.id}</td>
                       <td>
                         <div className="patient-cell">
                           <span className="patient-name-span">{report.patientName}</span>
@@ -196,34 +202,65 @@ export default function ReportList({
                             <Eye size={16} />
                           </button>
                           <button 
-                            onClick={() => onEditReport(report)} 
+                            onClick={() => onEditReport(report)}
+                            disabled={report.status === 'Completed' || report.status === 'Critical'}
                             className="row-action-btn edit-btn"
-                            title="Edit Report"
+                            title={report.status === 'Completed' || report.status === 'Critical' ? 'Final reports are locked' : 'Edit Report'}
                           >
                             <Edit3 size={16} />
                           </button>
                           <button 
-                            onClick={() => handlePrint(report)} 
+                            onClick={async () => {
+                              try {
+                                setActionId(report.id + ':print');
+                                handlePrint(report);
+                                toast?.show({ type: 'info', message: `Printing report ${report.id}` });
+                              } catch (err: any) {
+                                toast?.show({ type: 'error', message: err?.message || 'Print failed' });
+                              } finally {
+                                setActionId(null);
+                              }
+                            }} 
                             className="row-action-btn print-btn"
                             title="Print / PDF"
                           >
                             <Printer size={16} />
                           </button>
                           <button 
-                            onClick={() => generateReportPdf(report, settings)} 
+                            onClick={async () => {
+                              try {
+                                setActionId(report.id + ':download');
+                                await (async () => generateReportPdf(report, settings))();
+                                toast?.show({ type: 'success', message: `Downloaded PDF ${report.id}` });
+                              } catch (err: any) {
+                                toast?.show({ type: 'error', message: err?.message || 'Download failed' });
+                              } finally {
+                                setActionId(null);
+                              }
+                            }} 
                             className="row-action-btn download-btn"
                             title="Download PDF"
                           >
                             <Download size={16} />
                           </button>
-                          <button 
+                          <button
+                            disabled={report.status === 'Completed' || report.status === 'Critical'}
                             onClick={() => {
-                              if (confirm(`Are you sure you want to delete report ${report.id} for ${report.patientName}?`)) {
-                                onDeleteReport(report.id);
-                              }
+                              (async () => {
+                                if (!confirm(`Are you sure you want to delete report ${report.id} for ${report.patientName}?`)) return;
+                                try {
+                                  setDeletingId(report.id);
+                                  await onDeleteReport(report.id);
+                                  try { toast?.show({ type: 'success', message: `Deleted report ${report.id}` }); } catch {}
+                                } catch (err: any) {
+                                  try { toast?.show({ type: 'error', message: err?.message || 'Failed to delete report' }); } catch {}
+                                } finally {
+                                  setDeletingId(null);
+                                }
+                              })();
                             }} 
                             className="row-action-btn delete-btn"
-                            title="Delete Record"
+                            title={report.status === 'Completed' || report.status === 'Critical' ? 'Final reports are locked' : 'Delete Record'}
                           >
                             <Trash2 size={16} />
                           </button>
@@ -268,7 +305,7 @@ export default function ReportList({
                 </div>
                 <div className="preview-profile-info">
                   <h4>{activeReport.patientName}</h4>
-                  <p>{activeReport.gender} • {activeReport.age} Years • ID: {activeReport.id}</p>
+                  <p>{activeReport.gender} • {activeReport.age} Years • ID: {(activeReport as any).reportNumber ?? activeReport.id}</p>
                 </div>
               </div>
 
@@ -349,6 +386,7 @@ export default function ReportList({
               <button 
                 onClick={() => onEditReport(activeReport)} 
                 className="btn btn-outline footer-btn"
+                disabled={activeReport.status === 'Completed' || activeReport.status === 'Critical'}
               >
                 <Edit3 size={16} />
                 <span>Edit</span>
@@ -377,6 +415,7 @@ export default function ReportList({
           display: flex;
           flex-direction: column;
           gap: 1.5rem;
+          margin-top:3rem;
         }
 
         .reports-header-row {
@@ -557,6 +596,12 @@ export default function ReportList({
 
         .row-action-btn:hover {
           color: var(--text-bold);
+        }
+
+        .row-action-btn:disabled,
+        .footer-btn:disabled {
+          opacity: 0.38;
+          cursor: not-allowed;
         }
 
         .view-btn:hover { background: rgba(6, 96, 137, 0.08); color: var(--primary); }

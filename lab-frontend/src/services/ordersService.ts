@@ -7,22 +7,14 @@ export interface CreateOrderInput {
   clinicalNotes?: string;
 }
 
-export function listOrders(params?: { search?: string; status?: string; page?: number; limit?: number }) {
+export function listOrders(params?: { page?: number; limit?: number }) {
   const search = new URLSearchParams();
-  if (params?.search) search.set('search', params.search);
-  if (params?.status) search.set('status', params.status);
-  if (params?.page) search.set('page', String(params.page));
-  if (params?.limit) search.set('limit', String(params.limit));
+  if (params?.page) search.set('skip', String(Math.max(0, (params.page - 1) * (params.limit ?? 20))));
+  if (params?.limit) search.set('take', String(params.limit));
   const query = search.toString();
   return request(`orders${query ? `?${query}` : ''}`);
 }
 
-export function getOrder(id: string) {
-  return request(`orders/${id}`);
-}
-
-export function createOrder(body: CreateOrderInput) {
-  return request('orders', { method: 'POST', body: JSON.stringify(body) });
-}
-
+export function getOrder(id: string) { return request(`orders/${id}`); }
+export function createOrder(body: CreateOrderInput) { return request('orders', { method: 'POST', body: JSON.stringify(body) }); }
 export default { listOrders, getOrder, createOrder };

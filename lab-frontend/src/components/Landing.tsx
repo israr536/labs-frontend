@@ -1,295 +1,43 @@
-type Props = {
-  onLoginClick: () => void;
-  onSignupClick: () => void;
-};
+import { ArrowRight, BarChart3, CheckCircle2, FileCheck2, ShieldCheck, Sparkles, Users2, Zap } from 'lucide-react';
+
+type Props = { onLoginClick: () => void; onSignupClick: () => void };
+
+const capabilities = [
+  { icon: FileCheck2, title: 'Structured reporting', text: 'Move from test results to polished, review-ready reports with a consistent workflow.' },
+  { icon: Users2, title: 'Patient workspace', text: 'Keep patient, order, sample and report information connected in one secure workspace.' },
+  { icon: ShieldCheck, title: 'Controlled access', text: 'Give administrators, technicians and reception teams the right level of access.' },
+  { icon: BarChart3, title: 'Operational visibility', text: 'See queues, approvals, critical work and usage without digging through spreadsheets.' },
+];
 
 export default function Landing({ onLoginClick, onSignupClick }: Props) {
-  return (
-    <div className="landing-page">
-      <section className="hero-section">
-        <div className="hero-copy">
-          <span className="eyebrow">Modern Laboratory Intelligence</span>
-          <h1>Powerful lab reporting made fast, accurate, and compliant.</h1>
-          <p>
-            Designed for medical labs and diagnostics centers that need polished reports,
-            streamlined workflows, and secure patient management without the clutter.
-          </p>
-          <div className="landing-actions">
-            <button className="btn-primary" onClick={onSignupClick}>Create Account</button>
-            <button className="btn-ghost" onClick={onLoginClick}>Sign In</button>
-          </div>
+  return <div className="landing-page">
+    <section className="landing-hero">
+      <div className="landing-hero-copy">
+        <div className="landing-kicker"><span><Sparkles size={13} /> Laboratory operations platform</span></div>
+        <h1>Run your lab with <em>clarity, speed and control.</em></h1>
+        <p className="landing-lead">ApexLab brings patients, tests, samples, results and final reports into one focused workspace built for modern diagnostic teams.</p>
+        <div className="landing-actions"><button className="landing-primary" onClick={onSignupClick}>Start your workspace <ArrowRight size={17} /></button><button className="landing-secondary" onClick={onLoginClick}>Sign in to ApexLab</button></div>
+        <div className="landing-trust"><CheckCircle2 size={16} /><span>Role-based access</span><i /> <CheckCircle2 size={16} /><span>Audit-ready workflows</span><i /> <CheckCircle2 size={16} /><span>Secure report delivery</span></div>
+      </div>
+      <div className="landing-product-card">
+        <div className="product-window-top"><span className="product-brand"><span className="product-brand-mark">A</span> ApexLab</span><span className="live-chip"><i /> Live workspace</span></div>
+        <div className="product-greeting"><div><span>Today at a glance</span><strong>Laboratory overview</strong></div><span className="date-chip">Operational view</span></div>
+        <div className="mini-kpis"><div><span>Patients</span><strong>1,248</strong><small>+12.4% this month</small></div><div><span>Reports ready</span><strong>186</strong><small>24 awaiting review</small></div></div>
+        <div className="mini-chart"><div className="chart-head"><span>Patient flow</span><strong>Last 7 days</strong></div><div className="chart-bars">{[42,58,49,76,64,88,70].map((height, i) => <span key={i} style={{ height: `${height}%` }} />)}</div></div>
+        <div className="mini-queue"><div><span className="queue-icon"><FileCheck2 size={14} /></span><span><strong>Reports ready for review</strong><small>12 reports need technician approval</small></span></div><b>12</b></div>
+      </div>
+    </section>
 
-          <div className="hero-stats">
-            <div>
-              <strong>99%+</strong>
-              <span>Accuracy in report delivery</span>
-            </div>
-            <div>
-              <strong>1,200+</strong>
-              <span>Labs supported globally</span>
-            </div>
-            <div>
-              <strong>24/7</strong>
-              <span>Secure patient data access</span>
-            </div>
-          </div>
-        </div>
+    <section className="landing-proof"><span>BUILT AROUND THE WAY LABS ACTUALLY WORK</span><div><strong>Patients</strong><strong>Tests</strong><strong>Samples</strong><strong>Results</strong><strong>Final reports</strong><strong>Audit trail</strong></div></section>
 
-        <div className="hero-panel">
-          <div className="panel-badge">Trusted by labs</div>
-          <div className="panel-copy">
-            <h2>Analytics, patient flow, and lab compliance in one place.</h2>
-            <p>
-              Keep every report, test, and patient record connected with a single lab-ready platform.
-            </p>
-          </div>
-          <div className="hero-feature-grid">
-            <article>
-              <strong>Fast report generation</strong>
-              <p>Automate report creation from test results and save time.</p>
-            </article>
-            <article>
-              <strong>Review queue</strong>
-              <p>Control approvals and finalization with built-in review stages.</p>
-            </article>
-          </div>
-        </div>
-      </section>
+    <section className="landing-section"><div className="landing-section-heading"><span className="landing-eyebrow">One connected workflow</span><h2>Everything your team needs, without the operational clutter.</h2><p>Replace disconnected tools and manual handoffs with a workspace where every step has a clear owner and status.</p></div><div className="capability-grid">{capabilities.map(({ icon: Icon, title, text }) => <article className="capability-card" key={title}><div className="capability-icon"><Icon size={19} /></div><h3>{title}</h3><p>{text}</p><a href="#workflow">Explore capability <ArrowRight size={14} /></a></article>)}</div></section>
 
-      <section className="landing-highlights">
-        <div className="section-heading-full">
-          <h2>Key lab capabilities</h2>
-          <p>Everything your global lab team needs to move faster and stay compliant.</p>
-        </div>
-        <div className="highlight-grid">
-          <article className="highlight-card">
-            <strong>Automated reporting</strong>
-            <p>Generate structured lab reports with accurate results and faster turnaround.</p>
-          </article>
-          <article className="highlight-card">
-            <strong>Patient management</strong>
-            <p>Store patient records, sample history, and contact details in one secure system.</p>
-          </article>
-          <article className="highlight-card">
-            <strong>Compliance workflows</strong>
-            <p>Track audits, approvals, and report sign-off with transparent controls.</p>
-          </article>
-          <article className="highlight-card">
-            <strong>Workflow automation</strong>
-            <p>Keep lab teams aligned with tests, review queues, and result approvals.</p>
-          </article>
-        </div>
-      </section>
+    <section id="workflow" className="landing-workflow"><div className="workflow-copy"><span className="landing-eyebrow">Designed for every role</span><h2>From front desk to final sign-off.</h2><p>Every team member sees the work they need to complete, while the laboratory keeps one reliable source of truth.</p><div className="workflow-list"><div><b>01</b><span><strong>Reception</strong><small>Register patients and create orders quickly.</small></span></div><div><b>02</b><span><strong>Technician</strong><small>Process samples, enter and verify results.</small></span></div><div><b>03</b><span><strong>Administrator</strong><small>Control users, plans, settings and audit activity.</small></span></div></div></div><div className="workflow-visual"><div className="visual-label"><Zap size={15} /> Live workflow</div><div className="flow-row done"><span>Patient registered</span><b>Complete</b></div><div className="flow-row done"><span>Sample collected</span><b>Complete</b></div><div className="flow-row current"><span>Results verified</span><b>In review</b></div><div className="flow-row"><span>Final report</span><b>Next</b></div></div></section>
 
-      <section className="landing-features">
-        <h2>More features to power your lab</h2>
-        <div className="feature-panel-grid">
-          <div className="feature-panel-card">
-            <h3>Fast onboarding</h3>
-            <p>Quickly add labs and staff accounts so teams can start reporting immediately.</p>
-          </div>
-          <div className="feature-panel-card">
-            <h3>Real-time dashboards</h3>
-            <p>Monitor test status, pending approvals, and lab activity in one view.</p>
-          </div>
-          <div className="feature-panel-card">
-            <h3>Secure data storage</h3>
-            <p>Protect lab and patient information with secure authentication and role-based access.</p>
-          </div>
-          <div className="feature-panel-card">
-            <h3>Clear compliance records</h3>
-            <p>Maintain audit trails for every report, sample, and technical review.</p>
-          </div>
-        </div>
-      </section>
+    <section className="landing-cta"><div><span className="landing-eyebrow">Ready when you are</span><h2>Give your lab a calmer operating system.</h2><p>Start with a secure workspace and scale as your team grows.</p></div><button className="landing-primary" onClick={onSignupClick}>Create your workspace <ArrowRight size={17} /></button></section>
 
-      <style>{`
-        .landing-page {
-          min-height: calc(100vh - var(--header-height, 64px));
-          padding: 48px 24px 64px;
-          background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.16), transparent 28%),
-            radial-gradient(circle at bottom right, rgba(168, 85, 247, 0.1), transparent 32%),
-            var(--app-bg, #f8fbff);
-          display: grid;
-          gap: 48px;
-        }
-        .hero-section {
-          width: min(1240px, 100%);
-          margin: 0 auto;
-          display: grid;
-          grid-template-columns: minmax(0, 1.15fr) minmax(360px, 0.85fr);
-          gap: 32px;
-          align-items: stretch;
-        }
-        .hero-copy {
-          padding: 42px 42px 36px;
-          border-radius: 32px;
-          background: rgba(255,255,255,0.96);
-          box-shadow: 0 36px 90px rgba(15,23,42,0.08);
-          border: 1px solid rgba(148,163,184,0.16);
-          display: grid;
-          gap: 28px;
-        }
-        .hero-copy h1 {
-          margin: 0;
-          font-size: clamp(2.6rem, 3.4vw, 3.8rem);
-          line-height: 1.02;
-          max-width: 760px;
-          color: var(--text-bold);
-        }
-        .hero-copy p {
-          margin: 0;
-          color: var(--text);
-          font-size: 1.05rem;
-          line-height: 1.85;
-          max-width: 620px;
-        }
-        .landing-actions {
-          display: flex;
-          gap: 16px;
-          flex-wrap: wrap;
-        }
-        .hero-stats {
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 18px;
-        }
-        .hero-stats div {
-          padding: 18px 20px;
-          border-radius: 18px;
-          background: rgba(249,251,255,0.9);
-          border: 1px solid rgba(148,163,184,0.14);
-        }
-        .hero-stats strong {
-          display: block;
-          font-size: 1.35rem;
-          color: var(--text-bold);
-          margin-bottom: 8px;
-        }
-        .hero-stats span {
-          color: var(--text);
-          font-size: 0.98rem;
-          line-height: 1.7;
-        }
-        .hero-panel {
-          display: grid;
-          gap: 20px;
-          padding: 32px;
-          border-radius: 32px;
-          background: rgba(255,255,255,0.96);
-          border: 1px solid rgba(148,163,184,0.16);
-          box-shadow: inset 0 0 0 1px rgba(255,255,255,0.7);
-        }
-        .panel-badge {
-          display: inline-flex;
-          padding: 10px 16px;
-          border-radius: 999px;
-          background: rgba(59,130,246,0.12);
-          color: var(--primary);
-          font-weight: 700;
-          font-size: 0.9rem;
-              justify-content: center;
-    align-items: center;
-        }
-        .panel-copy h2 {
-          margin: 0;
-          font-size: 1.35rem;
-          color: var(--text-bold);
-        }
-        .panel-copy p {
-          margin: 8px 0 0;
-          color: var(--text);
-          line-height: 1.8;
-        }
-        .hero-feature-grid {
-          display: grid;
-          gap: 16px;
-        }
-        .hero-feature-grid article {
-          padding: 18px 20px;
-          border-radius: 20px;
-          background: rgba(246,250,255,0.88);
-          border: 1px solid rgba(148,163,184,0.12);
-        }
-        .hero-feature-grid strong {
-          display: block;
-          margin-bottom: 10px;
-          color: var(--text-bold);
-        }
-        .hero-feature-grid p {
-          margin: 0;
-          color: var(--text);
-          line-height: 1.75;
-        }
-        .landing-highlights,
-        .landing-features {
-          width: min(1240px, 100%);
-          margin: 0 auto;
-          display: grid;
-          gap: 28px;
-        }
-        .section-heading-full h2 {
-          margin: 0;
-          font-size: 2rem;
-          color: var(--text-bold);
-        }
-        .section-heading-full p {
-          margin: 8px 0 0;
-          color: var(--text);
-          line-height: 1.8;
-          max-width: 720px;
-        }
-        .highlight-grid {
-          display: grid;
-          grid-template-columns: repeat(4, minmax(0, 1fr));
-          gap: 20px;
-        }
-        .highlight-card,
-        .feature-panel-card {
-          padding: 26px 24px;
-          border-radius: 24px;
-          background: rgba(255,255,255,0.96);
-          border: 1px solid rgba(148,163,184,0.16);
-          box-shadow: 0 24px 70px rgba(15,23,42,0.06);
-        }
-        .highlight-card strong,
-        .feature-panel-card h3 {
-          display: block;
-          margin-bottom: 14px;
-          color: var(--text-bold);
-          font-size: 1.05rem;
-        }
-        .highlight-card p,
-        .feature-panel-card p {
-          margin: 0;
-          color: var(--text);
-          line-height: 1.85;
-        }
-        .feature-panel-grid {
-          display: grid;
-          grid-template-columns: repeat(4, minmax(0, 1fr));
-          gap: 20px;
-        }
-        @media (max-width: 1040px) {
-          .hero-section { grid-template-columns:1fr; }
-          .highlight-grid,
-          .feature-panel-grid { grid-template-columns:1fr 1fr; }
-        }
-        @media (max-width: 760px) {
-          .landing-page { padding: 32px 18px 48px; }
-          .hero-copy,
-          .hero-panel,
-          .highlight-card,
-          .feature-panel-card { border-radius: 24px; }
-          .hero-stats { grid-template-columns:1fr; }
-          .highlight-grid,
-          .feature-panel-grid { grid-template-columns:1fr; }
-        }
-        @media (max-width: 500px) {
-          .hero-copy h1 { font-size: 2.2rem; }
-          .landing-actions { flex-direction: column; }
-        }
-      `}</style>
-    </div>
-  );
+    <style>{`
+      .landing-page{min-height:calc(100vh - var(--header-height,64px));background:var(--app-bg,#f7fafc);color:var(--text-bold);padding:34px 28px 80px}.landing-hero{width:min(1180px,100%);margin:auto;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(420px,.75fr);gap:58px;align-items:center;padding:54px 0 72px}.landing-kicker span{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border:1px solid var(--border);background:var(--panel-bg);border-radius:999px;color:var(--primary);font-size:.66rem;font-weight:850;text-transform:uppercase;letter-spacing:.08em}.landing-hero h1{font-size:clamp(3rem,5.2vw,5.15rem);line-height:.98;letter-spacing:-.055em;margin:22px 0 22px;max-width:760px}.landing-hero h1 em{font-style:normal;color:var(--primary)}.landing-lead{max-width:650px;font-size:1rem;line-height:1.8;color:var(--text);margin:0}.landing-actions{display:flex;gap:11px;flex-wrap:wrap;margin-top:30px}.landing-primary,.landing-secondary{min-height:45px;padding:0 17px;border-radius:11px;font-size:.75rem;font-weight:850;display:inline-flex;align-items:center;justify-content:center;gap:9px;cursor:pointer}.landing-primary{background:var(--primary);border:1px solid var(--primary);color:#fff;box-shadow:0 12px 26px rgba(6,96,137,.18)}.landing-secondary{background:var(--panel-bg);border:1px solid var(--border);color:var(--text-bold)}.landing-trust{display:flex;align-items:center;gap:7px;margin-top:25px;color:var(--text);font-size:.64rem;font-weight:700;flex-wrap:wrap}.landing-trust svg{color:var(--success)}.landing-trust i{height:3px;width:3px;background:var(--border);border-radius:50%;margin:0 4px}.landing-product-card{border:1px solid rgba(148,163,184,.2);background:var(--panel-bg);border-radius:24px;padding:18px;box-shadow:0 28px 70px rgba(15,23,42,.11);transform:rotate(1deg)}.product-window-top,.product-greeting,.chart-head,.mini-queue>div{display:flex;align-items:center;justify-content:space-between;gap:10px}.product-window-top{padding:2px 3px 18px}.product-brand{display:flex;align-items:center;gap:7px;font-size:.72rem;font-weight:850}.product-brand-mark{width:23px;height:23px;display:grid;place-items:center;border-radius:7px;background:var(--primary);color:#fff}.live-chip{font-size:.58rem;font-weight:800;color:var(--success);background:var(--success-bg);border-radius:999px;padding:6px 8px}.live-chip i{display:inline-block;width:5px;height:5px;background:currentColor;border-radius:50%;margin-right:5px}.product-greeting{border-top:1px solid var(--border);padding:18px 3px 14px}.product-greeting div{display:grid;gap:3px}.product-greeting span{font-size:.58rem;color:var(--text)}.product-greeting strong{font-size:.95rem}.date-chip{padding:6px 8px;border:1px solid var(--border);border-radius:8px}.mini-kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mini-kpis>div{padding:14px;border:1px solid var(--border);border-radius:13px;background:var(--surface)}.mini-kpis span,.mini-kpis small{display:block;color:var(--text);font-size:.57rem}.mini-kpis strong{display:block;font-size:1.4rem;margin:5px 0}.mini-kpis small{color:var(--success)}.mini-chart{margin-top:10px;padding:14px;border:1px solid var(--border);border-radius:13px}.chart-head{font-size:.62rem;margin-bottom:12px}.chart-head strong{color:var(--text);font-size:.55rem;font-weight:700}.chart-bars{height:100px;display:flex;align-items:end;gap:8px;padding:4px}.chart-bars span{flex:1;border-radius:5px 5px 2px 2px;background:linear-gradient(180deg,var(--primary),var(--primary-light));opacity:.88}.mini-queue{margin-top:10px;padding:12px;border:1px solid var(--border);border-radius:13px}.mini-queue>div{justify-content:flex-start}.queue-icon{width:28px;height:28px;display:grid;place-items:center;border-radius:8px;background:var(--primary-light);color:var(--primary)}.mini-queue span:last-child{display:grid;gap:2px}.mini-queue strong{font-size:.62rem}.mini-queue small{font-size:.54rem;color:var(--text)}.mini-queue>b{color:var(--primary);font-size:.78rem}.landing-proof{width:min(1180px,100%);margin:auto;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:17px 0;display:flex;align-items:center;justify-content:space-between;gap:24px}.landing-proof>span{font-size:.57rem;letter-spacing:.13em;color:var(--text);font-weight:850}.landing-proof>div{display:flex;gap:25px;flex-wrap:wrap;justify-content:flex-end}.landing-proof strong{font-size:.65rem;color:var(--text)}.landing-section{width:min(1180px,100%);margin:0 auto;padding:90px 0 80px}.landing-section-heading{max-width:690px}.landing-eyebrow{display:block;text-transform:uppercase;letter-spacing:.14em;font-size:.61rem;font-weight:900;color:var(--primary);margin-bottom:10px}.landing-section h2,.landing-workflow h2,.landing-cta h2{font-size:clamp(2rem,3.4vw,3rem);line-height:1.08;letter-spacing:-.035em;margin:0 0 13px}.landing-section-heading p,.workflow-copy>p,.landing-cta p{color:var(--text);line-height:1.8;font-size:.82rem;margin:0}.capability-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:34px}.capability-card{padding:21px;border:1px solid var(--border);border-radius:17px;background:var(--panel-bg);transition:transform .2s,box-shadow .2s}.capability-card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}.capability-icon{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:var(--primary-light);color:var(--primary);margin-bottom:19px}.capability-card h3{font-size:.86rem;margin:0 0 8px}.capability-card p{font-size:.7rem;line-height:1.7;color:var(--text);min-height:72px}.capability-card a{display:flex;align-items:center;gap:6px;color:var(--primary);font-size:.63rem;font-weight:850;text-decoration:none}.landing-workflow{width:min(1180px,100%);margin:auto;display:grid;grid-template-columns:1fr .8fr;gap:70px;align-items:center;padding:45px 0 90px}.workflow-list{display:grid;gap:11px;margin-top:28px}.workflow-list>div{display:flex;gap:13px;align-items:flex-start;padding:12px 0}.workflow-list b{font-size:.63rem;color:var(--primary);padding-top:2px}.workflow-list span{display:grid;gap:3px}.workflow-list strong{font-size:.73rem}.workflow-list small{font-size:.65rem;color:var(--text)}.workflow-visual{padding:20px;border:1px solid var(--border);background:var(--panel-bg);border-radius:20px;box-shadow:var(--shadow)}.visual-label{display:flex;align-items:center;gap:6px;color:var(--primary);font-size:.61rem;font-weight:850;margin-bottom:14px}.flow-row{display:flex;align-items:center;justify-content:space-between;padding:15px 13px;border-top:1px solid var(--border);font-size:.67rem}.flow-row b{font-size:.57rem;color:var(--text)}.flow-row.done b{color:var(--success)}.flow-row.current{background:var(--primary-light);margin:0 -5px;border-radius:10px;border-top:0}.flow-row.current b{color:var(--primary)}.landing-cta{width:min(1180px,100%);margin:0 auto;padding:34px 38px;border-radius:22px;background:var(--text-bold);color:#fff;display:flex;align-items:center;justify-content:space-between;gap:30px}.landing-cta .landing-eyebrow{color:#7dd3fc}.landing-cta h2{font-size:clamp(1.7rem,3vw,2.5rem);margin-bottom:8px}.landing-cta p{color:rgba(255,255,255,.68)}.landing-cta .landing-primary{background:#fff;color:var(--text-bold);border-color:#fff;box-shadow:none;flex:0 0 auto}@media(max-width:980px){.landing-hero{grid-template-columns:1fr;gap:35px}.landing-product-card{max-width:620px;transform:none}.capability-grid{grid-template-columns:1fr 1fr}.landing-workflow{grid-template-columns:1fr;gap:30px}.landing-proof{display:block}.landing-proof>div{margin-top:12px;justify-content:flex-start}}@media(max-width:650px){.landing-page{padding:20px 15px 55px}.landing-hero{padding:30px 0 48px}.landing-hero h1{font-size:2.8rem}.landing-trust i{display:none}.landing-product-card{padding:12px}.capability-grid{grid-template-columns:1fr}.landing-section{padding:60px 0}.landing-workflow{padding-bottom:60px}.landing-cta{padding:25px;align-items:flex-start;flex-direction:column}.landing-cta .landing-primary{width:100%}.landing-proof>div{gap:13px}}
+    `}</style>
+  </div>;
 }

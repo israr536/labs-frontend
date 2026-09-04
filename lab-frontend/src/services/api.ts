@@ -35,26 +35,39 @@ export function clearTokens() {
   localStorage.removeItem('lab_refresh_token');
 }
 
-async function refreshAccessToken(): Promise<boolean> {
-  const { refreshToken } = getStoredTokens();
-  if (!refreshToken) return false;
+// The API rotates refresh tokens. Without a single-flight lock, two requests
+// receiving 401 at the same time can both try to spend the same refresh token;
+// one succeeds and the other logs the user out unnecessarily.
+let refreshInFlight: Promise<boolean> | null = null;
 
-  try {
-    const response = await fetch(`${API_BASE}/auth/refresh`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken }),
-    });
+function refreshAccessToken(): Promise<boolean> {
+  if (refreshInFlight) return refreshInFlight;
 
-    if (!response.ok) return false;
-    const data = await response.json();
-    if (!data?.accessToken || !data?.refreshToken) return false;
+  refreshInFlight = (async () => {
+    const { refreshToken } = getStoredTokens();
+    if (!refreshToken) return false;
 
-    setTokens(data);
-    return true;
-  } catch {
-    return false;
-  }
+    try {
+      const response = await fetch(`${API_BASE}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken }),
+      });
+
+      if (!response.ok) return false;
+      const data = await response.json();
+      if (!data?.accessToken || !data?.refreshToken) return false;
+
+      setTokens({ accessToken: data.accessToken, refreshToken: data.refreshToken });
+      return true;
+    } catch {
+      return false;
+    } finally {
+      refreshInFlight = null;
+    }
+  })();
+
+  return refreshInFlight;
 }
 
 function buildHeaders(options: RequestInit): Headers {
@@ -77,7 +90,8 @@ async function fetchWithAuth(path: string, options: RequestInit, timeout: number
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   try {
-    let response = await fetch(`${API_BASE}/${path.replace(/^\/+/, '')}`, {
+    const url = `${API_BASE}/${path.replace(/^\/+/, '')}`;
+    let response = await fetch(url, {
       ...options,
       headers: buildHeaders(options),
       signal: controller.signal,
@@ -86,7 +100,7 @@ async function fetchWithAuth(path: string, options: RequestInit, timeout: number
     if (response.status === 401) {
       const refreshed = await refreshAccessToken();
       if (refreshed) {
-        response = await fetch(`${API_BASE}/${path.replace(/^\/+/, '')}`, {
+        response = await fetch(url, {
           ...options,
           headers: buildHeaders(options),
           signal: controller.signal,
@@ -140,7 +154,11 @@ export async function request<T = unknown>(path: string, options: RequestOptions
           ? String((data as { message?: unknown }).message)
           : response.statusText || 'API request failed';
         const error = new ApiError(message, response.status, data);
-        try { logger.error(error); } catch { /* logging must never break requests */ }
+        try {
+          logger.error(error);
+        } catch {
+          // Logging must never break requests.
+        }
         throw error;
       }
 

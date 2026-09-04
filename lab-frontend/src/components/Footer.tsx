@@ -17,18 +17,15 @@ export default function Footer() {
           <nav className="footer-links">
             <Link to="/pricing">Pricing</Link>
             <Link to="/about">About</Link>
-            <Link to="/privacy">Privacy</Link>
             <Link to="/contact">Contact</Link>
           </nav>
         </div>
 
         <div>
-          <h4>Solutions</h4>
+          <h4>Legal</h4>
           <nav className="footer-links">
-            <Link to="/">Report management</Link>
-            <Link to="/">Patient tracking</Link>
-            <Link to="/">Secure access</Link>
-            <Link to="/">PDF export</Link>
+            <Link to="/privacy">Privacy Policy</Link>
+            <Link to="/terms">Terms & Conditions</Link>
           </nav>
         </div>
 

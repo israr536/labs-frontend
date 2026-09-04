@@ -1,4 +1,4 @@
-import { request, setTokens } from './api';
+import { request, setTokens, clearTokens } from './api';
 
 export async function login(body: { email: string; password: string }) {
   const data = await request('auth/login', {
@@ -6,10 +6,7 @@ export async function login(body: { email: string; password: string }) {
     body: JSON.stringify(body),
   });
 
-  if (data?.accessToken && data?.refreshToken) {
-    setTokens({ accessToken: data.accessToken, refreshToken: data.refreshToken });
-  }
-
+  if (data?.accessToken) setTokens({ accessToken: data.accessToken });
   return data;
 }
 
@@ -46,14 +43,12 @@ export async function verifySignupOtp(body: { requestId: string; otp: string }) 
 }
 
 export async function logout() {
-  const tokens = { refreshToken: localStorage.getItem('lab_refresh_token') };
   try {
-    await request('auth/logout', { method: 'POST', body: JSON.stringify(tokens) });
-  } catch (e) {
-    // ignore
+    await request('auth/logout', { method: 'POST' });
+  } catch {
+    // The local session should still be cleared if the server is unavailable.
   }
-  localStorage.removeItem('lab_access_token');
-  localStorage.removeItem('lab_refresh_token');
+  clearTokens();
 }
 
 export async function me() {

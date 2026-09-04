@@ -1,102 +1,21 @@
-import { Activity, User, LogOut, LayoutDashboard } from 'lucide-react';
-import { useEffect } from 'react';
+import { Activity, ChevronDown, LayoutDashboard, LogIn, LogOut, Menu, UserPlus } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-type Props = {
-  onLogin: () => void;
-  onSignup: () => void;
-  isAuthenticated?: boolean;
-  userName?: string | null;
-  onLogout?: () => void;
-};
-
+type Props = { onLogin: () => void; onSignup: () => void; isAuthenticated?: boolean; userName?: string | null; onLogout?: () => void };
 export default function Header({ onLogin, onSignup, isAuthenticated, userName, onLogout }: Props) {
-  const navigate = useNavigate();
-  
-  useEffect(() => {
-    try { document.documentElement.style.setProperty('--header-height', '64px'); } catch {}
-    return () => { try { document.documentElement.style.removeProperty('--header-height'); } catch {} };
-  }, []);
-
-  return (
-    <header className="app-header">
-      <div className="header-inner">
-        <Link to={isAuthenticated ? '/dashboard' : '/'} className="brand">
-          <Activity size={26} className="brand-icon" />
-          <div className="brand-text">
-            <div className="brand-title">ApexLab</div>
-            <div className="brand-sub">Clinical Reporting</div>
-          </div>
-        </Link>
-
-        <div className="auth-actions">
-          {!isAuthenticated && (
-            <nav className="nav-links">
-              <Link className="nav-link" to="/pricing">Pricing</Link>
-              <Link className="nav-link" to="/privacy">Privacy</Link>
-              <Link className="nav-link" to="/about">About</Link>
-              <Link className="nav-link" to="/contact">Contact</Link>
-            </nav>
-          )}
-          {!isAuthenticated ? (
-            <>
-              <button className="btn-ghost" onClick={onLogin}>Log in</button>
-              <button className="btn-primary" onClick={onSignup}>Sign up</button>
-            </>
-          ) : (
-            <div className="user-menu">
-              <button
-                className="dashboard-btn"
-                onClick={() => navigate('/dashboard')}
-                title="Go to Dashboard"
-              >
-                <LayoutDashboard size={18} />
-              </button>
-              <User size={16} />
-              <span className="user-name">{userName ?? 'User'}</span>
-              <button className="logout-btn" onClick={onLogout} title="Log out">
-                <LogOut size={16} />
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <style>{`
-        .app-header {
-          --h: 64px;
-          height: var(--h);
-          width: 100%;
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          display: flex;
-          align-items: center;
-          border-bottom: 1px solid var(--border);
-          background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.45));
-          backdrop-filter: blur(6px);
-          z-index: 120;
-        }
-        .header-inner { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:12px 20px; width:100%; margin:0 auto; }
-        .brand { display:flex; align-items:center; gap:12px; cursor: pointer; text-decoration: none; }
-        .brand-icon { color: var(--primary); }
-        .brand-title { font-weight:700; font-size:16px; }
-        .brand-sub { font-size:12px; opacity:0.75; }
-        .nav-links { display:flex; flex-direction: row; justify-content: flex-end; gap:14px; }
-        .nav-link { background: transparent; border: none; cursor: pointer; padding:8px 10px; color: var(--text); border-radius:8px; font-weight:600; text-decoration: none; }
-        .nav-link:hover { background: rgba(6,96,137,0.06); }
-        .auth-actions { display:flex; gap:10px; align-items:center; }
-        .btn-ghost { background:transparent; border:1px solid var(--border); padding:8px 12px; border-radius:8px; cursor:pointer; font-weight:600; color:var(--text); }
-        .btn-primary { background:var(--primary); color:white; border:none; padding:8px 12px; border-radius:8px; cursor:pointer; font-weight:600; }
-        .user-menu { display:flex; gap:8px; align-items:center; padding:6px 8px; border-radius:8px; background:transparent; }
-        .user-name { font-weight:600; }
-        .dashboard-btn { background:transparent; border:none; cursor:pointer; padding:6px 8px; border-radius:6px; color: var(--primary); transition: background 0.2s ease; }
-        .dashboard-btn:hover { background: rgba(6,96,137,0.1); }
-        .logout-btn { background:transparent; border:none; cursor:pointer; padding:6px; border-radius:6px; color: var(--text); transition: background 0.2s ease; }
-        .logout-btn:hover { background: rgba(6,96,137,0.1); }
-        @media (max-width: 800px) { .nav-links { display:none; } }
-      `}</style>
-    </header>
-  );
+  const navigate = useNavigate(); const [menuOpen, setMenuOpen] = useState(false);
+  useEffect(() => { document.documentElement.style.setProperty('--header-height','68px'); return () => document.documentElement.style.removeProperty('--header-height'); }, []);
+  return <header className="app-header"><div className="header-inner">
+    <Link to={isAuthenticated ? '/dashboard' : '/'} className="brand"><span className="brand-mark"><Activity size={19} /></span><span className="brand-text"><strong>ApexLab</strong><small>Laboratory OS</small></span></Link>
+    {!isAuthenticated && <nav className="nav-links"><Link to="/pricing">Pricing</Link><Link to="/about">About</Link><Link to="/contact">Contact</Link></nav>}
+    <div className="header-actions">
+      {!isAuthenticated ? <><button className="header-link" onClick={onLogin}><LogIn size={15}/> Sign in</button><button className="header-cta" onClick={onSignup}><UserPlus size={15}/> Get started</button></> : <>
+        <button className="header-dashboard" onClick={() => navigate('/dashboard')}><LayoutDashboard size={15}/> Workspace</button>
+        <button className="account-trigger" onClick={() => setMenuOpen(v => !v)} aria-expanded={menuOpen}><span className="account-avatar">{(userName || 'U').slice(0,1).toUpperCase()}</span><span className="account-name">{userName || 'User'}</span><ChevronDown size={14}/></button>
+        {menuOpen && <div className="account-menu"><button onClick={() => { setMenuOpen(false); navigate('/dashboard'); }}><LayoutDashboard size={15}/> Dashboard</button><button onClick={() => { setMenuOpen(false); onLogout?.(); }}><LogOut size={15}/> Sign out</button></div>}
+      </>}
+    </div><button className="mobile-menu" onClick={() => setMenuOpen(v=>!v)} aria-label="Open navigation"><Menu size={19}/></button>
+  </div><style>{`.app-header{height:68px;width:100%;position:fixed;top:0;left:0;right:0;display:flex;align-items:center;border-bottom:1px solid var(--border);background:color-mix(in srgb,var(--panel-bg) 88%,transparent);backdrop-filter:blur(16px);z-index:900}.header-inner{width:min(1280px,100%);margin:auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;gap:20px}.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text-bold)}.brand-mark{width:35px;height:35px;border-radius:11px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--primary),#0eb89d);box-shadow:0 8px 20px rgba(6,96,137,.18)}.brand-text{display:grid;gap:1px}.brand-text strong{font-size:.9rem;letter-spacing:-.02em}.brand-text small{font-size:.53rem;color:var(--text);letter-spacing:.05em}.nav-links{display:flex;gap:4px;margin-left:auto}.nav-links a,.header-link{padding:9px 11px;border:0;background:transparent;color:var(--text);font:inherit;font-size:.68rem;font-weight:750;text-decoration:none;border-radius:9px;display:inline-flex;align-items:center;gap:6px;cursor:pointer}.nav-links a:hover,.header-link:hover{background:var(--primary-light);color:var(--text-bold)}.header-actions{display:flex;align-items:center;gap:8px;position:relative}.header-cta,.header-dashboard{display:inline-flex;align-items:center;gap:6px;min-height:37px;padding:0 12px;border-radius:10px;font-size:.67rem;font-weight:850;cursor:pointer}.header-cta{border:1px solid var(--primary);background:var(--primary);color:#fff}.header-dashboard{border:1px solid var(--border);background:var(--panel-bg);color:var(--text-bold)}.account-trigger{display:flex;align-items:center;gap:7px;border:1px solid var(--border);background:var(--panel-bg);border-radius:11px;padding:4px 8px 4px 5px;color:var(--text);cursor:pointer}.account-avatar{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:var(--primary-light);color:var(--primary);font-size:.66rem;font-weight:900}.account-name{max-width:170px;overflow:hidden;text-overflow:ellipsis;font-size:.65rem;font-weight:800}.account-menu{position:absolute;right:0;top:45px;width:165px;padding:6px;border:1px solid var(--border);border-radius:13px;background:var(--panel-bg);box-shadow:var(--shadow);display:grid;gap:2px}.account-menu button{border:0;background:transparent;text-align:left;padding:9px;border-radius:8px;color:var(--text);font-size:.67rem;font-weight:750;display:flex;align-items:center;gap:8px;cursor:pointer}.account-menu button:hover{background:var(--primary-light);color:var(--text-bold)}.mobile-menu{display:none;border:1px solid var(--border);background:var(--panel-bg);border-radius:9px;padding:8px;color:var(--text)}@media(max-width:720px){.nav-links,.header-link,.header-dashboard,.account-name{display:none}.mobile-menu{display:grid;place-items:center}.header-actions{margin-left:auto}.header-inner{padding:0 15px}}
+  `}</style></header>;
 }

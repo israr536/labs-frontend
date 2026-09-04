@@ -31,23 +31,63 @@ export default function Sidebar({ activeTab, setActiveTab, settings, darkMode, s
 
   const renderItem = (item: typeof menuItems[number] | typeof adminItems[number]) => {
     const Icon = item.icon;
-    return <button key={item.id} type="button" onClick={() => setActiveTab(item.id)} className={`menu-btn ${activeTab === item.id ? 'active' : ''}`}><Icon size={18} /><span>{item.label}</span></button>;
+    const active = activeTab === item.id;
+    return (
+      <button
+        key={item.id}
+        type="button"
+        onClick={() => setActiveTab(item.id)}
+        className={`saas-nav-item ${active ? 'is-active' : ''}`}
+        aria-current={active ? 'page' : undefined}
+      >
+        <span className="saas-nav-icon"><Icon size={17} strokeWidth={active ? 2.4 : 2} /></span>
+        <span className="saas-nav-label">{item.label}</span>
+        {active && <span className="saas-nav-indicator" aria-hidden="true" />}
+      </button>
+    );
   };
 
-  return <aside className="sidebar-container">
-    <div className="sidebar-brand"><div className="brand-logo"><Activity size={22} /></div><div className="brand-text"><h2>ApexLab</h2><span>Lab workspace</span></div></div>
-    <div className="lab-switcher"><div className="lab-avatar">{(settings.labName || 'L').slice(0, 1).toUpperCase()}</div><div className="lab-copy"><strong>{settings.labName || 'Your laboratory'}</strong><span>{role === 'ADMIN' ? 'Administrator' : role || 'Workspace member'}</span></div><span className="online-dot" /></div>
-    <nav className="sidebar-menu">
-      <div className="nav-group"><span className="nav-label">Workspace</span>{menuItems.map(renderItem)}</div>
-      <div className="nav-group"><span className="nav-label">Administration</span>{role === 'ADMIN' && adminItems.map(renderItem)}{role !== 'ADMIN' && <div className="restricted-note"><ShieldCheck size={15} /><span>Admin tools are restricted</span></div>}</div>
-    </nav>
-    <div className="sidebar-footer">
-      <button type="button" onClick={() => setDarkMode(!darkMode)} className="sidebar-action">{darkMode ? <Sun size={17} /> : <Moon size={17} />}<span>{darkMode ? 'Light theme' : 'Dark theme'}</span></button>
-      <button type="button" onClick={() => onLogout?.()} className="sidebar-action danger-action"><span>Sign out</span></button>
-      <div className="footer-copyright">ApexLab SaaS • v1.0</div>
-    </div>
-    <style>{`
-      .sidebar-container{position:fixed;top:var(--header-height,64px);left:0;bottom:0;width:var(--sidebar-width);background:var(--panel-bg);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:18px 14px;backdrop-filter:blur(18px);z-index:100}.sidebar-brand{display:flex;align-items:center;gap:10px;padding:4px 8px 18px}.brand-logo{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;box-shadow:0 8px 20px rgba(6,96,137,.18)}.brand-text h2{font-size:1.1rem;margin:0}.brand-text span{font-size:.68rem;color:var(--text);text-transform:uppercase;letter-spacing:.08em}.lab-switcher{display:flex;align-items:center;gap:10px;padding:11px;border:1px solid var(--border);border-radius:14px;background:rgba(148,163,184,.06);margin-bottom:18px;position:relative}.lab-avatar{width:32px;height:32px;border-radius:9px;background:var(--primary-light);color:var(--primary);display:grid;place-items:center;font-weight:800;font-size:.82rem}.lab-copy{display:grid;min-width:0;flex:1}.lab-copy strong{font-size:.76rem;color:var(--text-bold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lab-copy span{font-size:.65rem;color:var(--text);text-transform:capitalize}.online-dot{width:7px;height:7px;background:var(--success);border-radius:50%;box-shadow:0 0 0 3px var(--success-bg)}.sidebar-menu{display:flex;flex-direction:column;gap:20px;overflow:auto;flex:1}.nav-group{display:grid;gap:4px}.nav-label{padding:0 10px 5px;font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:var(--text);opacity:.75}.menu-btn{font-family:var(--font-sans);font-size:.78rem;font-weight:650;color:var(--text);background:transparent;border:0;padding:10px 11px;border-radius:11px;cursor:pointer;display:flex;align-items:center;gap:10px;text-align:left;width:100%;transition:.18s}.menu-btn:hover{background:rgba(6,96,137,.06);color:var(--text-bold)}.menu-btn.active{background:linear-gradient(90deg,var(--primary),hsl(174,86%,41%));color:#fff;box-shadow:0 8px 18px rgba(6,96,137,.17)}.restricted-note{display:flex;gap:8px;align-items:center;padding:9px 10px;color:var(--text);font-size:.67rem;opacity:.72}.sidebar-footer{display:grid;gap:6px;border-top:1px solid var(--border);padding-top:12px}.sidebar-action{font-family:var(--font-sans);display:flex;align-items:center;gap:9px;width:100%;padding:9px 11px;border:1px solid transparent;border-radius:10px;background:transparent;color:var(--text);cursor:pointer;font-size:.74rem;font-weight:700;text-align:left}.sidebar-action:hover{background:rgba(148,163,184,.08);color:var(--text-bold)}.danger-action{color:var(--danger)}.footer-copyright{text-align:center;font-size:.6rem;color:var(--text);padding-top:4px}@media(max-width:1024px){.sidebar-container{top:auto;right:0;bottom:0;width:100%;height:70px;padding:7px 10px;border-right:0;border-top:1px solid var(--border);flex-direction:row;align-items:center}.sidebar-brand,.lab-switcher,.nav-label,.sidebar-footer,.restricted-note{display:none}.sidebar-menu{width:100%;display:flex;flex-direction:row;gap:3px;overflow-x:auto}.nav-group{display:flex;flex:1;gap:2px}.nav-group:nth-child(2){display:contents}.menu-btn{justify-content:center;flex-direction:column;gap:3px;font-size:.58rem;padding:7px 4px;min-width:74px}.main-content{padding-left:0!important;padding-bottom:82px!important}}
-    `}</style>
-  </aside>;
+  return (
+    <aside className="saas-sidebar" aria-label="Workspace navigation">
+      <div className="saas-sidebar-inner">
+        <header className="saas-brand">
+          <div className="saas-brand-mark" aria-hidden="true"><Activity size={20} strokeWidth={2.5} /></div>
+          <div className="saas-brand-copy"><strong>ApexLab</strong><span>Laboratory OS</span></div>
+        </header>
+
+        <button type="button" className="saas-workspace-switcher" aria-label={`Current laboratory: ${settings.labName || 'Your laboratory'}`}>
+          <span className="saas-workspace-avatar">{(settings.labName || 'L').slice(0, 1).toUpperCase()}</span>
+          <span className="saas-workspace-copy"><strong>{settings.labName || 'Your laboratory'}</strong><small>{role === 'ADMIN' ? 'Administrator' : role || 'Workspace member'}</small></span>
+          <span className="saas-status-dot" aria-label="Workspace online" />
+        </button>
+
+        <nav className="saas-sidebar-nav">
+          <div className="saas-nav-section">
+            <span className="saas-nav-heading">Workspace</span>
+            {menuItems.map(renderItem)}
+          </div>
+          <div className="saas-nav-section">
+            <span className="saas-nav-heading">Manage</span>
+            {role === 'ADMIN' ? adminItems.map(renderItem) : (
+              <div className="saas-restricted" role="note"><ShieldCheck size={14} /><span>Admin controls restricted</span></div>
+            )}
+          </div>
+        </nav>
+
+        <footer className="saas-sidebar-footer">
+          <button type="button" onClick={() => setDarkMode(!darkMode)} className="saas-sidebar-action" aria-pressed={darkMode}>
+            {darkMode ? <Sun size={16} /> : <Moon size={16} />}<span>{darkMode ? 'Light appearance' : 'Dark appearance'}</span>
+          </button>
+          <button type="button" onClick={() => onLogout?.()} className="saas-sidebar-action saas-signout">
+            <span>Sign out</span>
+          </button>
+          <span className="saas-sidebar-meta">ApexLab · v1.0</span>
+        </footer>
+      </div>
+
+      <style>{`
+        .saas-sidebar{position:fixed;inset:0 auto 0 0;width:var(--sidebar-width,248px);padding:12px;border-right:1px solid var(--border);background:var(--page-bg);z-index:100}.saas-sidebar-inner{height:100%;display:flex;flex-direction:column;padding:10px 8px 8px;border:1px solid var(--border);border-radius:18px;background:var(--panel-bg);box-shadow:0 10px 35px rgba(15,23,42,.05)}.saas-brand{display:flex;align-items:center;gap:10px;padding:5px 9px 20px}.saas-brand-mark{width:36px;height:36px;display:grid;place-items:center;border-radius:10px;color:#fff;background:linear-gradient(135deg,var(--primary),var(--secondary));box-shadow:0 7px 18px rgba(6,96,137,.18)}.saas-brand-copy{display:grid;line-height:1.1}.saas-brand-copy strong{font-size:1rem;letter-spacing:-.025em;color:var(--text-bold)}.saas-brand-copy span{margin-top:4px;font-size:.58rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text)}.saas-workspace-switcher{width:100%;display:flex;align-items:center;gap:9px;padding:9px;margin-bottom:20px;text-align:left;border:1px solid var(--border);border-radius:12px;background:var(--page-bg);color:inherit;cursor:pointer}.saas-workspace-switcher:hover{border-color:var(--primary);background:var(--primary-light)}.saas-workspace-avatar{width:31px;height:31px;flex:0 0 31px;display:grid;place-items:center;border-radius:9px;background:var(--primary-light);color:var(--primary);font-size:.76rem;font-weight:800}.saas-workspace-copy{display:grid;min-width:0;flex:1}.saas-workspace-copy strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.72rem;color:var(--text-bold)}.saas-workspace-copy small{margin-top:3px;font-size:.61rem;color:var(--text)}.saas-status-dot{width:7px;height:7px;flex:0 0 7px;border-radius:50%;background:var(--success);box-shadow:0 0 0 3px var(--success-bg)}.saas-sidebar-nav{flex:1;overflow:auto;padding:0 2px}.saas-nav-section{display:grid;gap:3px;margin-bottom:22px}.saas-nav-heading{padding:0 10px 7px;font-size:.58rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--text);opacity:.65}.saas-nav-item{position:relative;width:100%;min-height:42px;display:flex;align-items:center;gap:10px;padding:8px 10px;border:0;border-radius:10px;background:transparent;color:var(--text);font:600 .74rem var(--font-sans);text-align:left;cursor:pointer;transition:background .16s ease,color .16s ease}.saas-nav-item:hover{background:var(--primary-light);color:var(--text-bold)}.saas-nav-item:focus-visible,.saas-sidebar-action:focus-visible,.saas-workspace-switcher:focus-visible{outline:3px solid color-mix(in srgb,var(--primary) 35%,transparent);outline-offset:2px}.saas-nav-item.is-active{background:var(--primary-light);color:var(--primary);font-weight:750}.saas-nav-icon{width:22px;height:22px;display:grid;place-items:center}.saas-nav-label{flex:1}.saas-nav-indicator{width:3px;height:20px;border-radius:3px;background:var(--primary)}.saas-restricted{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:9px;color:var(--text);font-size:.62rem;opacity:.7}.saas-sidebar-footer{display:grid;gap:4px;padding:12px 2px 2px;border-top:1px solid var(--border)}.saas-sidebar-action{min-height:38px;display:flex;align-items:center;gap:9px;padding:7px 10px;border:0;border-radius:9px;background:transparent;color:var(--text);font:650 .69rem var(--font-sans);cursor:pointer;text-align:left}.saas-sidebar-action:hover{background:var(--page-bg);color:var(--text-bold)}.saas-signout{color:var(--danger)}.saas-sidebar-meta{text-align:center;padding-top:5px;font-size:.56rem;color:var(--text);opacity:.7}@media(max-width:1024px){.saas-sidebar{inset:auto 0 0;width:100%;height:70px;padding:6px 8px;border-right:0;border-top:1px solid var(--border);background:var(--page-bg)}.saas-sidebar-inner{padding:0;border:0;border-radius:0;background:transparent;box-shadow:none}.saas-brand,.saas-workspace-switcher,.saas-nav-heading,.saas-nav-section:nth-child(2),.saas-sidebar-footer{display:none}.saas-sidebar-nav{width:100%;overflow-x:auto;overflow-y:hidden}.saas-nav-section{height:100%;display:flex;gap:3px;margin:0}.saas-nav-item{min-width:78px;height:58px;min-height:58px;justify-content:center;flex-direction:column;gap:2px;padding:6px;border-radius:10px;font-size:.56rem}.saas-nav-icon{height:22px}.saas-nav-indicator{display:none}.main-content{padding-left:0!important;padding-bottom:82px!important}}@media(prefers-reduced-motion:reduce){.saas-nav-item,.saas-workspace-switcher{transition:none}}
+      `}</style>
+    </aside>
+  );
 }

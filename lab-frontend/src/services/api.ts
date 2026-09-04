@@ -86,37 +86,50 @@ function isRetryableMethod(method?: string) {
 }
 
 async function fetchWithAuth(path: string, options: RequestInit, timeout: number): Promise<Response> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeout);
+  const url = `${API_BASE}/${path.replace(/^\/+/, '')}`;
 
-  try {
-    const url = `${API_BASE}/${path.replace(/^\/+/, '')}`;
-    let response = await fetch(url, {
-      ...options,
-      headers: buildHeaders(options),
-      signal: controller.signal,
-    });
+  const performFetch = async () => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    let callerAbortHandler: (() => void) | undefined;
 
-    if (response.status === 401) {
-      const refreshed = await refreshAccessToken();
-      if (refreshed) {
-        response = await fetch(url, {
-          ...options,
-          headers: buildHeaders(options),
-          signal: controller.signal,
-        });
-      }
-
-      if (response.status === 401) {
-        clearTokens();
-        throw new ApiError('Unauthorized. Please login again.', 401);
+    if (options.signal) {
+      if (options.signal.aborted) controller.abort(options.signal.reason);
+      else {
+        callerAbortHandler = () => controller.abort(options.signal?.reason);
+        options.signal.addEventListener('abort', callerAbortHandler, { once: true });
       }
     }
 
-    return response;
-  } finally {
-    clearTimeout(timeoutId);
+    try {
+      return await fetch(url, {
+        ...options,
+        headers: buildHeaders(options),
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeoutId);
+      if (callerAbortHandler) options.signal?.removeEventListener('abort', callerAbortHandler);
+    }
+  };
+
+  let response = await performFetch();
+
+  if (response.status === 401) {
+    const refreshed = await refreshAccessToken();
+    if (refreshed) {
+      // A fresh AbortController is intentionally created for the retry. The
+      // first attempt may have timed out or otherwise aborted its own signal.
+      response = await performFetch();
+    }
+
+    if (response.status === 401) {
+      clearTokens();
+      throw new ApiError('Unauthorized. Please login again.', 401);
+    }
   }
+
+  return response;
 }
 
 async function parseResponse(response: Response): Promise<unknown> {
@@ -175,6 +188,8 @@ export async function request<T = unknown>(path: string, options: RequestOptions
 
 export async function requestBlob(path: string, options: RequestOptions = {}): Promise<Blob> {
   const method = (options.method ?? 'GET').toUpperCase();
+  if (method !== 'GET') throw new Error('Blob requests currently support GET only');
+
   const response = await fetchWithAuth(path, options, options.timeout ?? 60000);
 
   if (!response.ok) {
@@ -185,7 +200,6 @@ export async function requestBlob(path: string, options: RequestOptions = {}): P
     throw new ApiError(message, response.status, data);
   }
 
-  if (method !== 'GET') throw new Error('Blob requests currently support GET only');
   return response.blob();
 }
 

@@ -19,46 +19,38 @@ export class ApiError extends Error {
 }
 
 function getStoredTokens() {
-  return {
-    accessToken: localStorage.getItem('lab_access_token'),
-    refreshToken: localStorage.getItem('lab_refresh_token'),
-  };
+  return { accessToken: localStorage.getItem('lab_access_token') };
 }
 
-export function setTokens(tokens: { accessToken?: string; refreshToken?: string }) {
+export function setTokens(tokens: { accessToken?: string }) {
   if (tokens.accessToken) localStorage.setItem('lab_access_token', tokens.accessToken);
-  if (tokens.refreshToken) localStorage.setItem('lab_refresh_token', tokens.refreshToken);
 }
 
 export function clearTokens() {
   localStorage.removeItem('lab_access_token');
+  // Remove the legacy refresh token if an older deployment stored one.
   localStorage.removeItem('lab_refresh_token');
 }
 
-// The API rotates refresh tokens. Without a single-flight lock, two requests
-// receiving 401 at the same time can both try to spend the same refresh token;
-// one succeeds and the other logs the user out unnecessarily.
+// Refresh tokens are now HttpOnly cookies. The single-flight lock prevents
+// concurrent 401 responses from racing the server's one-time token rotation.
 let refreshInFlight: Promise<boolean> | null = null;
 
 function refreshAccessToken(): Promise<boolean> {
   if (refreshInFlight) return refreshInFlight;
 
   refreshInFlight = (async () => {
-    const { refreshToken } = getStoredTokens();
-    if (!refreshToken) return false;
-
     try {
       const response = await fetch(`${API_BASE}/auth/refresh`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refreshToken }),
+        credentials: 'include',
       });
 
       if (!response.ok) return false;
       const data = await response.json();
-      if (!data?.accessToken || !data?.refreshToken) return false;
+      if (!data?.accessToken) return false;
 
-      setTokens({ accessToken: data.accessToken, refreshToken: data.refreshToken });
+      setTokens({ accessToken: data.accessToken });
       return true;
     } catch {
       return false;
@@ -104,6 +96,7 @@ async function fetchWithAuth(path: string, options: RequestInit, timeout: number
     try {
       return await fetch(url, {
         ...options,
+        credentials: options.credentials ?? 'include',
         headers: buildHeaders(options),
         signal: controller.signal,
       });
@@ -118,8 +111,6 @@ async function fetchWithAuth(path: string, options: RequestInit, timeout: number
   if (response.status === 401) {
     const refreshed = await refreshAccessToken();
     if (refreshed) {
-      // A fresh AbortController is intentionally created for the retry. The
-      // first attempt may have timed out or otherwise aborted its own signal.
       response = await performFetch();
     }
 

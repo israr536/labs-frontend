@@ -1,7 +1,7 @@
-import { Activity, ActivitySquare, BarChart3, ClipboardList, FileText, FlaskConical, Moon, PlusCircle, Settings as SettingsIcon, ShieldCheck, Sun, UsersRound } from 'lucide-react';
+import { Activity, ActivitySquare, BarChart3, ClipboardList, FileText, FlaskConical, Moon, PlusCircle, Settings as SettingsIcon, ShieldCheck, Sun, UsersRound, SlidersHorizontal } from 'lucide-react';
 import type { LabSettings } from '../data/samples';
 
-export type DashboardTab = 'dashboard' | 'orders' | 'reports' | 'new-report' | 'tests' | 'users' | 'billing' | 'settings';
+export type DashboardTab = 'dashboard' | 'orders' | 'reports' | 'new-report' | 'tests' | 'test-configuration' | 'users' | 'billing' | 'settings';
 
 type Props = { activeTab: DashboardTab; setActiveTab: (tab: DashboardTab) => void; settings: LabSettings; darkMode: boolean; setDarkMode: (dark: boolean) => void; role?: string; isAuthenticated?: boolean; onLogout?: () => void };
 
@@ -15,6 +15,7 @@ export default function Sidebar({ activeTab, setActiveTab, settings, darkMode, s
   ];
   const adminItems = [
     { id: 'tests' as const, label: 'Test Catalog', icon: FlaskConical },
+    { id: 'test-configuration' as const, label: 'Test Configuration', icon: SlidersHorizontal },
     { id: 'users' as const, label: 'Team', icon: UsersRound },
     { id: 'billing' as const, label: 'Plan & Usage', icon: BarChart3 },
     { id: 'settings' as const, label: 'Lab Settings', icon: SettingsIcon },

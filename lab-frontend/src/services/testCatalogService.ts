@@ -1,10 +1,11 @@
 import { request } from './api';
 
 export type ParameterInputType = 'NUMBER' | 'TEXT' | 'SELECT' | 'MULTILINE_TEXT' | 'BOOLEAN' | 'DATE' | 'DATETIME' | 'TIME' | 'PERCENTAGE' | 'QUALITATIVE';
+export type Gender = 'MALE' | 'FEMALE' | 'OTHER';
 
 export interface CatalogParameter {
   id: string;
-  code: string;
+  code?: string;
   name: string;
   shortName?: string | null;
   inputType: ParameterInputType;
@@ -45,20 +46,74 @@ export interface TestCatalogDefinition {
   parameters: CatalogParameter[];
 }
 
-export interface LabTest {
-  id: string;
+export interface LabTest extends TestCatalogDefinition {
   catalogId?: string | null;
-  code: string;
+  sampleType?: string | null;
+  price?: number | null;
+  isActive: boolean;
+  parameters: CatalogParameter[];
+}
+
+export interface ReferenceRange {
+  id: string;
+  version: number;
+  gender: Gender | null;
+  ageMinYears: number | null;
+  ageMaxYears: number | null;
+  method: string | null;
+  analyzer: string | null;
+  low: number | null;
+  high: number | null;
+  displayRange: string | null;
+  unit: string | null;
+  effectiveFrom: string;
+  effectiveTo: string | null;
+}
+
+export interface LabTestUpdate {
+  code?: string;
   shortName?: string | null;
-  name: string;
+  name?: string;
   category?: string | null;
   department?: string | null;
   sampleType?: string | null;
   price?: number | null;
   tat?: number | null;
   method?: string | null;
-  isActive: boolean;
-  parameters: CatalogParameter[];
+  remarks?: string | null;
+  isActive?: boolean;
+}
+
+export interface ParameterUpdate {
+  name?: string;
+  inputType?: ParameterInputType;
+  unit?: string | null;
+  normalMin?: number | null;
+  normalMax?: number | null;
+  referenceRange?: unknown;
+  options?: unknown;
+  validation?: unknown;
+  criticalLow?: number | null;
+  criticalHigh?: number | null;
+  decimalPlaces?: number | null;
+  defaultValue?: string | null;
+  formula?: string | null;
+  displayOrder?: number;
+  isRequired?: boolean;
+  remarks?: string | null;
+}
+
+export interface ReferenceRangeInput {
+  gender?: Gender | null;
+  ageMinYears?: number | null;
+  ageMaxYears?: number | null;
+  method?: string | null;
+  analyzer?: string | null;
+  low?: number | null;
+  high?: number | null;
+  displayRange?: string | null;
+  unit?: string | null;
+  effectiveFrom?: string;
 }
 
 const testCatalogService = {
@@ -73,6 +128,12 @@ const testCatalogService = {
   get: (id: string) => request<TestCatalogDefinition>(`test-catalog/${id}`),
   enable: (id: string, overrides: Partial<LabTest> = {}) => request<LabTest>(`test-catalog/${id}/enable`, { method: 'POST', body: JSON.stringify(overrides) }),
   myTests: (includeInactive = false) => request<LabTest[]>(`tests${includeInactive ? '?includeInactive=true' : ''}`),
+  updateTest: (id: string, body: LabTestUpdate) => request<LabTest>(`tests/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+  addParameter: (testId: string, body: ParameterUpdate) => request<CatalogParameter>(`tests/${testId}/parameters`, { method: 'POST', body: JSON.stringify(body) }),
+  updateParameter: (testId: string, parameterId: string, body: ParameterUpdate) => request<CatalogParameter>(`tests/${testId}/parameters/${parameterId}`, { method: 'PATCH', body: JSON.stringify(body) }),
+  removeParameter: (testId: string, parameterId: string) => request<{ success: boolean }>(`tests/${testId}/parameters/${parameterId}`, { method: 'DELETE' }),
+  listReferenceRanges: (parameterId: string) => request<ReferenceRange[]>(`reference-ranges/parameters/${parameterId}`),
+  createReferenceRange: (parameterId: string, body: ReferenceRangeInput) => request<ReferenceRange>(`reference-ranges/parameters/${parameterId}`, { method: 'POST', body: JSON.stringify(body) }),
 };
 
 export default testCatalogService;

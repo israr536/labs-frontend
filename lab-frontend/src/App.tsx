@@ -45,7 +45,8 @@ export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const [authView, setAuthView] = useState<'landing' | 'login' | 'signup'>('landing');
-  const navigate = useNavigate(); const location = useLocation();
+  const navigate = useNavigate();
+  const location = useLocation();
   const closeAuthModal = () => { setAuthView('landing'); navigate('/'); };
   const handleLogout = async () => { await authService.logout(); setUser(null); setIsAuthenticated(false); setAuthView('landing'); setReports([]); navigate('/', { replace: true }); };
   useEffect(() => { let mounted = true; const init = async () => { try { const meResult = await authService.me(); if (mounted && meResult?.user) { setUser(meResult.user); setIsAuthenticated(true); } } catch { if (mounted) { setUser(null); setIsAuthenticated(false); } } finally { if (mounted) setAuthLoading(false); } try { const savedTheme = localStorage.getItem('apex_lab_theme'); if (mounted && savedTheme) setDarkMode(savedTheme === 'dark'); } catch {} }; void init(); return () => { mounted = false; }; }, []);
@@ -55,7 +56,8 @@ export default function App() {
   const { data: subscription, isLoading: subscriptionLoading } = useQuery<SubscriptionStatus>({ queryKey: ['subscription'], enabled: isAuthenticated, queryFn: () => subscriptionService.getStatus(), staleTime: 60_000 });
   useEffect(() => { if (reportsData) setReports((Array.isArray(reportsData) ? reportsData : reportsData.data || []) as LabReport[]); }, [reportsData]);
   useEffect(() => { if (settingsData) setSettings(settingsData as LabSettings); }, [settingsData]);
-  const showLogin = () => { setAuthView('login'); navigate('/login'); }; const showSignup = () => { setAuthView('signup'); navigate('/signup'); };
+  const showLogin = () => { setAuthView('login'); navigate('/login'); };
+  const showSignup = () => { setAuthView('signup'); navigate('/signup'); };
   const handleLoginSuccess = (nextUser: SessionUser) => { setUser(nextUser); setIsAuthenticated(true); setAuthView('landing'); setActiveTab('dashboard'); navigate('/dashboard', { replace: true }); };
   const handleSaveReport = async (report: LabReport) => { setReports((current) => current.some((item) => item.id === report.id) ? current.map((item) => item.id === report.id ? report : item) : [report, ...current]); setEditingReport(null); setSelectedReportId(report.id); setActiveTab('reports'); await refetchReports(); };
   const handleDeleteReport = async (id: string) => { await reportsService.deleteReport(id); setReports((current) => current.filter((report) => report.id !== id)); if (selectedReportId === id) setSelectedReportId(null); await refetchReports(); };

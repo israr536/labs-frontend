@@ -17,12 +17,14 @@ export interface LabTestUpdate { code?: string; shortName?: string | null; name?
 export interface ParameterUpdate { name?: string; inputType?: ParameterInputType; unit?: string | null; normalMin?: number | null; normalMax?: number | null; referenceRange?: unknown; options?: unknown; validation?: unknown; criticalLow?: number | null; criticalHigh?: number | null; decimalPlaces?: number | null; defaultValue?: string | null; formula?: string | null; displayOrder?: number; isRequired?: boolean; remarks?: string | null; }
 export interface ReferenceRangeInput { gender?: Gender | null; ageMinYears?: number | null; ageMaxYears?: number | null; method?: string | null; analyzer?: string | null; low?: number | null; high?: number | null; displayRange?: string | null; unit?: string | null; effectiveFrom?: string; }
 export interface CreateTestInput { code: string; shortName?: string; name: string; category?: string; department?: string; sampleType?: string; price?: number; tat?: number; method?: string; remarks?: string; isActive?: boolean; parameters?: Array<Omit<ParameterUpdate, 'displayOrder'> & { name: string; displayOrder?: number }>; }
+export interface StarterProvisionResult { tests: Array<{ code: string; status: 'created' | 'already-enabled' }>; }
 
 const testCatalogService = {
   list: (params: { search?: string; category?: string; department?: string } = {}) => { const query = new URLSearchParams(); if (params.search) query.set('search', params.search); if (params.category) query.set('category', params.category); if (params.department) query.set('department', params.department); return request<TestCatalogDefinition[]>(`test-catalog${query.toString() ? `?${query}` : ''}`); },
   categories: () => request<Array<{ category: string; department: string }>>('test-catalog/categories'),
   get: (id: string) => request<TestCatalogDefinition>(`test-catalog/${id}`),
   enable: (id: string, overrides: Partial<LabTest> = {}) => request<LabTest>(`test-catalog/${id}/enable`, { method: 'POST', body: JSON.stringify(overrides) }),
+  provisionDefaults: () => request<StarterProvisionResult>('test-catalog/provision-defaults', { method: 'POST', body: JSON.stringify({}) }),
   myTests: (includeInactive = false) => request<LabTest[]>(`tests${includeInactive ? '?includeInactive=true' : ''}`),
   createTest: (body: CreateTestInput) => request<LabTest>('tests', { method: 'POST', body: JSON.stringify(body) }),
   updateTest: (id: string, body: LabTestUpdate) => request<LabTest>(`tests/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),

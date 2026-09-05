@@ -1,0 +1,57 @@
+/* Stable SaaS shell: the fixed sidebar owns the full desktop gutter. */
+.main-content {
+  margin-left: var(--sidebar-width, 260px) !important;
+  min-width: 0;
+  width: calc(100% - var(--sidebar-width, 260px));
+  padding-top: 2.5rem;
+}
+
+.saas-dashboard,
+.dashboard-content,
+.saas-page,
+.editor-container,
+.catalog-page {
+  width: 100%;
+  max-width: 1440px;
+  margin-left: auto;
+  margin-right: auto;
+  min-width: 0;
+}
+
+.dashboard-main-grid,
+.dashboard-sub-grid,
+.stats-grid,
+.form-grid-layout {
+  min-width: 0;
+}
+
+.dashboard-main-grid > *,
+.dashboard-sub-grid > *,
+.stats-grid > *,
+.form-grid-layout > * {
+  min-width: 0;
+}
+
+.chart-wrapper,
+.alerts-list,
+.operations-section,
+.param-form-list {
+  min-width: 0;
+  overflow-x: auto;
+}
+
+@media (max-width: 1024px) {
+  .main-content {
+    margin-left: 0 !important;
+    width: 100%;
+    padding-top: 1.5rem;
+    padding-bottom: 82px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .main-content {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}

@@ -56,6 +56,7 @@ export default function TestCatalogPage({ role }: Props) {
         {catalog.map((test: TestCatalogDefinition) => {
           const enabled = enabledCodes.has(test.code);
           const isExpanded = expanded === test.id;
+          const hasExtra = Boolean(test.description || test.synonyms || test.externalCodes);
           return <article className={`catalog-card ${isExpanded ? 'is-expanded' : ''}`} key={test.id}>
             <div className="catalog-card-top"><span className="catalog-icon"><TestTube2 size={17} /></span><span className="catalog-code">{test.code}</span></div>
             <h2>{test.name}</h2>
@@ -67,7 +68,7 @@ export default function TestCatalogPage({ role }: Props) {
               <div className="catalog-info-grid">
                 <Info label="Method" value={test.method} /><Info label="Specimen handling" value={test.sampleHandling} /><Info label="Stability" value={test.stability} /><Info label="Rejection criteria" value={test.rejectionCriteria} />
               </div>
-              {(test.description || test.synonyms || test.externalCodes) && <div className="catalog-extra">
+              {hasExtra && <div className="catalog-extra">
                 {test.description && <p>{test.description}</p>}
                 <MetaList label="Synonyms" value={test.synonyms} />
                 <MetaList label="External codes" value={test.externalCodes} />

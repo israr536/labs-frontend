@@ -104,7 +104,7 @@ function Info({ label, value }: { label: string; value?: string | null }) {
 
 function MetaList({ label, value }: { label: string; value?: unknown }) {
   if (value == null) return null;
-  const text = Array.isArray(value) ? value.join(', ') : typeof value === 'object' ? JSON.stringify(value) : String(value);
+  const text: string = Array.isArray(value) ? value.join(', ') : typeof value === 'object' ? JSON.stringify(value) ?? '' : String(value);
   if (!text) return null;
   return <div className="catalog-extra-row"><strong>{label}</strong><span>{text}</span></div>;
 }

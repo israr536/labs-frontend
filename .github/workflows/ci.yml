@@ -20,20 +20,6 @@ jobs:
           cache: npm
           cache-dependency-path: lab-frontend/package-lock.json
       - run: npm install --no-audit --no-fund
-      - name: Lint
+      - run: npm run lint
         continue-on-error: true
-        run: |
-          set -o pipefail
-          npm run lint 2>&1 | tee lint.log
-      - name: Build
-        run: |
-          set -o pipefail
-          npm run build 2>&1 | tee build.log
-      - name: Upload validation logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-validation-logs-${{ github.run_id }}
-          path: |
-            lab-frontend/lint.log
-            lab-frontend/build.log
+      - run: npm run build

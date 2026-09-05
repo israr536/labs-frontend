@@ -8,7 +8,7 @@ import testCatalogService, { type CatalogParameter, type LabTest } from '../serv
 import { useToast } from './Toast';
 
 type Props = { editingReport: LabReport | null; onSaveReport: (report: LabReport) => void; onCancel: () => void };
-type EditableParameter = TestParameter & { inputType?: CatalogParameter['inputType']; options?: string[]; required?: boolean; validation?: unknown; decimalPlaces?: number | null; defaultValue?: string | null; criticalLow?: number | null; criticalHigh?: number | null; formula?: string | null };
+type EditableParameter = Omit<TestParameter, 'inputType' | 'options'> & { inputType?: CatalogParameter['inputType']; options?: string[]; required?: boolean; validation?: unknown; decimalPlaces?: number | null; defaultValue?: string | null; criticalLow?: number | null; criticalHigh?: number | null; formula?: string | null };
 
 export default function DynamicReportEditor({ editingReport, onSaveReport, onCancel }: Props) {
   const toast = useToast();
@@ -28,24 +28,7 @@ export default function DynamicReportEditor({ editingReport, onSaveReport, onCan
   const selectedTest = tests.find((test) => test.id === testId);
   const createParameters = (test: LabTest, existing: TestParameter[] = []): EditableParameter[] => test.parameters.map((p) => {
     const saved = existing.find((item) => item.name.toLowerCase() === p.name.toLowerCase());
-    return {
-      name: p.name,
-      value: saved?.value ?? p.defaultValue ?? '',
-      unit: p.unit || '',
-      refRange: formatRange(p),
-      minRef: p.normalMin ?? undefined,
-      maxRef: p.normalMax ?? undefined,
-      inputType: p.inputType,
-      options: Array.isArray(p.options) ? p.options.filter((value): value is string => typeof value === 'string') : undefined,
-      status: saved?.status ?? 'Normal',
-      required: p.isRequired,
-      validation: p.validation,
-      decimalPlaces: p.decimalPlaces,
-      defaultValue: p.defaultValue,
-      criticalLow: p.criticalLow,
-      criticalHigh: p.criticalHigh,
-      formula: p.formula,
-    };
+    return { name: p.name, value: saved?.value ?? p.defaultValue ?? '', unit: p.unit || '', refRange: formatRange(p), minRef: p.normalMin ?? undefined, maxRef: p.normalMax ?? undefined, inputType: p.inputType, options: Array.isArray(p.options) ? p.options.filter((value): value is string => typeof value === 'string') : undefined, status: saved?.status ?? 'Normal', required: p.isRequired, validation: p.validation, decimalPlaces: p.decimalPlaces, defaultValue: p.defaultValue, criticalLow: p.criticalLow, criticalHigh: p.criticalHigh, formula: p.formula };
   });
 
   useEffect(() => {
@@ -70,7 +53,7 @@ export default function DynamicReportEditor({ editingReport, onSaveReport, onCan
     if (missing.length && status !== 'Draft') { toast.show({ type: 'error', message: `Required result fields missing: ${missing.map((item) => item.name).join(', ')}` }); return; }
     const invalid = parameters.find((parameter) => !passesValidation(parameter.value, parameter.validation));
     if (invalid) { toast.show({ type: 'error', message: `Invalid value for ${invalid.name}. Please check the field validation.` }); return; }
-    const payload: LabReport & { testId: string } = { id: editingReport?.id || `draft-${Date.now()}`, patientName, age, gender, phone, email, referredBy, dateCollected, dateReported: new Date().toISOString(), status, parameters, interpretation, testType: selectedTest?.name || '', testId };
+    const payload = { id: editingReport?.id || `draft-${Date.now()}`, patientName, age, gender, phone, email, referredBy, dateCollected, dateReported: new Date().toISOString(), status, parameters: parameters as TestParameter[], interpretation, testType: selectedTest?.name || '', testId };
     try { const saved = editingReport ? await reportsService.updateReport(payload.id, payload) : await reportsService.createReport(payload); onSaveReport(saved); }
     catch (error) { toast.show({ type: 'error', message: error instanceof Error ? error.message : 'Unable to save report.' }); }
   };
@@ -103,6 +86,6 @@ function ParameterInput({ parameter, onChange, onFlagChange }: { parameter: Edit
 }
 
 function formatRange(parameter: CatalogParameter) { if (parameter.referenceRange && typeof parameter.referenceRange === 'object' && !Array.isArray(parameter.referenceRange)) return Object.entries(parameter.referenceRange as Record<string, unknown>).map(([key,value]) => `${key}: ${String(value)}`).join(' · '); const min=parameter.normalMin; const max=parameter.normalMax; if(min!=null&&max!=null)return `${min} - ${max}`; if(min!=null)return `>= ${min}`; if(max!=null)return `<= ${max}`; return 'Clinical / qualitative reference'; }
-function flagForValue(value:string, parameter:TestParameter):TestParameter['status'] { const n=Number(value); if(value.trim()!==''&&Number.isFinite(n)){if(parameter.minRef!=null&&n<parameter.minRef)return 'Low';if(parameter.maxRef!=null&&n>parameter.maxRef)return 'High';} return 'Normal'; }
+function flagForValue(value:string, parameter:Pick<EditableParameter,'minRef'|'maxRef'>):TestParameter['status'] { const n=Number(value); if(value.trim()!==''&&Number.isFinite(n)){if(parameter.minRef!=null&&n<parameter.minRef)return 'Low';if(parameter.maxRef!=null&&n>parameter.maxRef)return 'High';} return 'Normal'; }
 function decimalStep(decimalPlaces?: number | null) { if (decimalPlaces == null) return 'any'; return decimalPlaces === 0 ? '1' : String(1 / 10 ** decimalPlaces); }
 function passesValidation(value: string, validation: unknown) { if (!value.trim() || !validation || typeof validation !== 'object') return true; const rule = validation as Record<string, unknown>; const minLength = typeof rule.minLength === 'number' ? rule.minLength : undefined; const maxLength = typeof rule.maxLength === 'number' ? rule.maxLength : undefined; const min = typeof rule.min === 'number' ? rule.min : undefined; const max = typeof rule.max === 'number' ? rule.max : undefined; const numeric = Number(value); if (min != null && Number.isFinite(numeric) && numeric < min) return false; if (max != null && Number.isFinite(numeric) && numeric > max) return false; if (minLength != null && value.length < minLength) return false; if (maxLength != null && value.length > maxLength) return false; const pattern = typeof rule.pattern === 'string' ? rule.pattern : undefined; if (pattern) { try { if (!new RegExp(pattern).test(value)) return false; } catch { return false; } } return true; }

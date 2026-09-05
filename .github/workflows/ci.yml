@@ -19,6 +19,6 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: lab-frontend/package-lock.json
-      - run: npm ci
+      - run: npm install --no-audit --no-fund
       - run: npm run lint
       - run: npm run build

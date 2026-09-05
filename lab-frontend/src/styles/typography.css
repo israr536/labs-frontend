@@ -1,0 +1,57 @@
+/* ApexLab global typography system — readable SaaS UI across public and authenticated screens */
+:root {
+  --saas-font-xs: 0.75rem;
+  --saas-font-sm: 0.8125rem;
+  --saas-font-md: 0.9375rem;
+  --saas-font-lg: 1rem;
+  --saas-font-xl: 1.125rem;
+  --saas-font-2xl: 1.375rem;
+  --saas-font-3xl: 1.75rem;
+  --saas-font-display: clamp(2rem, 4vw, 2.75rem);
+  --saas-body-line: 1.6;
+  --saas-heading-line: 1.18;
+}
+html { font-size: 16px; }
+body { font-size: var(--saas-font-md); line-height: var(--saas-body-line); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+button,input,select,textarea { font-size: var(--saas-font-md); }
+h1,h2,h3,h4,h5,h6 { line-height: var(--saas-heading-line); }
+.brand-title { font-size: 1.0625rem !important; }
+.brand-sub { font-size: 0.6875rem !important; }
+.nav-link { font-size: 0.8125rem !important; }
+.btn-ghost,.btn-primary { font-size: 0.8125rem !important; }
+.user-name { font-size: 0.8125rem !important; }
+.saas-page-header h1,.saas-dashboard-heading h1 { font-size: var(--saas-font-display) !important; line-height: 1.1; }
+.saas-page-header p,.saas-dashboard-heading p { font-size: 0.9375rem !important; line-height: 1.65; }
+.saas-eyebrow { font-size: 0.6875rem !important; }
+.workspace-badge { font-size: 0.8125rem !important; }
+.saas-stat-label { font-size: 0.8125rem !important; }
+.saas-stat-value { font-size: 1.75rem !important; }
+.saas-stat-meta { font-size: 0.75rem !important; }
+.saas-btn,.saas-primary-btn,.saas-secondary-btn,.saas-btn-primary,.saas-btn-secondary,.saas-btn-danger { font-size: 0.875rem !important; }
+.form-label,.saas-field label { font-size: 0.8125rem !important; }
+.form-input,.form-select,.form-textarea,.saas-control { font-size: 0.9375rem !important; }
+.custom-table th,.saas-table th { font-size: 0.75rem !important; letter-spacing: 0.055em; }
+.custom-table td,.saas-table td { font-size: 0.875rem !important; }
+.badge,.saas-badge,.role-pill,.status-pill { font-size: 0.75rem !important; }
+.page-hero h1 { font-size: clamp(2.25rem, 5vw, 4rem) !important; line-height: 1.06; }
+.page-hero p { font-size: 1rem !important; line-height: 1.7; }
+.feature-card,.policy-card,.pricing-card,.contact-card { font-size: 0.9375rem; }
+.feature-card h3,.policy-card h3,.pricing-card h3,.contact-card h2 { font-size: 1.125rem !important; }
+.feature-card p,.policy-card p,.pricing-card p,.contact-card p,.pricing-card li,.policy-list li { font-size: 0.9375rem !important; line-height: 1.65; }
+.section-item { font-size: 0.9375rem; }
+.section-item h4 { font-size: 1rem !important; }
+.saas-nav-item { font-size: 0.875rem !important; }
+.auth-form-card { font-size: 0.9375rem; }
+.auth-intro { font-size: 0.875rem !important; line-height: 1.6; }
+.policy-page,.legal-page { font-size: 0.9375rem; }
+.policy-page p,.policy-page li,.legal-page p,.legal-page li { font-size: 0.9375rem; line-height: 1.75; }
+.policy-page h2,.legal-page h2 { font-size: 1.5rem; }
+.policy-page h3,.legal-page h3 { font-size: 1.125rem; }
+.site-footer { font-size: 0.875rem; }
+@media (max-width:700px) {
+  body { font-size: 0.9375rem; }
+  .saas-page-header h1,.saas-dashboard-heading h1 { font-size: 2rem !important; }
+  .page-hero h1 { font-size: 2.25rem !important; }
+  .page-hero p,.saas-page-header p,.saas-dashboard-heading p { font-size: 0.9375rem !important; }
+  .custom-table td,.saas-table td { font-size: 0.8125rem !important; }
+}

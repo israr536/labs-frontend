@@ -1,4 +1,5 @@
-import { FormEvent, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
+import type { FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Check, ChevronDown, CirclePlus, FlaskConical, Save, ShieldCheck, Trash2 } from 'lucide-react';
 import testCatalogService, { type CatalogParameter, type Gender, type LabTest, type ParameterInputType, type ReferenceRange } from '../services/testCatalogService';
@@ -77,5 +78,5 @@ function ReferenceRangeForm({ onCreate, saving }: { onCreate: (body: Parameters<
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) { return <label className="field"><span>{label}</span>{children}</label>; }
 function num(value: unknown) { if (value === '' || value == null) return null; const n = Number(value); return Number.isFinite(n) ? n : null; }
-function numInt(value: unknown) { const n = num(value); return n == null ? null : Math.trunc(n); }
+function numInt(value: unknown) { const n = num(value); return n == null ? undefined : Math.trunc(n); }
 function parseJson(text: string | undefined, fallback: unknown) { if (!text?.trim()) return fallback ?? null; try { return JSON.parse(text); } catch { return fallback ?? null; } }

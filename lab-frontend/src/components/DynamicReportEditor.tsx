@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import type { ChangeEvent, FormEvent, ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Save, X, Activity } from 'lucide-react';
 import type { LabReport, TestParameter } from '../data/samples';
@@ -62,19 +63,19 @@ export default function DynamicReportEditor({ editingReport, onSaveReport, onCan
   const changeValue = (index: number, value: string) => setParameters((current) => current.map((p, i) => i === index ? { ...p, value, status: flagForValue(value, p) } : p));
   const changeFlag = (index: number, statusValue: TestParameter['status']) => setParameters((current) => current.map((p, i) => i === index ? { ...p, status: statusValue } : p));
 
-  const submit = async (event: React.FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (!patientName.trim() || !phone.trim() || !testId) { toast.show({ type: 'error', message: 'Patient name, phone and test are required.' }); return; }
     const missing = parameters.filter((parameter) => parameter.required && !parameter.value.trim());
     if (missing.length && status !== 'Draft') { toast.show({ type: 'error', message: `Required result fields missing: ${missing.map((item) => item.name).join(', ')}` }); return; }
     const invalid = parameters.find((parameter) => !passesValidation(parameter.value, parameter.validation));
     if (invalid) { toast.show({ type: 'error', message: `Invalid value for ${invalid.name}. Please check the field validation.` }); return; }
-    const payload: LabReport & { testId: string } = { id: editingReport?.id || `draft-${Date.now()}`, patientName, age, gender, phone, email, referredBy, dateCollected, dateReported: new Date().toISOString(), testType: selectedTest?.name || '', status, parameters, interpretation, testId };
+    const payload: LabReport & { testId: string } = { id: editingReport?.id || `draft-${Date.now()}`, patientName, age, gender, phone, email, referredBy, dateCollected, dateReported: new Date().toISOString(), status, parameters, interpretation, testType: selectedTest?.name || '', testId };
     try { const saved = editingReport ? await reportsService.updateReport(payload.id, payload) : await reportsService.createReport(payload); onSaveReport(saved); }
     catch (error) { toast.show({ type: 'error', message: error instanceof Error ? error.message : 'Unable to save report.' }); }
   };
 
-  return <div className="editor-container animate-fade-in"><div className="editor-header"><div><span className="saas-eyebrow">Result entry</span><h1>{editingReport ? 'Edit diagnostic report' : 'Create diagnostic report'}</h1><p className="subtitle">All result fields, units and reference metadata come from your laboratory test configuration.</p></div><button onClick={onCancel} className="btn btn-outline"><X size={18}/>Cancel</button></div>
+  return <div className="editor-container animate-fade-in"><div className="editor-header"><div><span className="saas-eyebrow">Result entry</span><h1>{editingReport ? 'Edit diagnostic report' : 'Create diagnostic report'}</h1><p className="subtitle">All result fields, units and reference metadata come from your laboratory test configuration.</p></div><button type="button" onClick={onCancel} className="btn btn-outline"><X size={18}/>Cancel</button></div>
     <form onSubmit={submit} className="editor-form"><div className="form-grid-layout"><div className="glass-panel editor-demographics-card"><div className="card-header border-b"><h3>Patient & test</h3></div>
       <div className="form-group"><label className="form-label">Patient Full Name</label><input className="form-input" value={patientName} onChange={(e)=>setPatientName(e.target.value)} required/></div>
       <div className="grid-2-col"><div className="form-group"><label className="form-label">Age</label><input className="form-input" type="number" min="0" max="130" value={age} onChange={(e)=>setAge(Number(e.target.value))}/></div><div className="form-group"><label className="form-label">Gender</label><select className="form-select" value={gender} onChange={(e)=>setGender(e.target.value as typeof gender)}><option>Male</option><option>Female</option><option>Other</option></select></div></div>
@@ -92,8 +93,8 @@ export default function DynamicReportEditor({ editingReport, onSaveReport, onCan
 
 function ParameterInput({ parameter, onChange, onFlagChange }: { parameter: EditableParameter; onChange: (value: string) => void; onFlagChange: (value: TestParameter['status']) => void }) {
   const type = parameter.inputType || 'TEXT';
-  const common = { className: 'form-input param-val-input', value: parameter.value, onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => onChange(event.target.value), required: parameter.required };
-  let control: React.ReactNode;
+  const common = { className: 'form-input param-val-input', value: parameter.value, onChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => onChange(event.target.value), required: parameter.required };
+  let control: ReactNode;
   if (type === 'SELECT' || type === 'QUALITATIVE') control = <select {...common} className="form-select param-val-input"><option value="">Select value</option>{(parameter.options || []).map((option) => <option key={option} value={option}>{option}</option>)}</select>;
   else if (type === 'BOOLEAN') control = <select {...common} className="form-select param-val-input"><option value="">Select</option><option value="true">Yes</option><option value="false">No</option></select>;
   else if (type === 'MULTILINE_TEXT') control = <textarea {...common} className="form-input form-textarea param-val-input" rows={3} placeholder="Enter result" />;
@@ -101,7 +102,7 @@ function ParameterInput({ parameter, onChange, onFlagChange }: { parameter: Edit
   return <div className="param-input-item"><div className="param-name-ref-row"><span className="param-form-name">{parameter.name}{parameter.required ? ' *' : ''}</span><span className="param-form-ref">{parameter.refRange} · {parameter.unit || 'no unit'}</span></div><div className="param-value-flag-row">{control}<select className="form-select param-flag-select" value={parameter.status} onChange={(e)=>onFlagChange(e.target.value as TestParameter['status'])} aria-label={`Result flag for ${parameter.name}`}><option>Normal</option><option>High</option><option>Low</option><option>Abnormal</option></select></div>{parameter.criticalLow != null || parameter.criticalHigh != null ? <small className="param-critical-note">Critical: {parameter.criticalLow ?? '—'} to {parameter.criticalHigh ?? '—'}</small> : null}</div>;
 }
 
-function formatRange(parameter: CatalogParameter) { if (parameter.referenceRange && typeof parameter.referenceRange === 'object') return Object.entries(parameter.referenceRange as Record<string, unknown>).map(([key,value]) => `${key}: ${String(value)}`).join(' · '); const min=parameter.normalMin; const max=parameter.normalMax; if(min!=null&&max!=null)return `${min} - ${max}`; if(min!=null)return `>= ${min}`; if(max!=null)return `<= ${max}`; return 'Clinical / qualitative reference'; }
+function formatRange(parameter: CatalogParameter) { if (parameter.referenceRange && typeof parameter.referenceRange === 'object' && !Array.isArray(parameter.referenceRange)) return Object.entries(parameter.referenceRange as Record<string, unknown>).map(([key,value]) => `${key}: ${String(value)}`).join(' · '); const min=parameter.normalMin; const max=parameter.normalMax; if(min!=null&&max!=null)return `${min} - ${max}`; if(min!=null)return `>= ${min}`; if(max!=null)return `<= ${max}`; return 'Clinical / qualitative reference'; }
 function flagForValue(value:string, parameter:TestParameter):TestParameter['status'] { const n=Number(value); if(value.trim()!==''&&Number.isFinite(n)){if(parameter.minRef!=null&&n<parameter.minRef)return 'Low';if(parameter.maxRef!=null&&n>parameter.maxRef)return 'High';} return 'Normal'; }
 function decimalStep(decimalPlaces?: number | null) { if (decimalPlaces == null) return 'any'; return decimalPlaces === 0 ? '1' : String(1 / 10 ** decimalPlaces); }
-function passesValidation(value: string, validation: unknown) { if (!value.trim() || !validation || typeof validation !== 'object') return true; const rule = validation as Record<string, unknown>; const minLength = typeof rule.minLength === 'number' ? rule.minLength : undefined; const maxLength = typeof rule.maxLength === 'number' ? rule.maxLength : undefined; const pattern = typeof rule.pattern === 'string' ? rule.pattern : undefined; if (minLength != null && value.length < minLength) return false; if (maxLength != null && value.length > maxLength) return false; if (pattern) { try { if (!new RegExp(pattern).test(value)) return false; } catch { return false; } } return true; }
+function passesValidation(value: string, validation: unknown) { if (!value.trim() || !validation || typeof validation !== 'object') return true; const rule = validation as Record<string, unknown>; const minLength = typeof rule.minLength === 'number' ? rule.minLength : undefined; const maxLength = typeof rule.maxLength === 'number' ? rule.maxLength : undefined; const min = typeof rule.min === 'number' ? rule.min : undefined; const max = typeof rule.max === 'number' ? rule.max : undefined; const numeric = Number(value); if (min != null && Number.isFinite(numeric) && numeric < min) return false; if (max != null && Number.isFinite(numeric) && numeric > max) return false; if (minLength != null && value.length < minLength) return false; if (maxLength != null && value.length > maxLength) return false; const pattern = typeof rule.pattern === 'string' ? rule.pattern : undefined; if (pattern) { try { if (!new RegExp(pattern).test(value)) return false; } catch { return false; } } return true; }

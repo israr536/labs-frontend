@@ -1,0 +1,108 @@
+/* Production layout system: header + fixed workspace sidebar + responsive content. */
+:root {
+  --header-height: 68px;
+  --sidebar-width: 260px;
+  --content-max-width: 1440px;
+}
+
+html, body, #root { min-width: 320px; }
+body { overflow-x: hidden; }
+
+/* Public pages: only reserve space for the fixed header. */
+.main-content {
+  width: 100%;
+  min-width: 0;
+  min-height: 100vh;
+  margin: 0;
+  padding: calc(var(--header-height) + 24px) 24px 32px;
+  overflow-x: hidden;
+}
+
+/* Authenticated workspace: reserve the complete fixed sidebar gutter. */
+.app-container:has(.saas-sidebar) .main-content {
+  width: calc(100% - var(--sidebar-width));
+  margin-left: var(--sidebar-width);
+  padding: calc(var(--header-height) + 24px) 28px 40px;
+}
+
+/* Prevent wide dashboard cards/tables/charts from forcing overlap. */
+.main-content > * { min-width: 0; }
+.saas-dashboard,
+.saas-page,
+.page-shell,
+.public-page {
+  width: 100%;
+  max-width: var(--content-max-width);
+  margin-inline: auto;
+  min-width: 0;
+}
+
+.saas-dashboard-heading,
+.saas-page-header {
+  min-width: 0;
+}
+
+.saas-dashboard-heading > *,
+.saas-page-header > * { min-width: 0; }
+
+.table-container,
+.custom-table,
+.chart-container,
+.dashboard-grid,
+.stats-grid,
+.feature-grid,
+.policy-grid,
+.pricing-grid,
+.contact-layout {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.table-container { overflow-x: auto; }
+
+/* The sidebar component historically referenced an undefined --page-bg token. */
+.saas-sidebar,
+.saas-sidebar-inner,
+.saas-workspace-switcher {
+  --page-bg: var(--bg);
+}
+.saas-sidebar { background: var(--bg) !important; }
+.saas-sidebar-inner { background: var(--panel-bg) !important; }
+.saas-workspace-switcher { background: var(--bg) !important; }
+
+/* Fixed header must never become part of dashboard flow. */
+.app-header { width: 100%; max-width: none; }
+
+@media (max-width: 1200px) {
+  .app-container:has(.saas-sidebar) .main-content {
+    padding-inline: 20px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .main-content,
+  .app-container:has(.saas-sidebar) .main-content {
+    width: 100%;
+    margin-left: 0;
+    padding: calc(var(--header-height) + 16px) 16px 88px;
+  }
+}
+
+@media (max-width: 720px) {
+  .main-content,
+  .app-container:has(.saas-sidebar) .main-content {
+    padding-inline: 12px;
+  }
+
+  .saas-dashboard-heading,
+  .saas-page-header {
+    gap: 12px;
+  }
+}
+
+/* Long labels must wrap instead of expanding a card/grid. */
+button, input, select, textarea { max-width: 100%; }
+.saas-nav-label,
+.saas-workspace-copy,
+.saas-page-header h1,
+.saas-dashboard-heading h1 { overflow-wrap: anywhere; }

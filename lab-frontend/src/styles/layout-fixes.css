@@ -1,57 +1,93 @@
-/* Stable SaaS shell: the fixed sidebar owns the full desktop gutter. */
-.main-content {
-  margin-left: var(--sidebar-width, 260px) !important;
-  min-width: 0;
-  width: calc(100% - var(--sidebar-width, 260px));
-  padding-top: 2.5rem;
+/* Production SaaS shell: fixed header + fixed sidebar + responsive content. */
+:root {
+  --header-height: 68px;
+  --sidebar-width: 260px;
+  --content-max-width: 1440px;
 }
 
+html, body, #root { min-width: 320px; }
+body { overflow-x: hidden; }
+
+/* Public pages reserve only the fixed header. */
+.main-content {
+  width: 100%;
+  min-width: 0;
+  min-height: 100vh;
+  margin: 0 !important;
+  padding: calc(var(--header-height) + 24px) 24px 32px;
+  overflow-x: hidden;
+}
+
+/* Dashboard/workspace reserves the fixed sidebar gutter. */
+.app-container:has(.saas-sidebar) .main-content {
+  width: calc(100% - var(--sidebar-width));
+  margin-left: var(--sidebar-width) !important;
+  padding: calc(var(--header-height) + 24px) 28px 40px;
+}
+
+.main-content > * { min-width: 0; }
 .saas-dashboard,
-.dashboard-content,
 .saas-page,
+.page-shell,
+.public-page,
+.dashboard-content,
 .editor-container,
 .catalog-page {
   width: 100%;
-  max-width: 1440px;
-  margin-left: auto;
-  margin-right: auto;
+  max-width: var(--content-max-width);
+  margin-inline: auto;
   min-width: 0;
 }
 
 .dashboard-main-grid,
 .dashboard-sub-grid,
 .stats-grid,
-.form-grid-layout {
-  min-width: 0;
-}
+.form-grid-layout,
+.feature-grid,
+.policy-grid,
+.pricing-grid,
+.contact-layout { min-width: 0; max-width: 100%; }
 
 .dashboard-main-grid > *,
 .dashboard-sub-grid > *,
 .stats-grid > *,
-.form-grid-layout > * {
-  min-width: 0;
-}
+.form-grid-layout > * { min-width: 0; }
 
 .chart-wrapper,
 .alerts-list,
 .operations-section,
-.param-form-list {
-  min-width: 0;
-  overflow-x: auto;
+.param-form-list,
+.table-container { min-width: 0; max-width: 100%; overflow-x: auto; }
+
+/* Sidebar previously used an undefined --page-bg token. */
+.saas-sidebar,
+.saas-sidebar-inner,
+.saas-workspace-switcher { --page-bg: var(--bg); }
+.saas-sidebar { background: var(--bg) !important; }
+.saas-sidebar-inner { background: var(--panel-bg) !important; }
+.saas-workspace-switcher { background: var(--bg) !important; }
+
+.app-header { width: 100%; max-width: none; }
+button, input, select, textarea { max-width: 100%; }
+
+@media (max-width: 1200px) {
+  .app-container:has(.saas-sidebar) .main-content { padding-inline: 20px; }
 }
 
 @media (max-width: 1024px) {
-  .main-content {
-    margin-left: 0 !important;
+  .main-content,
+  .app-container:has(.saas-sidebar) .main-content {
     width: 100%;
-    padding-top: 1.5rem;
-    padding-bottom: 82px !important;
+    margin-left: 0 !important;
+    padding: calc(var(--header-height) + 16px) 16px 88px;
   }
 }
 
-@media (max-width: 760px) {
-  .main-content {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
+@media (max-width: 720px) {
+  .main-content,
+  .app-container:has(.saas-sidebar) .main-content { padding-inline: 12px; }
+  .saas-dashboard-heading,
+  .saas-page-header { gap: 12px; }
+  .saas-dashboard-heading h1,
+  .saas-page-header h1 { overflow-wrap: anywhere; }
 }

@@ -63,7 +63,7 @@ function ParameterEditor({ parameter, open, onToggle, onSave, onRemove }: { para
   const [ranges, setRanges] = useState<ReferenceRange[]>([]);
   const [rangeOpen, setRangeOpen] = useState(false);
   const { data: fetchedRanges = [], isLoading: rangesLoading } = useQuery({ queryKey: ['reference-ranges', parameter.id], queryFn: () => testCatalogService.listReferenceRanges(parameter.id), enabled: open && rangeOpen, staleTime: 15_000 });
-  const addRange = useMutation({ mutationFn: (body: Parameters<typeof testCatalogService.createReferenceRange>[1]) => testCatalogService.createReferenceRange(parameter.id, body), onSuccess: () => setRanges([]) });
+  const addRange = useMutation({ mutationFn: (body: Parameters<typeof testCatalogService.createReferenceRange>[1]) => testCatalogService.createReferenceRange(parameter.id, body), onSuccess: () => { setRanges([]); } });
   const visibleRanges = ranges.length ? ranges : fetchedRanges;
   const set = (key: keyof ParameterDraft, value: unknown) => setDraft((current) => ({ ...current, [key]: value }));
   const save = () => onSave({ name: draft.name, inputType: draft.inputType, unit: draft.unit || null, normalMin: num(draft.normalMin), normalMax: num(draft.normalMax), criticalLow: num(draft.criticalLow), criticalHigh: num(draft.criticalHigh), decimalPlaces: numInt(draft.decimalPlaces), defaultValue: draft.defaultValue || null, formula: draft.formula || null, displayOrder: numInt(draft.displayOrder), isRequired: !!draft.isRequired, remarks: draft.remarks || null, options: parseJson(draft.optionsText, draft.options), validation: parseJson(draft.validationText, draft.validation) });

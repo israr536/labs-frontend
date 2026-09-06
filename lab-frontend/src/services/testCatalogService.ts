@@ -21,14 +21,22 @@ const testCatalogService = {
   provisionDefaults: () => request<StarterProvisionResult>('test-catalog/provision-defaults',{method:'POST',body:JSON.stringify({})}),
   myTests: async (includeInactive=false) => {
     const tests=await request<LabTest[]>(`tests${includeInactive?'?includeInactive=true':''}`);
-    return Promise.all(tests.map(async test => {
-      if(!test.catalogId || test.parameters.length>1) return test;
-      try {
-        const catalog=await request<TestCatalogDefinition>(`test-catalog/${test.catalogId}`);
-        if(catalog.parameters.length>test.parameters.length) return {...test,parameters:catalog.parameters};
-      } catch { /* keep the configured lab test when catalog data is unavailable */ }
+
+    // Always use the complete catalog parameter definition for report entry.
+    // Some older lab tests were created with only a subset of their catalog
+    // parameters. Resolve the catalog by catalogId first and by test code as a
+    // fallback so every configured test gets the full parameter set.
+    const catalogs=await request<TestCatalogDefinition[]>('test-catalog');
+    const catalogById=new Map(catalogs.map((catalog)=>[catalog.id,catalog]));
+    const catalogByCode=new Map(catalogs.map((catalog)=>[catalog.code.toLowerCase(),catalog]));
+
+    return tests.map((test)=>{
+      const catalog=(test.catalogId ? catalogById.get(test.catalogId) : undefined) ?? catalogByCode.get(test.code.toLowerCase());
+      if(catalog && catalog.parameters.length>test.parameters.length){
+        return {...test,parameters:catalog.parameters};
+      }
       return test;
-    }));
+    });
   },
   createTest: (body:CreateTestInput) => request<LabTest>('tests',{method:'POST',body:JSON.stringify(body)}),
   updateTest: (id:string,body:LabTestUpdate) => request<LabTest>(`tests/${id}`,{method:'PATCH',body:JSON.stringify(body)}),

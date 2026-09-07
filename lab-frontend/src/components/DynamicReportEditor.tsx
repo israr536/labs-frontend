@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import type { ChangeEvent, FormEvent, ReactNode } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Save, X, Activity } from 'lucide-react';
+import { Save, X, Activity, Search } from 'lucide-react';
 import type { LabReport, TestParameter } from '../data/samples';
 import reportsService from '../services/reportsService';
 import testCatalogService, { type CatalogParameter, type LabTest } from '../services/testCatalogService';
+import TestCatalogPicker from './TestCatalogPicker';
 import { useToast } from './Toast';
 
 type Props = { editingReport: LabReport | null; onSaveReport: (report: LabReport) => void; onCancel: () => void };
@@ -12,7 +12,7 @@ type EditableParameter = Omit<TestParameter, 'inputType' | 'options'> & { inputT
 
 export default function DynamicReportEditor({ editingReport, onSaveReport, onCancel }: Props) {
   const toast = useToast();
-  const { data: tests = [], isLoading } = useQuery({ queryKey: ['tests'], queryFn: () => testCatalogService.myTests(), staleTime: 60_000 });
+  const { data: tests = [], isLoading } = useQueryCompat();
   const [patientName, setPatientName] = useState('');
   const [age, setAge] = useState(30);
   const [gender, setGender] = useState<'Male'|'Female'|'Other'>('Male');
@@ -58,20 +58,27 @@ export default function DynamicReportEditor({ editingReport, onSaveReport, onCan
     catch (error) { toast.show({ type: 'error', message: error instanceof Error ? error.message : 'Unable to save report.' }); }
   };
 
-  return <div className="editor-container animate-fade-in"><div className="editor-header"><div><span className="saas-eyebrow">Result entry</span><h1>{editingReport ? 'Edit diagnostic report' : 'Create diagnostic report'}</h1><p className="subtitle">All result fields, units and reference metadata come from your laboratory test configuration.</p></div><button type="button" onClick={onCancel} className="btn btn-outline"><X size={18}/>Cancel</button></div>
+  return <div className="editor-container animate-fade-in report-editor-page">
+    <div className="editor-header"><div><span className="saas-eyebrow">Result entry</span><h1>{editingReport ? 'Edit diagnostic report' : 'Create diagnostic report'}</h1><p className="subtitle">Search the complete laboratory catalog and enter configured patient results.</p></div><button type="button" onClick={onCancel} className="btn btn-outline"><X size={18}/>Cancel</button></div>
     <form onSubmit={submit} className="editor-form"><div className="form-grid-layout"><div className="glass-panel editor-demographics-card"><div className="card-header border-b"><h3>Patient & test</h3></div>
       <div className="form-group"><label className="form-label">Patient Full Name</label><input className="form-input" value={patientName} onChange={(e)=>setPatientName(e.target.value)} required/></div>
       <div className="grid-2-col"><div className="form-group"><label className="form-label">Age</label><input className="form-input" type="number" min="0" max="130" value={age} onChange={(e)=>setAge(Number(e.target.value))}/></div><div className="form-group"><label className="form-label">Gender</label><select className="form-select" value={gender} onChange={(e)=>setGender(e.target.value as typeof gender)}><option>Male</option><option>Female</option><option>Other</option></select></div></div>
       <div className="grid-2-col"><div className="form-group"><label className="form-label">Phone</label><input className="form-input" value={phone} onChange={(e)=>setPhone(e.target.value)} required/></div><div className="form-group"><label className="form-label">Email</label><input className="form-input" type="email" value={email} onChange={(e)=>setEmail(e.target.value)}/></div></div>
       <div className="form-group"><label className="form-label">Referred By</label><input className="form-input" value={referredBy} onChange={(e)=>setReferredBy(e.target.value)}/></div>
       <div className="form-group"><label className="form-label">Sample Collected</label><input className="form-input" type="datetime-local" value={dateCollected} onChange={(e)=>setDateCollected(e.target.value)}/></div>
-      <div className="form-group"><label className="form-label">Laboratory Test</label><select className="form-select" value={testId} onChange={(e)=>selectTest(e.target.value)} disabled={!!editingReport || isLoading} required><option value="">Select a configured test</option>{tests.map((test)=> <option key={test.id} value={test.id}>{test.name} ({test.code})</option>)}</select></div>
+      <div className="form-group test-selection-field"><div className="test-selection-heading"><div><label className="form-label">Laboratory Test</label><span>Search by test name, code, short name or synonym.</span></div><Search size={17}/></div><TestCatalogPicker selectedIds={testId ? [testId] : []} onChange={(ids) => selectTest(ids[ids.length - 1] || '')} disabled={Boolean(editingReport) || isLoading}/></div>
       <div className="form-group"><label className="form-label">Workflow Status</label><select className="form-select" value={status} onChange={(e)=>setStatus(e.target.value as LabReport['status'])}><option value="Draft">Draft</option><option value="Pending">Pending</option><option value="Completed">Completed</option><option value="Critical">Critical</option></select></div>
     </div><div className="glass-panel editor-parameters-card"><div className="card-header border-b"><Activity size={18}/><h3>{selectedTest?.name || 'Test parameters'}</h3></div>
-      {!selectedTest && <div className="empty-state">Select a test configured by your laboratory.</div>}
+      {!selectedTest && <div className="empty-state">Select an enabled test from the catalog.</div>}
       <div className="param-form-list">{parameters.map((param,index)=><ParameterInput key={`${param.name}-${index}`} parameter={param} onChange={(value)=>changeValue(index,value)} onFlagChange={(value)=>changeFlag(index,value)} />)}</div>
       <div className="preview-divider"/><div className="form-group"><label className="form-label">Clinical Notes</label><textarea className="form-input form-textarea" rows={4} value={interpretation} onChange={(e)=>setInterpretation(e.target.value)} placeholder="Clinical notes or interpretation"/></div><div className="editor-actions-row"><button type="button" onClick={onCancel} className="btn btn-outline">Cancel</button><button type="submit" className="btn btn-primary"><Save size={18}/>Save Diagnostic Report</button></div>
-    </div></div></form></div>;
+    </div></div></form>
+    <style>{`.report-editor-page{width:100%;max-width:1440px;margin:0 auto;padding:clamp(1rem,2vw,2rem);min-width:0}.report-editor-page *{min-width:0}.report-editor-page .editor-header{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:1.25rem}.report-editor-page .editor-header>div{min-width:0}.report-editor-page .editor-header h1{font-size:clamp(1.45rem,2.5vw,2rem);margin:.25rem 0 .35rem}.report-editor-page .subtitle{color:var(--text);max-width:760px}.report-editor-page .editor-form,.report-editor-page .form-grid-layout{width:100%;min-width:0}.report-editor-page .form-grid-layout{display:grid;grid-template-columns:minmax(280px,.8fr) minmax(0,1.2fr);gap:1rem;align-items:start}.report-editor-page .glass-panel{min-width:0;max-width:100%;overflow:hidden}.report-editor-page .editor-parameters-card{min-width:0}.report-editor-page .test-selection-field{min-width:0}.report-editor-page .test-selection-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;color:var(--primary);margin-bottom:.35rem}.report-editor-page .test-selection-heading>div{display:grid;gap:.15rem}.report-editor-page .test-selection-heading span{font-size:.68rem;color:var(--text)}.report-editor-page .test-catalog-picker{min-width:0}.report-editor-page .test-catalog-picker .picker-list{grid-template-columns:1fr;max-height:300px}.report-editor-page .test-catalog-picker .picker-toolbar{grid-template-columns:minmax(0,1fr);}.report-editor-page .test-catalog-picker .picker-summary{align-items:flex-start}.report-editor-page .test-catalog-picker .picker-test{grid-template-columns:20px 30px minmax(0,1fr) auto}.report-editor-page .param-name-ref-row{min-width:0}.report-editor-page .param-form-ref{min-width:0;overflow-wrap:anywhere}.report-editor-page .param-value-flag-row{display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:.6rem;align-items:start}.report-editor-page .param-val-input{width:100%;min-width:0}.report-editor-page .param-flag-select{width:100%;min-width:0}.report-editor-page .editor-actions-row{display:flex;justify-content:flex-end;gap:.6rem;flex-wrap:wrap}.report-editor-page .editor-actions-row .btn{max-width:100%}@media(max-width:1050px){.report-editor-page .form-grid-layout{grid-template-columns:1fr}.report-editor-page .test-catalog-picker .picker-list{grid-template-columns:1fr 1fr}}@media(max-width:720px){.report-editor-page{padding:1rem}.report-editor-page .editor-header{flex-direction:column}.report-editor-page .editor-header .btn{width:100%}.report-editor-page .test-catalog-picker .picker-list{grid-template-columns:1fr}.report-editor-page .param-value-flag-row{grid-template-columns:1fr}.report-editor-page .editor-actions-row>*{width:100%}}@media(min-width:1051px){.report-editor-page .test-catalog-picker .picker-toolbar{grid-template-columns:minmax(0,1fr)}}`}</style>
+  </div>;
+}
+
+function useQueryCompat() {
+  return useQuery({ queryKey: ['tests', 'new-report'], queryFn: () => testCatalogService.myTests(), staleTime: 60_000 });
 }
 
 function ParameterInput({ parameter, onChange, onFlagChange }: { parameter: EditableParameter; onChange: (value: string) => void; onFlagChange: (value: TestParameter['status']) => void }) {

@@ -5,6 +5,12 @@ import testsService from './testsService';
 
 type ApiReport = Record<string, any>;
 type ReportListApi = { data: ApiReport[]; pagination?: any };
+export type ReportTemplateId = 'classic' | 'modern' | 'compact' | 'detailed' | 'premium' | 'minimal';
+export type ReportTemplate = { id: ReportTemplateId; name: string; description: string };
+
+export async function listReportTemplates(): Promise<ReportTemplate[]> { return request<ReportTemplate[]>('reports/templates'); }
+export function getSavedReportTemplate(): ReportTemplateId { try { const value = localStorage.getItem('lab_report_template'); return ['classic','modern','compact','detailed','premium','minimal'].includes(value || '') ? value as ReportTemplateId : 'classic'; } catch { return 'classic'; } }
+export function saveReportTemplate(template: ReportTemplateId) { try { localStorage.setItem('lab_report_template', template); } catch {} }
 
 export async function listReports(filters?: { status?: string; search?: string; patientId?: string; testId?: string; skip?: number; take?: number }): Promise<{ data: LabReport[]; pagination?: any }> {
   const params = new URLSearchParams();
@@ -30,7 +36,20 @@ export async function updateReport(id: string, body: Partial<LabReport>): Promis
 export function deleteReport(id: string) { return request<ApiReport>(`reports/${id}`, { method: 'DELETE' }); }
 export async function generateReport(id: string): Promise<LabReport> { return mapGeneratedReport(await request<ApiReport>(`reports/${id}/generate`)); }
 export async function finalizeReport(id: string): Promise<LabReport> { return mapApiReport(await request<ApiReport>(`reports/${id}/finalize`, { method: 'POST' })); }
-export async function downloadReportPdf(id: string, fileName?: string) { const response = await fetch(`${(await import('./api')).default.API_BASE}/reports/${id}/pdf`, { headers: { Authorization: `Bearer ${localStorage.getItem('lab_access_token')}` } }); if (!response.ok) throw new Error('Failed to download PDF'); const blob = await response.blob(); const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = fileName || `report-${id}.pdf`; document.body.appendChild(a); a.click(); a.remove(); window.URL.revokeObjectURL(url); }
+
+export async function downloadReportPdf(id: string, fileName?: string, template: ReportTemplateId = getSavedReportTemplate()) {
+  const base = (await import('./api')).default.API_BASE;
+  const response = await fetch(`${base}/reports/${id}/pdf?template=${encodeURIComponent(template)}`, { headers: { Authorization: `Bearer ${localStorage.getItem('lab_access_token')}` } });
+  if (!response.ok) throw new Error('Failed to download PDF');
+  const blob = await response.blob(); const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = fileName || `report-${id}-${template}.pdf`; document.body.appendChild(a); a.click(); a.remove(); window.URL.revokeObjectURL(url);
+}
+
+export async function openReportPdf(id: string, template: ReportTemplateId = getSavedReportTemplate()) {
+  const base = (await import('./api')).default.API_BASE;
+  const response = await fetch(`${base}/reports/${id}/pdf?template=${encodeURIComponent(template)}`, { headers: { Authorization: `Bearer ${localStorage.getItem('lab_access_token')}` } });
+  if (!response.ok) throw new Error('Failed to generate PDF');
+  const blob = await response.blob(); const url = window.URL.createObjectURL(blob); window.open(url, '_blank', 'noopener,noreferrer'); setTimeout(() => window.URL.revokeObjectURL(url), 60000);
+}
 
 function mapApiReport(report: ApiReport): LabReport { const resultByParameterId = new Map((report.results ?? []).map((result: any) => [result.parameterId, result])); const parametersSource = report.test?.parameters?.length ? report.test.parameters : (report.results ?? []).map((result: any) => result.parameter); const parameters = parametersSource.map((parameter: any) => mapParameter(parameter, resultByParameterId.get(parameter.id))); return { id: report.id, patientName: report.patient?.name ?? 'Unknown patient', age: report.patient?.age ?? 0, gender: mapGenderFromApi(report.patient?.gender), phone: report.patient?.mobile ?? '', email: report.patient?.email ?? '', referredBy: report.referredBy ?? 'Dr. Self / Walk-in', dateCollected: toDateTimeLocal(report.sampleCollectedAt ?? report.createdAt), dateReported: toDateTimeLocal(report.reportedAt ?? report.updatedAt ?? report.createdAt), testType: report.test?.name ?? 'Diagnostic Test', status: mapReportStatus(report.status, parameters), parameters, interpretation: report.doctorNotes ?? report.remarks ?? '', ...(report.reportNumber ? { reportNumber: report.reportNumber } : {}), ...(report.patientId ? { patientId: report.patientId } : {}), ...(report.testId ? { testId: report.testId } : {}) } as LabReport; }
 function mapGeneratedReport(data: ApiReport): LabReport { const parameters = (data.results ?? []).map((result: any) => mapParameter({ id: result.parameterId, name: result.name, unit: result.unit, normalMin: result.normalMin, normalMax: result.normalMax, referenceRange: result.referenceRange, inputType: result.inputType, options: result.options, decimalPlaces: result.decimalPlaces, isRequired: result.isRequired, criticalLow: result.criticalLow, criticalHigh: result.criticalHigh, formula: result.formula }, result)); return { id: data.report?.id, patientName: data.patient?.name ?? 'Unknown patient', age: data.patient?.age ?? 0, gender: mapGenderFromApi(data.patient?.gender), phone: data.patient?.mobile ?? '', email: data.patient?.email ?? '', referredBy: data.report?.referredBy ?? 'Dr. Self / Walk-in', dateCollected: toDateTimeLocal(data.report?.sampleCollectedAt ?? data.report?.createdAt), dateReported: toDateTimeLocal(data.report?.reportedAt ?? data.report?.createdAt), testType: data.test?.name ?? 'Diagnostic Test', status: mapReportStatus(data.report?.status, parameters), parameters, interpretation: data.report?.doctorNotes ?? data.report?.remarks ?? '', reportNumber: data.report?.reportNumber, patientId: data.patient?.id, testId: data.test?.id } as LabReport; }
@@ -47,4 +66,4 @@ function mapGenderFromApi(gender?: string): LabReport['gender'] { if (gender ===
 function formatRange(parameter: any) { const ref = parameter?.referenceRange; if (ref && typeof ref === 'object' && !Array.isArray(ref)) return Object.entries(ref as Record<string, unknown>).map(([key, value]) => `${key}: ${String(value)}`).join(' · '); const min=parameter?.normalMin; const max=parameter?.normalMax; if(min!=null&&max!=null)return `${min} - ${max}`; if(min!=null)return `>= ${min}`; if(max!=null)return `<= ${max}`; return 'Clinical reference'; }
 function toDateTimeLocal(value?: string | Date | null) { const date = value ? new Date(value) : new Date(); if (Number.isNaN(date.getTime())) return ''; const pad=(n:number)=>String(n).padStart(2,'0'); return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`; }
 function toIso(value?: string) { if (!value) return undefined; const date = new Date(value); return Number.isNaN(date.getTime()) ? undefined : date.toISOString(); }
-export default { listReports, getReport, createReport, updateReport, deleteReport, generateReport, finalizeReport, downloadReportPdf };
+export default { listReports, getReport, createReport, updateReport, deleteReport, generateReport, finalizeReport, downloadReportPdf, openReportPdf, listReportTemplates, getSavedReportTemplate, saveReportTemplate };

@@ -5,25 +5,242 @@ import samplesService from '../services/samplesService';
 import resultsService from '../services/resultsService';
 import finalReportsService from '../services/finalReportsService';
 import patientsService, { type PatientRecord } from '../services/patientsService';
-import testsService from '../services/testsService';
+import TestCatalogPicker from '../components/TestCatalogPicker';
 
-type Role='ADMIN'|'RECEPTIONIST'|'TECHNICIAN'|'PATHOLOGIST'|string|undefined;type Any=Record<string,any>;type Test={id:string;code:string;name:string};
-function records(v:any):Any[]{if(Array.isArray(v))return v.filter(x=>x&&typeof x==='object');if(v&&Array.isArray(v.data))return records(v.data);return []}function text(v:any){return v==null?'':String(v)}function label(v?:string){return(v??'').replaceAll('_',' ').toLowerCase().replace(/\b\w/g,c=>c.toUpperCase())}
-function numeric(v:string){if(v.trim()==='')return null;const n=Number(v);return Number.isFinite(n)?n:null}
-function numericBounds(row:Any){const low=Number(row.reference?.low??row.normalMin);const high=Number(row.reference?.high??row.normalMax);return{low:Number.isFinite(low)?low:null,high:Number.isFinite(high)?high:null}}
-function flagFor(row:Any,value:string){const n=numeric(value);if(n===null)return null;const{low,high}=numericBounds(row);if(low===null&&high===null)return null;if(low!==null&&n<low)return 'LOW';if(high!==null&&n>high)return 'HIGH';return 'NORMAL'}
-function criticalFor(row:Any,value:string){const n=numeric(value);if(n===null)return null;const low=row.criticalLow==null?null:Number(row.criticalLow);const high=row.criticalHigh==null?null:Number(row.criticalHigh);if(low!==null&&Number.isFinite(low)&&n<=low)return 'CRITICAL LOW';if(high!==null&&Number.isFinite(high)&&n>=high)return 'CRITICAL HIGH';return null}
-function validateRow(row:Any,value:string){const trimmed=value.trim();if(row.required&&!trimmed)return 'Required result';if(!trimmed)return null;if(row.inputType==='NUMBER'||row.inputType==='PERCENTAGE'){const n=Number(trimmed);if(!Number.isFinite(n))return 'Enter a valid number';if(row.inputType==='PERCENTAGE'&&(n<0||n>100))return 'Enter a percentage from 0 to 100';if(row.validation&&typeof row.validation==='object'){const min=Number(row.validation.min);const max=Number(row.validation.max);if(Number.isFinite(min)&&n<min)return `Minimum ${min}`;if(Number.isFinite(max)&&n>max)return `Maximum ${max}`}}if(row.inputType==='SELECT'||row.inputType==='QUALITATIVE'){if(row.options.length&&!row.options.includes(trimmed))return 'Select a configured option'}return null}
-function roundForInput(value:string,decimalPlaces:any){if(value===''||decimalPlaces==null||decimalPlaces==='')return value;const places=Number(decimalPlaces);const n=Number(value);if(!Number.isFinite(places)||!Number.isFinite(n)||places<0)return value;return n.toFixed(Math.min(places,10))}
-export default function OrdersWorkspaceV2({role}:{role?:Role}){const[orders,setOrders]=useState<Any[]>([]);const[patients,setPatients]=useState<PatientRecord[]>([]);const[tests,setTests]=useState<Test[]>([]);const[selected,setSelected]=useState<Any|null>(null);const[busy,setBusy]=useState(false);const[loading,setLoading]=useState(true);const[error,setError]=useState('');const[notice,setNotice]=useState('');const[showCreate,setShowCreate]=useState(false);const[patientId,setPatientId]=useState('');const[selectedTests,setSelectedTests]=useState<string[]>([]);const[resultDraft,setResultDraft]=useState<Record<string,string>>({});const canCreate=role==='ADMIN'||role==='RECEPTIONIST';const canResults=role==='ADMIN'||role==='TECHNICIAN';const canFinalize=role==='ADMIN'||role==='PATHOLOGIST';const canSamples=canCreate||role==='TECHNICIAN';
- const load=async()=>{setLoading(true);try{const r=await ordersService.listOrders({limit:50});setOrders(records(r))}catch(e){setError(e instanceof Error?e.message:'Unable to load orders')}finally{setLoading(false)}};useEffect(()=>{void load();void(async()=>{try{const[p,t]=await Promise.all([patientsService.listPatients(),testsService.listTests()]);setPatients(p);setTests(records(t).map(x=>({id:text(x.id),code:text(x.code),name:text(x.name)})))}catch(e){setError(e instanceof Error?e.message:'Unable to load master data')}})()},[]);
- const rows=useMemo(()=>{if(!selected)return[];return records(selected.items).flatMap(item=>{const test=item.test??{};const itemResults=records(item.results);return records(test.parameters).map(p=>{const r=itemResults.find(x=>x.parameterId===p.id);return{id:`${p.id}:${item.id}`,parameterId:text(p.id),orderItemId:text(item.id),testName:text(test.name)||'Test',testCode:text(test.code),name:text(p.name),inputType:text(p.inputType)||'TEXT',unit:text(p.unit),options:Array.isArray(p.options)?p.options.map(text):[],required:p.isRequired!==false,normalMin:p.normalMin,normalMax:p.normalMax,criticalLow:p.criticalLow,criticalHigh:p.criticalHigh,decimalPlaces:p.decimalPlaces,validation:p.validation??null,reference:r?.referenceRangeSnapshot??null,value:text(r?.value),sampleId:text(r?.sampleId)}})})},[selected]);
- const groupedRows=useMemo(()=>{const groups=new Map<string,{name:string;code:string;rows:Any[]}>();rows.forEach(r=>{const key=r.orderItemId;if(!groups.has(key))groups.set(key,{name:r.testName,code:r.testCode,rows:[]});groups.get(key)!.rows.push(r)});return [...groups.values()]},[rows]);
- const validationErrors=useMemo(()=>rows.reduce((acc:Record<string,string>,row)=>{const error=validateRow(row,resultDraft[row.id]??'');if(error)acc[row.id]=error;return acc},{}),[rows,resultDraft]);
- const missingRequired=useMemo(()=>rows.filter(r=>r.required&&!resultDraft[r.id]?.trim()),[rows,resultDraft]);
- const invalidResults=Object.keys(validationErrors).length;
- useEffect(()=>{const d:Record<string,string>={};rows.forEach(r=>d[r.id]=r.value);setResultDraft(d)},[rows]);
- async function open(o:Any){setError('');setNotice('');setBusy(true);try{setSelected(await ordersService.getOrder(o.id))}catch(e){setError(e instanceof Error?e.message:'Unable to open order')}finally{setBusy(false)}}async function createOrder(){if(!patientId||!selectedTests.length){setError('Select a patient and at least one test.');return}setBusy(true);try{const o=await ordersService.createOrder({patientId,testIds:selectedTests});setShowCreate(false);setPatientId('');setSelectedTests([]);await load();await open(o)}catch(e){setError(e instanceof Error?e.message:'Unable to create order')}finally{setBusy(false)}}async function generateSamples(){if(!selected||!canSamples)return;setBusy(true);try{setSelected(await samplesService.createSamples(selected.id));setNotice('Samples generated.')}catch(e){setError(e instanceof Error?e.message:'Unable to generate samples')}finally{setBusy(false)}}async function saveResults(){if(!selected||!canResults)return;if(invalidResults){setError(`Fix ${invalidResults} result field${invalidResults===1?'':'s'} before saving.`);return}setBusy(true);try{await resultsService.saveResults(selected.id,rows.map(r=>({parameterId:r.parameterId,value:resultDraft[r.id]??'',sampleId:r.sampleId||undefined})));setSelected(await ordersService.getOrder(selected.id));await load();setNotice('Results saved. Reference ranges were resolved by the backend.')}catch(e){setError(e instanceof Error?e.message:'Unable to save results')}finally{setBusy(false)}}async function verify(){if(!selected||!canResults)return;if(!rows.length){setError('This order has no configured result parameters. Configure the test before verification.');return}if(invalidResults){setError(`Fix ${invalidResults} result field${invalidResults===1?'':'s'} before verification.`);return}setBusy(true);try{await resultsService.verifyResults(selected.id);setSelected(await ordersService.getOrder(selected.id));setNotice('Results verified.')}catch(e){setError(e instanceof Error?e.message:'Unable to verify results')}finally{setBusy(false)}}async function finalize(){if(!selected||!canFinalize)return;setBusy(true);try{await finalReportsService.finalizeReport(selected.id);setSelected(await ordersService.getOrder(selected.id));setNotice('Final report created.')}catch(e){setError(e instanceof Error?e.message:'Unable to finalize report')}finally{setBusy(false)}}
- const locked=selected?.status==='FINAL'||selected?.status==='VERIFIED';
- return <section className="orders-page"><div className="orders-header"><div><div className="eyebrow"><FlaskConical size={15}/> LAB OPERATIONS</div><h1>Orders & Results</h1><p>Configured test panels automatically provide the fields technicians need.</p></div><div className="orders-actions"><button className="secondary-action" onClick={()=>void load()}><RefreshCw size={16}/> Refresh</button>{canCreate&&<button className="primary-action" onClick={()=>setShowCreate(true)}><Plus size={17}/> New Order</button>}</div></div>{error&&<div className="alert danger-alert">{error}</div>}{notice&&<div className="alert success-alert">{notice}</div>}<div className="order-layout"><div className="orders-card">{loading?<div className="empty-state">Loading orders…</div>:<div className="orders-table-wrap"><table><thead><tr><th>Order</th><th>Patient</th><th>Tests</th><th>Status</th></tr></thead><tbody>{orders.map(o=><tr key={o.id} onClick={()=>void open(o)} className={selected?.id===o.id?'selected-row':''}><td><strong>{text(o.orderNumber)}</strong></td><td>{text(o.patient?.name)}</td><td>{records(o.items).length}</td><td>{label(text(o.status))}</td></tr>)}</tbody></table>{!orders.length&&<div className="empty-state">No orders found.</div>}</div>}</div><div className="order-detail-card">{!selected?<div className="empty-state detail-empty"><TestTube2 size={38}/><strong>Select an order</strong><span>Configured parameters will appear here.</span></div>:<><div className="detail-heading"><div><span className="detail-order-number">{text(selected.orderNumber)}</span><h2>{text(selected.patient?.name)||'Patient'}</h2><p>{text(selected.patient?.mobile)}</p></div><span className="status-pill neutral">{label(text(selected.status))}</span></div><div className="detail-section"><div className="section-title"><h3><TestTube2 size={17}/> Samples</h3>{canSamples&&selected.status==='REGISTERED'&&<button className="small-primary" onClick={()=>void generateSamples()} disabled={busy}>Generate Samples</button>}</div>{records(selected.samples).map(s=><div className="sample-row" key={text(s.id)}><div><strong>{text(s.accessionNumber)}</strong><span>{text(s.specimenType)}</span></div></div>)}{!records(selected.samples).length&&<p className="muted">No samples generated yet.</p>}</div><div className="detail-section"><div className="section-title"><div><h3><ClipboardList size={17}/> Results</h3><span className="muted">{rows.length} configured field{rows.length===1?'':'s'} · {missingRequired.length} required remaining{invalidResults?` · ${invalidResults} invalid`:''}</span></div>{canResults&&!locked&&<button className="small-primary" onClick={()=>void saveResults()} disabled={busy||!rows.length||!!invalidResults}>Save Results</button>}</div>{groupedRows.map(group=><div className="result-test-group" key={`${group.code}:${group.name}`}><div className="result-test-heading"><div><strong>{group.name}</strong>{group.code&&<span>{group.code}</span>}</div><span>{group.rows.length} fields</span></div>{group.rows.map(r=>{const value=resultDraft[r.id]??'';const flag=flagFor(r,value);const critical=criticalFor(r,value);const fieldError=validationErrors[r.id];return <div className="param-input-item" key={r.id}><div className="param-name-ref-row"><span className="param-form-name">{r.name}{r.required?' *':''}</span><span className="param-form-ref">{r.reference?.displayRange||(r.reference?.low!=null&&r.reference?.high!=null?`${r.reference.low} – ${r.reference.high}`:r.normalMin!=null&&r.normalMax!=null?`${r.normalMin} – ${r.normalMax}`:'Reference not configured')} · {r.reference?.unit||r.unit||'no unit'}{r.criticalLow!=null||r.criticalHigh!=null?' · Critical values configured':''}</span></div><div className="result-entry-row"><ResultInput row={r} value={value} disabled={!canResults||locked} onChange={v=>setResultDraft(d=>({...d,[r.id]:v}))}/>{flag&&<span className={`result-flag result-flag-${flag.toLowerCase()}`}>{flag==='NORMAL'?<CheckCircle2 size={14}/>:<AlertTriangle size={14}/>} {flag}</span>}{critical&&<span className="result-flag result-flag-critical"><AlertTriangle size={14}/> {critical}</span>}</div>{fieldError&&<span className="result-field-error">{fieldError}</span>}</div>})}</div>)}{!rows.length&&<div className="empty-state result-empty"><ClipboardList size={28}/><strong>No result fields configured</strong><span>An administrator must enable/configure this test before a technician can enter results.</span></div>}</div><div className="editor-actions-row">{selected.status==='VERIFIED'?canFinalize&&<button className="btn btn-primary" onClick={()=>void finalize()} disabled={busy}><FileCheck2 size={17}/> Finalize Report</button>:selected.status!=='FINAL'&&canResults&&<button className="btn btn-primary" onClick={()=>void verify()} disabled={busy||!rows.length||!!invalidResults}>Verify Results</button>}</div></>}</div></div>{showCreate&&<div className="modal-backdrop"><div className="modal-content"><div className="modal-header"><h2>New laboratory order</h2><button className="icon-btn" onClick={()=>setShowCreate(false)}>×</button></div><div className="form-group"><label className="form-label">Patient</label><select className="form-select" value={patientId} onChange={e=>setPatientId(e.target.value)}><option value="">Select patient</option>{patients.map(p=><option key={p.id} value={p.id}>{p.name} · {p.mobile}</option>)}</select></div><div className="form-group"><label className="form-label">Tests</label><div className="catalog-check-list">{tests.map(t=><label key={t.id}><input type="checkbox" checked={selectedTests.includes(t.id)} onChange={e=>setSelectedTests(x=>e.target.checked?[...x,t.id]:x.filter(id=>id!==t.id))}/>{t.name} ({t.code})</label>)}</div></div><div className="editor-actions-row"><button className="btn btn-outline" onClick={()=>setShowCreate(false)}>Cancel</button><button className="btn btn-primary" onClick={()=>void createOrder()} disabled={busy}>Create Order</button></div></div></div>}</section>}
-function ResultInput({row,value,disabled,onChange}:{row:any;value:string;disabled:boolean;onChange:(v:string)=>void}){const handleChange=(next:string)=>{if(row.inputType==='NUMBER'||row.inputType==='PERCENTAGE')onChange(roundForInput(next,row.decimalPlaces));else onChange(next)};if(row.inputType==='SELECT'||row.inputType==='QUALITATIVE')return <select className="form-input param-val-input" disabled={disabled} value={value} onChange={e=>handleChange(e.target.value)}><option value="">Select…</option>{row.options.map((o:string)=><option key={o} value={o}>{o}</option>)}</select>;if(row.inputType==='BOOLEAN')return <select className="form-input param-val-input" disabled={disabled} value={value} onChange={e=>handleChange(e.target.value)}><option value="">Select…</option><option value="true">Yes</option><option value="false">No</option></select>;const type=row.inputType==='DATE'?'date':row.inputType==='DATETIME'?'datetime-local':row.inputType==='TIME'?'time':row.inputType==='NUMBER'||row.inputType==='PERCENTAGE'?'number':'text';return <input className="form-input param-val-input" type={type} min={row.inputType==='PERCENTAGE'?'0':undefined} max={row.inputType==='PERCENTAGE'?'100':undefined} step={row.inputType==='NUMBER'||row.inputType==='PERCENTAGE'?(row.decimalPlaces==null?'any':`0.${'0'.repeat(Math.max(0,Number(row.decimalPlaces)-1))}1`):undefined} disabled={disabled} value={value} onChange={e=>handleChange(e.target.value)} />}
+type Role = 'ADMIN' | 'RECEPTIONIST' | 'TECHNICIAN' | 'PATHOLOGIST' | string | undefined;
+type Any = Record<string, any>;
+
+function records(value: any): Any[] {
+  if (Array.isArray(value)) return value.filter((item) => item && typeof item === 'object');
+  if (value && Array.isArray(value.data)) return records(value.data);
+  return [];
+}
+
+function text(value: any) { return value == null ? '' : String(value); }
+function label(value?: string) { return (value ?? '').replaceAll('_', ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase()); }
+function numeric(value: string) { if (value.trim() === '') return null; const n = Number(value); return Number.isFinite(n) ? n : null; }
+function numericBounds(row: Any) { const low = Number(row.reference?.low ?? row.normalMin); const high = Number(row.reference?.high ?? row.normalMax); return { low: Number.isFinite(low) ? low : null, high: Number.isFinite(high) ? high : null }; }
+function flagFor(row: Any, value: string) { const n = numeric(value); if (n === null) return null; const { low, high } = numericBounds(row); if (low === null && high === null) return null; if (low !== null && n < low) return 'LOW'; if (high !== null && n > high) return 'HIGH'; return 'NORMAL'; }
+function criticalFor(row: Any, value: string) { const n = numeric(value); if (n === null) return null; const low = row.criticalLow == null ? null : Number(row.criticalLow); const high = row.criticalHigh == null ? null : Number(row.criticalHigh); if (low !== null && Number.isFinite(low) && n <= low) return 'CRITICAL LOW'; if (high !== null && Number.isFinite(high) && n >= high) return 'CRITICAL HIGH'; return null; }
+function validateRow(row: Any, value: string) {
+  const trimmed = value.trim();
+  if (row.required && !trimmed) return 'Required result';
+  if (!trimmed) return null;
+  if (row.inputType === 'NUMBER' || row.inputType === 'PERCENTAGE') {
+    const n = Number(trimmed);
+    if (!Number.isFinite(n)) return 'Enter a valid number';
+    if (row.inputType === 'PERCENTAGE' && (n < 0 || n > 100)) return 'Enter a percentage from 0 to 100';
+    if (row.validation && typeof row.validation === 'object') {
+      const min = Number(row.validation.min); const max = Number(row.validation.max);
+      if (Number.isFinite(min) && n < min) return `Minimum ${min}`;
+      if (Number.isFinite(max) && n > max) return `Maximum ${max}`;
+    }
+  }
+  if ((row.inputType === 'SELECT' || row.inputType === 'QUALITATIVE') && row.options.length && !row.options.includes(trimmed)) return 'Select a configured option';
+  return null;
+}
+function roundForInput(value: string, decimalPlaces: any) {
+  if (value === '' || decimalPlaces == null || decimalPlaces === '') return value;
+  const places = Number(decimalPlaces); const n = Number(value);
+  if (!Number.isFinite(places) || !Number.isFinite(n) || places < 0) return value;
+  return n.toFixed(Math.min(places, 10));
+}
+
+export default function OrdersWorkspaceV2({ role }: { role?: Role }) {
+  const [orders, setOrders] = useState<Any[]>([]);
+  const [patients, setPatients] = useState<PatientRecord[]>([]);
+  const [selected, setSelected] = useState<Any | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
+  const [showCreate, setShowCreate] = useState(false);
+  const [patientId, setPatientId] = useState('');
+  const [selectedTests, setSelectedTests] = useState<string[]>([]);
+  const [resultDraft, setResultDraft] = useState<Record<string, string>>({});
+
+  const canCreate = role === 'ADMIN' || role === 'RECEPTIONIST';
+  const canResults = role === 'ADMIN' || role === 'TECHNICIAN';
+  const canFinalize = role === 'ADMIN' || role === 'PATHOLOGIST';
+  const canSamples = canCreate || role === 'TECHNICIAN';
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const response = await ordersService.listOrders({ limit: 50 });
+      setOrders(records(response));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Unable to load orders');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void load();
+    void (async () => {
+      try {
+        const patientData = await patientsService.listPatients();
+        setPatients(records(patientData) as PatientRecord[]);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Unable to load patients');
+      }
+    })();
+  }, []);
+
+  const rows = useMemo(() => {
+    if (!selected) return [];
+    return records(selected.items).flatMap((item) => {
+      const test = item.test ?? {};
+      const itemResults = records(item.results);
+      return records(test.parameters).map((parameter) => {
+        const result = itemResults.find((x) => x.parameterId === parameter.id);
+        return {
+          id: `${parameter.id}:${item.id}`,
+          parameterId: text(parameter.id),
+          orderItemId: text(item.id),
+          testName: text(test.name) || 'Test',
+          testCode: text(test.code),
+          name: text(parameter.name),
+          inputType: text(parameter.inputType) || 'TEXT',
+          unit: text(parameter.unit),
+          options: Array.isArray(parameter.options) ? parameter.options.map(text) : [],
+          required: parameter.isRequired !== false,
+          normalMin: parameter.normalMin,
+          normalMax: parameter.normalMax,
+          criticalLow: parameter.criticalLow,
+          criticalHigh: parameter.criticalHigh,
+          decimalPlaces: parameter.decimalPlaces,
+          validation: parameter.validation ?? null,
+          reference: result?.referenceRangeSnapshot ?? null,
+          value: text(result?.value),
+          sampleId: text(result?.sampleId),
+        };
+      });
+    });
+  }, [selected]);
+
+  const groupedRows = useMemo(() => {
+    const groups = new Map<string, { name: string; code: string; rows: Any[] }>();
+    rows.forEach((row) => {
+      const key = row.orderItemId;
+      if (!groups.has(key)) groups.set(key, { name: row.testName, code: row.testCode, rows: [] });
+      groups.get(key)!.rows.push(row);
+    });
+    return [...groups.values()];
+  }, [rows]);
+
+  const validationErrors = useMemo(() => rows.reduce((acc: Record<string, string>, row) => {
+    const rowError = validateRow(row, resultDraft[row.id] ?? '');
+    if (rowError) acc[row.id] = rowError;
+    return acc;
+  }, {}), [rows, resultDraft]);
+  const missingRequired = useMemo(() => rows.filter((row) => row.required && !resultDraft[row.id]?.trim()), [rows, resultDraft]);
+  const invalidResults = Object.keys(validationErrors).length;
+
+  useEffect(() => {
+    const draft: Record<string, string> = {};
+    rows.forEach((row) => { draft[row.id] = row.value; });
+    setResultDraft(draft);
+  }, [rows]);
+
+  async function open(order: Any) {
+    setError(''); setNotice(''); setBusy(true);
+    try { setSelected(await ordersService.getOrder(order.id)); }
+    catch (e) { setError(e instanceof Error ? e.message : 'Unable to open order'); }
+    finally { setBusy(false); }
+  }
+
+  async function createOrder() {
+    if (!patientId || !selectedTests.length) { setError('Select a patient and at least one enabled test.'); return; }
+    setBusy(true); setError('');
+    try {
+      const order = await ordersService.createOrder({ patientId, testIds: selectedTests });
+      setShowCreate(false); setPatientId(''); setSelectedTests([]);
+      await load(); await open(order);
+      setNotice('Laboratory order created.');
+    } catch (e) { setError(e instanceof Error ? e.message : 'Unable to create order'); }
+    finally { setBusy(false); }
+  }
+
+  async function generateSamples() {
+    if (!selected || !canSamples) return;
+    setBusy(true); setError('');
+    try { setSelected(await samplesService.createSamples(selected.id)); setNotice('Samples generated.'); }
+    catch (e) { setError(e instanceof Error ? e.message : 'Unable to generate samples'); }
+    finally { setBusy(false); }
+  }
+
+  async function saveResults() {
+    if (!selected || !canResults) return;
+    if (invalidResults) { setError(`Fix ${invalidResults} result field${invalidResults === 1 ? '' : 's'} before saving.`); return; }
+    setBusy(true); setError('');
+    try {
+      await resultsService.saveResults(selected.id, rows.map((row) => ({ parameterId: row.parameterId, value: resultDraft[row.id] ?? '', sampleId: row.sampleId || undefined })));
+      setSelected(await ordersService.getOrder(selected.id)); await load(); setNotice('Results saved. Reference ranges were resolved by the backend.');
+    } catch (e) { setError(e instanceof Error ? e.message : 'Unable to save results'); }
+    finally { setBusy(false); }
+  }
+
+  async function verify() {
+    if (!selected || !canResults) return;
+    if (!rows.length) { setError('This order has no configured result parameters. Configure the test before verification.'); return; }
+    if (invalidResults) { setError(`Fix ${invalidResults} result field${invalidResults === 1 ? '' : 's'} before verification.`); return; }
+    setBusy(true); setError('');
+    try { await resultsService.verifyResults(selected.id); setSelected(await ordersService.getOrder(selected.id)); setNotice('Results verified.'); }
+    catch (e) { setError(e instanceof Error ? e.message : 'Unable to verify results'); }
+    finally { setBusy(false); }
+  }
+
+  async function finalize() {
+    if (!selected || !canFinalize) return;
+    setBusy(true); setError('');
+    try { await finalReportsService.finalizeReport(selected.id); setSelected(await ordersService.getOrder(selected.id)); setNotice('Final report created.'); }
+    catch (e) { setError(e instanceof Error ? e.message : 'Unable to finalize report'); }
+    finally { setBusy(false); }
+  }
+
+  const locked = selected?.status === 'FINAL' || selected?.status === 'VERIFIED';
+
+  return <section className="orders-page">
+    <div className="orders-header">
+      <div><div className="eyebrow"><FlaskConical size={15} /> LAB OPERATIONS</div><h1>Orders & Results</h1><p>Configured test panels automatically provide the fields technicians need.</p></div>
+      <div className="orders-actions"><button className="secondary-action" onClick={() => void load()}><RefreshCw size={16} /> Refresh</button>{canCreate && <button className="primary-action" onClick={() => setShowCreate(true)}><Plus size={17} /> New Order</button>}</div>
+    </div>
+    {error && <div className="alert danger-alert">{error}</div>}
+    {notice && <div className="alert success-alert">{notice}</div>}
+
+    <div className="order-layout">
+      <div className="orders-card">
+        {loading ? <div className="empty-state">Loading orders…</div> : <div className="orders-table-wrap"><table><thead><tr><th>Order</th><th>Patient</th><th>Tests</th><th>Status</th></tr></thead><tbody>{orders.map((order) => <tr key={order.id} onClick={() => void open(order)} className={selected?.id === order.id ? 'selected-row' : ''}><td><strong>{text(order.orderNumber)}</strong></td><td>{text(order.patient?.name)}</td><td>{records(order.items).length}</td><td>{label(text(order.status))}</td></tr>)}</tbody></table>{!orders.length && <div className="empty-state">No orders found.</div>}</div>}
+      </div>
+
+      <div className="order-detail-card">
+        {!selected ? <div className="empty-state detail-empty"><TestTube2 size={38} /><strong>Select an order</strong><span>Configured parameters will appear here.</span></div> : <>
+          <div className="detail-heading"><div><span className="detail-order-number">{text(selected.orderNumber)}</span><h2>{text(selected.patient?.name) || 'Patient'}</h2><p>{text(selected.patient?.mobile)}</p></div><span className="status-pill neutral">{label(text(selected.status))}</span></div>
+          <div className="detail-section"><div className="section-title"><h3><TestTube2 size={17} /> Samples</h3>{canSamples && selected.status === 'REGISTERED' && <button className="small-primary" onClick={() => void generateSamples()} disabled={busy}>Generate Samples</button>}</div>{records(selected.samples).map((sample) => <div className="sample-row" key={text(sample.id)}><div><strong>{text(sample.accessionNumber)}</strong><span>{text(sample.specimenType)}</span></div></div>)}{!records(selected.samples).length && <p className="muted">No samples generated yet.</p>}</div>
+          <div className="detail-section"><div className="section-title"><div><h3><ClipboardList size={17} /> Results</h3><span className="muted">{rows.length} configured field{rows.length === 1 ? '' : 's'} · {missingRequired.length} required remaining{invalidResults ? ` · ${invalidResults} invalid` : ''}</span></div>{canResults && !locked && <button className="small-primary" onClick={() => void saveResults()} disabled={busy || !rows.length || !!invalidResults}>Save Results</button>}</div>
+            {groupedRows.map((group) => <div className="result-test-group" key={`${group.code}:${group.name}`}><div className="result-test-heading"><div><strong>{group.name}</strong>{group.code && <span>{group.code}</span>}</div><span>{group.rows.length} fields</span></div>{group.rows.map((row) => { const value = resultDraft[row.id] ?? ''; const flag = flagFor(row, value); const critical = criticalFor(row, value); const fieldError = validationErrors[row.id]; return <div className="param-input-item" key={row.id}><div className="param-name-ref-row"><span className="param-form-name">{row.name}{row.required ? ' *' : ''}</span><span className="param-form-ref">{row.reference?.displayRange || (row.reference?.low != null && row.reference?.high != null ? `${row.reference.low} – ${row.reference.high}` : row.normalMin != null && row.normalMax != null ? `${row.normalMin} – ${row.normalMax}` : 'Reference not configured')} · {row.reference?.unit || row.unit || 'no unit'}{row.criticalLow != null || row.criticalHigh != null ? ' · Critical values configured' : ''}</span></div><div className="result-entry-row"><ResultInput row={row} value={value} disabled={!canResults || locked} onChange={(next) => setResultDraft((draft) => ({ ...draft, [row.id]: next }))} />{flag && <span className={`result-flag result-flag-${flag.toLowerCase()}`}>{flag === 'NORMAL' ? <CheckCircle2 size={14} /> : <AlertTriangle size={14} />} {flag}</span>}{critical && <span className="result-flag result-flag-critical"><AlertTriangle size={14} /> {critical}</span>}</div>{fieldError && <span className="result-field-error">{fieldError}</span>}</div>; })}</div>)}
+            {!rows.length && <div className="empty-state result-empty"><ClipboardList size={28} /><strong>No result fields configured</strong><span>An administrator must enable/configure this test before a technician can enter results.</span></div>}
+          </div>
+          <div className="editor-actions-row">{selected.status === 'VERIFIED' ? canFinalize && <button className="btn btn-primary" onClick={() => void finalize()} disabled={busy}><FileCheck2 size={17} /> Finalize Report</button> : selected.status !== 'FINAL' && canResults && <button className="btn btn-primary" onClick={() => void verify()} disabled={busy || !rows.length || !!invalidResults}>Verify Results</button>}</div>
+        </>}
+      </div>
+    </div>
+
+    {showCreate && <div className="modal-backdrop"><div className="modal-content catalog-order-modal"><div className="modal-header"><div><span className="eyebrow">NEW LAB ORDER</span><h2>Create laboratory order</h2><p className="modal-subtitle">Search the complete master catalog. Only tests enabled for your laboratory can be selected.</p></div><button className="icon-btn" onClick={() => setShowCreate(false)}>×</button></div><div className="form-group"><label className="form-label">Patient</label><select className="form-select" value={patientId} onChange={(event) => setPatientId(event.target.value)}><option value="">Select patient</option>{patients.map((patient) => <option key={patient.id} value={patient.id}>{patient.name} · {patient.mobile}</option>)}</select></div><div className="form-group"><label className="form-label">Tests *</label><TestCatalogPicker selectedIds={selectedTests} onChange={setSelectedTests} disabled={busy} /></div><div className="editor-actions-row"><button className="btn btn-outline" onClick={() => setShowCreate(false)}>Cancel</button><button className="btn btn-primary" onClick={() => void createOrder()} disabled={busy || !patientId || !selectedTests.length}>Create Order{selectedTests.length ? ` · ${selectedTests.length}` : ''}</button></div></div></div>}
+
+    <style>{`.orders-page{padding:2rem;max-width:1600px;margin:0 auto}.orders-header{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;margin-bottom:1.5rem}.orders-header h1{margin:.25rem 0 .35rem;color:var(--text-bold);font-size:2rem}.orders-header p,.muted{color:var(--text);margin:0}.eyebrow{display:flex;align-items:center;gap:.4rem;color:var(--primary);font-size:.75rem;font-weight:800;letter-spacing:.08em}.orders-actions{display:flex;gap:.65rem}.primary-action,.secondary-action,.small-primary,.verify-action,.finalize-action{border:0;border-radius:9px;padding:.72rem 1rem;display:inline-flex;align-items:center;gap:.45rem;font-weight:700;cursor:pointer}.primary-action,.small-primary{background:var(--primary);color:#fff}.secondary-action{background:var(--panel-bg);color:var(--text-bold);border:1px solid var(--border)}.small-primary{font-size:.8rem;padding:.55rem .75rem}.verify-action{background:#0f766e;color:#fff}.finalize-action{background:#7c3aed;color:#fff}.primary-action:disabled,.secondary-action:disabled,.small-primary:disabled,.verify-action:disabled,.finalize-action:disabled{opacity:.55;cursor:not-allowed}.alert{padding:.75rem 1rem;border-radius:9px;margin-bottom:1rem}.danger-alert{background:#fee2e2;color:#991b1b}.success-alert{background:#dcfce7;color:#166534}.order-layout{display:grid;grid-template-columns:minmax(520px,1fr) minmax(600px,1.35fr);gap:1rem}.orders-card,.order-detail-card{background:var(--panel-bg);border:1px solid var(--border);border-radius:14px;box-shadow:0 5px 18px rgba(15,23,42,.04);overflow:hidden}.orders-table-wrap,.results-table-wrap{overflow:auto}.orders-card table,.results-table{width:100%;border-collapse:collapse}.orders-card th,.orders-card td,.results-table th,.results-table td{text-align:left;padding:.8rem;border-bottom:1px solid var(--border);font-size:.84rem}.orders-card th,.results-table th{font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;color:var(--text);white-space:nowrap}.orders-card tbody tr{cursor:pointer}.orders-card tbody tr:hover,.selected-row{background:rgba(6,96,137,.05)}.status-pill,.result-flag{display:inline-flex;border-radius:999px;padding:.25rem .55rem;font-size:.68rem;font-weight:800}.status-pill.success,.result-flag.normal{background:#dcfce7;color:#166534}.status-pill.warning,.result-flag.high,.result-flag.low{background:#fef3c7;color:#92400e}.status-pill.danger{background:#fee2e2;color:#991b1b}.status-pill.neutral{background:#e2e8f0;color:#475569}.order-detail-card{padding:1.25rem}.detail-heading{display:flex;justify-content:space-between;gap:1rem}.detail-order-number{font-size:.72rem;color:var(--primary);font-weight:800}.detail-heading h2{margin:.25rem 0;font-size:1.35rem;color:var(--text-bold)}.detail-heading p{margin:0;color:var(--text);font-size:.82rem}.detail-section{border-top:1px solid var(--border);padding-top:1rem;margin-top:1rem}.section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}.section-title h3{margin:0;display:flex;align-items:center;gap:.4rem;font-size:.95rem;color:var(--text-bold)}.sample-row{display:flex;justify-content:space-between;gap:1rem;padding:.7rem;border:1px solid var(--border);border-radius:9px;margin-bottom:.55rem}.sample-row div{display:grid;gap:.2rem}.sample-row span{font-size:.76rem;color:var(--text)}.empty-state{min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;color:var(--text);padding:2rem}.detail-empty{min-height:600px}.permission-note{font-size:.72rem;color:var(--text);margin:.6rem 0 0}.result-test-group{border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden}.result-test-heading{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--page-bg);border-bottom:1px solid var(--border)}.result-test-heading div{display:flex;gap:8px;align-items:center}.result-test-heading strong{font-size:.76rem;color:var(--text-bold)}.result-test-heading span{font-size:.58rem;color:var(--text)}.param-input-item{padding:11px 12px;border-bottom:1px solid var(--border)}.param-input-item:last-child{border-bottom:0}.param-name-ref-row{display:flex;justify-content:space-between;gap:12px;margin-bottom:7px}.param-form-name{font-size:.72rem;font-weight:700;color:var(--text-bold)}.param-form-ref{font-size:.58rem;color:var(--text);text-align:right}.result-entry-row{display:flex;gap:7px;align-items:center}.form-input{border:1px solid var(--border);border-radius:7px;padding:.52rem;background:var(--panel-bg);color:var(--text-bold)}.param-val-input{width:min(300px,100%)}.result-flag{align-items:center;gap:4px}.result-flag-critical{background:#fee2e2;color:#991b1b}.result-field-error{display:block;margin-top:5px;font-size:.58rem;color:#b91c1c}.editor-actions-row{display:flex;justify-content:flex-end;gap:.6rem;margin-top:1rem;flex-wrap:wrap}.btn{border:1px solid var(--border);border-radius:8px;padding:.62rem .9rem;font-weight:700;cursor:pointer}.btn-primary{background:var(--primary);border-color:var(--primary);color:#fff}.btn-outline{background:var(--panel-bg);color:var(--text-bold)}.modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.5);display:grid;place-items:center;padding:1rem;z-index:1000}.modal-content{background:var(--panel-bg);border:1px solid var(--border);border-radius:14px;width:min(980px,96vw);max-height:92vh;overflow:auto;padding:1.25rem}.modal-header{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;margin-bottom:1rem}.modal-header h2{margin:.2rem 0 .3rem;color:var(--text-bold)}.modal-subtitle{margin:0;color:var(--text);font-size:.7rem;line-height:1.45}.icon-btn{border:0;background:transparent;color:var(--text);font-size:1.5rem;cursor:pointer}.form-group{display:grid;gap:.45rem;margin-top:1rem}.form-label{font-size:.72rem;font-weight:700;color:var(--text-bold)}.form-select{width:100%;height:40px;border:1px solid var(--border);border-radius:8px;background:var(--panel-bg);color:var(--text-bold);padding:0 10px}.catalog-order-modal{width:min(1100px,96vw)}@media(max-width:1100px){.order-layout{grid-template-columns:1fr}}@media(max-width:700px){.orders-page{padding:1rem}.orders-header{flex-direction:column}.orders-actions{width:100%}.orders-actions button{flex:1;justify-content:center}.param-name-ref-row{flex-direction:column}.param-form-ref{text-align:left}.modal-content{padding:1rem}}`}</style>
+  </section>;
+}
+
+function ResultInput({ row, value, disabled, onChange }: { row: any; value: string; disabled: boolean; onChange: (value: string) => void }) {
+  const handleChange = (next: string) => {
+    if (row.inputType === 'NUMBER' || row.inputType === 'PERCENTAGE') onChange(roundForInput(next, row.decimalPlaces));
+    else onChange(next);
+  };
+  if (row.inputType === 'SELECT' || row.inputType === 'QUALITATIVE') return <select className="form-input param-val-input" disabled={disabled} value={value} onChange={(event) => handleChange(event.target.value)}><option value="">Select…</option>{row.options.map((option: string) => <option key={option} value={option}>{option}</option>)}</select>;
+  if (row.inputType === 'BOOLEAN') return <select className="form-input param-val-input" disabled={disabled} value={value} onChange={(event) => handleChange(event.target.value)}><option value="">Select…</option><option value="true">Yes</option><option value="false">No</option></select>;
+  const type = row.inputType === 'DATE' ? 'date' : row.inputType === 'DATETIME' ? 'datetime-local' : row.inputType === 'TIME' ? 'time' : row.inputType === 'NUMBER' || row.inputType === 'PERCENTAGE' ? 'number' : 'text';
+  return <input className="form-input param-val-input" type={type} min={row.inputType === 'PERCENTAGE' ? '0' : undefined} max={row.inputType === 'PERCENTAGE' ? '100' : undefined} step={row.inputType === 'NUMBER' || row.inputType === 'PERCENTAGE' ? (row.decimalPlaces == null ? 'any' : `0.${'0'.repeat(Math.max(0, Number(row.decimalPlaces) - 1))}1`) : undefined} disabled={disabled} value={value} onChange={(event) => handleChange(event.target.value)} />;
+}

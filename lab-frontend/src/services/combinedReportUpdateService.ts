@@ -13,6 +13,47 @@ type EditableReport = Partial<LabReport> & {
 
 type ApiTest = { parameters?: Array<{ id: string; name: string }> };
 
+/** Loads the order without flattening parameters, so each test keeps its own results while editing. */
+export async function getCombinedReportEditData(orderId: string) {
+  const order = await request<any>(`orders/${encodeURIComponent(orderId)}`);
+  const parametersByTest: Record<string, TestParameter[]> = {};
+
+  for (const item of order.items ?? []) {
+    const resultByParameterId = new Map((item.results ?? []).map((result: any) => [result.parameterId, result]));
+    parametersByTest[item.testId] = (item.test?.parameters ?? []).map((parameter: any) => {
+      const result = resultByParameterId.get(parameter.id);
+      const value = result?.value ?? '';
+      let status: TestParameter['status'] = 'Normal';
+      if (result?.flag === 'HIGH') status = 'High';
+      else if (result?.flag === 'LOW') status = 'Low';
+      else if (result?.flag && result.flag !== 'NORMAL') status = 'Abnormal';
+      return {
+        name: parameter.name ?? '',
+        value: String(value),
+        unit: parameter.unit ?? '',
+        refRange: formatRange(parameter),
+        minRef: parameter.normalMin ?? undefined,
+        maxRef: parameter.normalMax ?? undefined,
+        status,
+        inputType: parameter.inputType,
+        required: parameter.isRequired ?? true,
+        validation: parameter.validation,
+        decimalPlaces: parameter.decimalPlaces,
+        defaultValue: parameter.defaultValue,
+        criticalLow: parameter.criticalLow,
+        criticalHigh: parameter.criticalHigh,
+        formula: parameter.formula,
+      } as TestParameter;
+    });
+  }
+
+  return {
+    order,
+    testIds: (order.items ?? []).map((item: any) => item.testId).filter(Boolean),
+    parametersByTest,
+  };
+}
+
 /**
  * Updates every test in an order. The old edit flow used only testIds[0], which
  * silently dropped all other tests in a multi-test patient report.
@@ -63,4 +104,12 @@ export async function updateCombinedReport(report: EditableReport): Promise<LabR
   }
 
   return reportsService.getReport(orderId);
+}
+
+function formatRange(parameter: any): string {
+  if (parameter.referenceRange) return typeof parameter.referenceRange === 'string' ? parameter.referenceRange : JSON.stringify(parameter.referenceRange);
+  if (parameter.normalMin !== undefined && parameter.normalMax !== undefined) return `${parameter.normalMin} - ${parameter.normalMax}`;
+  if (parameter.normalMin !== undefined) return `>= ${parameter.normalMin}`;
+  if (parameter.normalMax !== undefined) return `<= ${parameter.normalMax}`;
+  return '';
 }

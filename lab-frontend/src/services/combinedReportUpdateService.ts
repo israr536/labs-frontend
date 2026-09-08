@@ -11,16 +11,44 @@ type EditableReport = Partial<LabReport> & {
   parametersByTest?: Record<string, TestParameter[]>;
 };
 
+type ApiParameter = {
+  id: string;
+  name?: string;
+  value?: string;
+  flag?: string;
+  unit?: string;
+  normalMin?: number | null;
+  normalMax?: number | null;
+  referenceRange?: unknown;
+  inputType?: TestParameter['inputType'];
+  isRequired?: boolean;
+  validation?: unknown;
+  decimalPlaces?: number | null;
+  defaultValue?: string | null;
+  criticalLow?: number | null;
+  criticalHigh?: number | null;
+  formula?: string | null;
+};
+
+type ApiOrderItem = {
+  testId: string;
+  test?: { parameters?: ApiParameter[] };
+  results?: ApiParameter[];
+};
+
+type ApiOrder = { id: string; items?: ApiOrderItem[] };
 type ApiTest = { parameters?: Array<{ id: string; name: string }> };
 
 /** Loads the order without flattening parameters, so each test keeps its own results while editing. */
 export async function getCombinedReportEditData(orderId: string) {
-  const order = await request<any>(`orders/${encodeURIComponent(orderId)}`);
+  const order = await request<ApiOrder>(`orders/${encodeURIComponent(orderId)}`);
+  const items = order.items ?? [];
   const parametersByTest: Record<string, TestParameter[]> = {};
 
-  for (const item of order.items ?? []) {
-    const resultByParameterId = new Map((item.results ?? []).map((result: any) => [result.parameterId, result]));
-    parametersByTest[item.testId] = (item.test?.parameters ?? []).map((parameter: any) => {
+  for (const item of items) {
+    const results = item.results ?? [];
+    const resultByParameterId = new Map(results.map((result) => [result.id, result]));
+    parametersByTest[item.testId] = (item.test?.parameters ?? []).map((parameter) => {
       const result = resultByParameterId.get(parameter.id);
       const value = result?.value ?? '';
       let status: TestParameter['status'] = 'Normal';
@@ -47,11 +75,7 @@ export async function getCombinedReportEditData(orderId: string) {
     });
   }
 
-  return {
-    order,
-    testIds: (order.items ?? []).map((item: any) => item.testId).filter(Boolean),
-    parametersByTest,
-  };
+  return { order, testIds: items.map((item) => item.testId).filter(Boolean), parametersByTest };
 }
 
 /**
@@ -100,13 +124,12 @@ export async function updateCombinedReport(report: EditableReport): Promise<LabR
   if (report.status === 'Completed' || report.status === 'Critical') {
     await request(`orders/${encodeURIComponent(orderId)}/verify`, { method: 'POST' });
     await request(`orders/${encodeURIComponent(orderId)}/finalize`, { method: 'POST' });
-    return reportsService.getReport(orderId);
   }
 
   return reportsService.getReport(orderId);
 }
 
-function formatRange(parameter: any): string {
+function formatRange(parameter: ApiParameter): string {
   if (parameter.referenceRange) return typeof parameter.referenceRange === 'string' ? parameter.referenceRange : JSON.stringify(parameter.referenceRange);
   if (parameter.normalMin !== undefined && parameter.normalMax !== undefined) return `${parameter.normalMin} - ${parameter.normalMax}`;
   if (parameter.normalMin !== undefined) return `>= ${parameter.normalMin}`;

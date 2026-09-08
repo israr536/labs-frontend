@@ -7,25 +7,34 @@ type ApiReport = Record<string, any>;
 type ReportListApi = { data: ApiReport[]; pagination?: any };
 export type ReportTemplateId = 'classic' | 'modern' | 'compact' | 'detailed' | 'premium' | 'minimal';
 export type ReportTemplate = { id: ReportTemplateId; name: string; description: string };
-type CombinedReportBody = Partial<LabReport> & {
-  testIds?: string[];
-  parametersByTest?: Record<string, TestParameter[]>;
-};
+type CombinedReportBody = Partial<LabReport> & { testIds?: string[]; parametersByTest?: Record<string, TestParameter[]> };
 
 export async function listReportTemplates(): Promise<ReportTemplate[]> { return request<ReportTemplate[]>('reports/templates'); }
 export function getSavedReportTemplate(): ReportTemplateId { try { const value = localStorage.getItem('lab_report_template'); return ['classic','modern','compact','detailed','premium','minimal'].includes(value || '') ? value as ReportTemplateId : 'classic'; } catch { return 'classic'; } }
 export function saveReportTemplate(template: ReportTemplateId) { try { localStorage.setItem('lab_report_template', template); } catch {} }
 
+/**
+ * Patient Register is order-based. A LabOrder is the single clinical record for
+ * one patient visit and can contain many tests. Do not read the legacy /reports
+ * table here because that table is one-test-per-report and would split a panel.
+ */
 export async function listReports(filters?: { status?: string; search?: string; patientId?: string; testId?: string; skip?: number; take?: number }): Promise<{ data: LabReport[]; pagination?: any }> {
   const params = new URLSearchParams();
-  if (filters?.status) params.append('status', filters.status); if (filters?.search) params.append('search', filters.search); if (filters?.patientId) params.append('patientId', filters.patientId); if (filters?.testId) params.append('testId', filters.testId); if (filters?.skip !== undefined) params.append('skip', String(filters.skip)); if (filters?.take !== undefined) params.append('take', String(filters.take));
+  if (filters?.search) params.append('search', filters.search);
+  if (filters?.skip !== undefined) params.append('skip', String(filters.skip));
+  if (filters?.take !== undefined) params.append('take', String(filters.take));
   const q = params.toString() ? `?${params.toString()}` : '';
-  const data = await request<ReportListApi | ApiReport[]>(`reports${q}`);
-  if (Array.isArray(data)) return { data: data.map(mapApiReport) };
-  return { data: data.data.map(mapApiReport), pagination: data.pagination };
+  const orders = await request<ReportListApi | ApiReport[]>(`orders${q}`);
+  const orderRows = Array.isArray(orders) ? orders : orders.data;
+  const details = await Promise.all(orderRows.map((order) => request<ApiReport>(`orders/${order.id}`)));
+  let data = details.map((order) => mapOrderAsReport(order));
+  if (filters?.status && filters.status !== 'All') data = data.filter((report) => report.status === filters.status);
+  if (filters?.patientId) data = data.filter((report) => report.patientId === filters.patientId);
+  if (filters?.testId) data = data.filter((report) => (report as any).testIds?.includes(filters.testId));
+  return { data, pagination: Array.isArray(orders) ? undefined : orders.pagination };
 }
 
-export async function getReport(id: string): Promise<LabReport> { return mapApiReport(await request<ApiReport>(`reports/${id}`)); }
+export async function getReport(id: string): Promise<LabReport> { return mapOrderAsReport(await request<ApiReport>(`orders/${id}`)); }
 
 /** Creates exactly one LabOrder containing all selected tests, then writes all test results into that order. */
 export async function createCombinedReport(body: CombinedReportBody): Promise<LabReport> {
@@ -33,13 +42,7 @@ export async function createCombinedReport(body: CombinedReportBody): Promise<La
   const testIds = [...new Set((body.testIds ?? []).map((id) => id.trim()).filter(Boolean))];
   if (!testIds.length) throw new Error('Please select at least one configured laboratory test.');
 
-  const order = await request<ApiReport>('orders', {
-    method: 'POST',
-    body: JSON.stringify({ patientId: patient.id, testIds, referredBy: body.referredBy, clinicalNotes: body.interpretation })
-  });
-
-  // Register the samples required by the order, then move them through the normal
-  // collection workflow. This keeps the existing final-report rules intact.
+  const order = await request<ApiReport>('orders', { method: 'POST', body: JSON.stringify({ patientId: patient.id, testIds, referredBy: body.referredBy, clinicalNotes: body.interpretation }) });
   const samples = await request<ApiReport[]>(`samples/orders/${order.id}`, { method: 'POST', body: JSON.stringify({}) });
   for (const sample of samples) {
     await request<ApiReport>(`samples/${sample.id}/status`, { method: 'PATCH', body: JSON.stringify({ status: 'COLLECTED' }) });
@@ -54,14 +57,10 @@ export async function createCombinedReport(body: CombinedReportBody): Promise<La
   const results = allResults.map(({ testId, parameter }) => {
     const test = testCache.get(testId);
     const apiParameter = test?.parameters?.find((item: any) => item.name?.toLowerCase() === parameter.name.toLowerCase());
-    return apiParameter && String(parameter.value ?? '').trim()
-      ? { parameterId: apiParameter.id, value: String(parameter.value).trim() }
-      : null;
+    return apiParameter && String(parameter.value ?? '').trim() ? { parameterId: apiParameter.id, value: String(parameter.value).trim() } : null;
   }).filter(Boolean);
 
-  if (results.length) {
-    await request<ApiReport>(`orders/${order.id}/results`, { method: 'PATCH', body: JSON.stringify({ results }) });
-  }
+  if (results.length) await request<ApiReport>(`orders/${order.id}/results`, { method: 'PATCH', body: JSON.stringify({ results }) });
 
   if (body.status === 'Completed' || body.status === 'Critical') {
     await request<ApiReport>(`orders/${order.id}/verify`, { method: 'POST' });
@@ -69,13 +68,10 @@ export async function createCombinedReport(body: CombinedReportBody): Promise<La
     return mapFinalReport(await request<ApiReport>(`orders/${order.id}/report`));
   }
 
-  return mapOrderAsDraft(await request<ApiReport>(`orders/${order.id}`), testCache);
+  return mapOrderAsReport(await request<ApiReport>(`orders/${order.id}`));
 }
 
-export async function createReport(body: Partial<LabReport>): Promise<LabReport> {
-  return createCombinedReport(body);
-}
-
+export async function createReport(body: Partial<LabReport>): Promise<LabReport> { return createCombinedReport(body); }
 export async function updateReport(id: string, body: Partial<LabReport>): Promise<LabReport> {
   const patientId = (body as any).patientId; if (patientId) await patientsService.updatePatient(patientId, toPatientPayload(body));
   const testId = requireTestId(body); const test = await testsService.getTest(testId);
@@ -104,42 +100,47 @@ export async function openReportPdf(id: string, template: ReportTemplateId = get
 
 function mapApiReport(report: ApiReport): LabReport { const resultByParameterId = new Map((report.results ?? []).map((result: any) => [result.parameterId, result])); const parametersSource = report.test?.parameters?.length ? report.test.parameters : (report.results ?? []).map((result: any) => result.parameter); const parameters = parametersSource.map((parameter: any) => mapParameter(parameter, resultByParameterId.get(parameter.id))); return { id: report.id, patientName: report.patient?.name ?? 'Unknown patient', age: report.patient?.age ?? 0, gender: mapGenderFromApi(report.patient?.gender), phone: report.patient?.mobile ?? '', email: report.patient?.email ?? '', referredBy: report.referredBy ?? 'Dr. Self / Walk-in', dateCollected: toDateTimeLocal(report.sampleCollectedAt ?? report.createdAt), dateReported: toDateTimeLocal(report.reportedAt ?? report.updatedAt ?? report.createdAt), testType: report.test?.name ?? 'Diagnostic Test', status: mapReportStatus(report.status, parameters), parameters, interpretation: report.doctorNotes ?? report.remarks ?? '', ...(report.reportNumber ? { reportNumber: report.reportNumber } : {}), ...(report.patientId ? { patientId: report.patientId } : {}), ...(report.testId ? { testId: report.testId } : {}) } as LabReport; }
 function mapGeneratedReport(data: ApiReport): LabReport { const parameters = (data.results ?? []).map((result: any) => mapParameter({ id: result.parameterId, name: result.name, unit: result.unit, normalMin: result.normalMin, normalMax: result.normalMax, referenceRange: result.referenceRange, inputType: result.inputType, options: result.options, decimalPlaces: result.decimalPlaces, isRequired: result.isRequired, criticalLow: result.criticalLow, criticalHigh: result.criticalHigh, formula: result.formula }, result)); return { id: data.report?.id, patientName: data.patient?.name ?? 'Unknown patient', age: data.patient?.age ?? 0, gender: mapGenderFromApi(data.patient?.gender), phone: data.patient?.mobile ?? '', email: data.patient?.email ?? '', referredBy: data.report?.referredBy ?? 'Dr. Self / Walk-in', dateCollected: toDateTimeLocal(data.report?.sampleCollectedAt ?? data.report?.createdAt), dateReported: toDateTimeLocal(data.report?.reportedAt ?? data.report?.createdAt), testType: data.test?.name ?? 'Diagnostic Test', status: mapReportStatus(data.report?.status, parameters), parameters, interpretation: data.report?.doctorNotes ?? data.report?.remarks ?? '', reportNumber: data.report?.reportNumber, patientId: data.patient?.id, testId: data.test?.id } as LabReport; }
-function mapFinalReport(data: ApiReport): LabReport {
-  const tests = data.order?.tests ?? [];
-  const parameters: TestParameter[] = tests.flatMap((item: any) => (item.parameters ?? []).map((parameter: any) => ({
-    name: `${item.test?.name ?? 'Test'} — ${parameter.name ?? 'Parameter'}`,
-    value: parameter.value ?? '',
-    unit: parameter.unit ?? '',
-    refRange: formatRange(parameter),
-    minRef: parameter.normalMin ?? undefined,
-    maxRef: parameter.normalMax ?? undefined,
-    status: mapFlag(parameter.flag),
-    inputType: parameter.inputType,
-    required: true,
-  } as TestParameter)));
+function mapFinalReport(data: ApiReport): LabReport { const tests = data.order?.tests ?? []; const parameters: TestParameter[] = tests.flatMap((item: any) => (item.parameters ?? []).map((parameter: any) => ({ name: `${item.test?.name ?? 'Test'} — ${parameter.name ?? 'Parameter'}`, value: parameter.value ?? '', unit: parameter.unit ?? '', refRange: formatRange(parameter), minRef: parameter.normalMin ?? undefined, maxRef: parameter.normalMax ?? undefined, status: mapFlag(parameter.flag), inputType: parameter.inputType, required: true } as TestParameter))); return { id: data.order?.id, patientName: data.order?.patient?.name ?? 'Unknown patient', age: data.order?.patient?.age ?? 0, gender: mapGenderFromApi(data.order?.patient?.gender), phone: data.order?.patient?.mobile ?? '', email: data.order?.patient?.email ?? '', referredBy: data.order?.referredBy ?? 'Dr. Self / Walk-in', dateCollected: toDateTimeLocal(data.order?.samples?.[0]?.collectedAt ?? data.order?.orderedAt), dateReported: toDateTimeLocal(data.finalizedAt ?? data.order?.orderedAt), testType: tests.map((item: any) => item.test?.name).filter(Boolean).join(' + ') || 'Diagnostic Test', status: mapFinalStatus(tests), parameters, interpretation: data.order?.clinicalNotes ?? '', reportNumber: data.reportNumber, patientId: data.order?.patient?.id, orderId: data.order?.id } as LabReport & { orderId: string }; }
+
+function mapOrderAsReport(order: ApiReport): LabReport {
+  const items = order.items ?? [];
+  const parameters: TestParameter[] = items.flatMap((item: any) => {
+    const resultByParameterId = new Map((item.results ?? []).map((result: any) => [result.parameterId, result]));
+    return (item.test?.parameters ?? []).map((p: any) => mapParameter(p, resultByParameterId.get(p.id)));
+  });
+  const status = mapOrderStatus(order.status, parameters);
+  const testNames = items.map((item: any) => item.test?.name).filter(Boolean);
   return {
-    id: data.order?.id,
-    patientName: data.order?.patient?.name ?? 'Unknown patient',
-    age: data.order?.patient?.age ?? 0,
-    gender: mapGenderFromApi(data.order?.patient?.gender),
-    phone: data.order?.patient?.mobile ?? '',
-    email: data.order?.patient?.email ?? '',
-    referredBy: data.order?.referredBy ?? 'Dr. Self / Walk-in',
-    dateCollected: toDateTimeLocal(data.order?.samples?.[0]?.collectedAt ?? data.order?.orderedAt),
-    dateReported: toDateTimeLocal(data.finalizedAt ?? data.order?.orderedAt),
-    testType: tests.map((item: any) => item.test?.name).filter(Boolean).join(' + ') || 'Diagnostic Test',
-    status: mapFinalStatus(tests),
+    id: order.id,
+    patientName: order.patient?.name ?? 'Unknown patient',
+    age: order.patient?.age ?? 0,
+    gender: mapGenderFromApi(order.patient?.gender),
+    phone: order.patient?.mobile ?? '',
+    email: order.patient?.email ?? '',
+    referredBy: order.referredBy ?? 'Dr. Self / Walk-in',
+    dateCollected: toDateTimeLocal(order.samples?.[0]?.collectedAt ?? order.createdAt),
+    dateReported: toDateTimeLocal(order.updatedAt ?? order.createdAt),
+    testType: testNames.join(' + ') || 'Diagnostic Test',
+    status,
     parameters,
-    interpretation: data.order?.clinicalNotes ?? '',
-    reportNumber: data.reportNumber,
-    patientId: data.order?.patient?.id,
-    orderId: data.order?.id,
-  } as LabReport & { orderId: string };
+    interpretation: order.clinicalNotes ?? '',
+    reportNumber: order.orderNumber,
+    patientId: order.patient?.id,
+    orderId: order.id,
+    testIds: items.map((item: any) => item.testId),
+  } as LabReport & { orderId: string; testIds: string[] };
 }
-function mapOrderAsDraft(order: ApiReport, testCache: Map<string, any>): LabReport {
-  const parameters: TestParameter[] = order.items?.flatMap((item: any) => (item.test?.parameters ?? testCache.get(item.test?.id)?.parameters ?? []).map((p: any) => ({ name: `${item.test?.name ?? 'Test'} — ${p.name}`, value: '', unit: p.unit ?? '', refRange: formatRange(p), minRef: p.normalMin ?? undefined, maxRef: p.normalMax ?? undefined, status: 'Normal', inputType: p.inputType, required: p.isRequired } as TestParameter))) ?? [];
-  return { id: order.id, patientName: order.patient?.name ?? 'Unknown patient', age: order.patient?.age ?? 0, gender: mapGenderFromApi(order.patient?.gender), phone: order.patient?.mobile ?? '', email: order.patient?.email ?? '', referredBy: order.referredBy ?? 'Dr. Self / Walk-in', dateCollected: toDateTimeLocal(order.samples?.[0]?.collectedAt ?? order.createdAt), dateReported: toDateTimeLocal(order.updatedAt ?? order.createdAt), testType: order.items?.map((item: any) => item.test?.name).filter(Boolean).join(' + ') || 'Diagnostic Test', status: 'Draft', parameters, interpretation: order.clinicalNotes ?? '', patientId: order.patient?.id, orderId: order.id } as LabReport & { orderId: string };
+
+function mapOrderStatus(status: string | undefined, parameters: TestParameter[]): LabReport['status'] {
+  if (status === 'FINAL') return parameters.some((p) => p.status === 'High' || p.status === 'Low' || p.status === 'Abnormal') ? 'Critical' : 'Completed';
+  if (status === 'VERIFIED') return parameters.some((p) => p.status === 'High' || p.status === 'Low' || p.status === 'Abnormal') ? 'Critical' : 'Completed';
+  if (status === 'RESULT_ENTERED') return 'Pending';
+  if (status === 'SAMPLE_COLLECTED' || status === 'REGISTERED') return 'Pending';
+  if (status === 'CANCELLED') return 'Draft';
+  return 'Draft';
 }
+
+function mapOrderAsDraft(order: ApiReport, testCache: Map<string, any>): LabReport { return mapOrderAsReport({ ...order, items: (order.items ?? []).map((item: any) => ({ ...item, test: item.test ?? testCache.get(item.testId) })) }); }
 async function ensurePatient(report: Partial<LabReport>) { const patientId = (report as any).patientId; if (patientId) return patientsService.updatePatient(patientId, toPatientPayload(report)); const search = report.phone || report.patientName || ''; const existing = search ? await patientsService.listPatients(search).catch(() => []) : []; const match = Array.isArray(existing) ? existing.find((patient) => patient.mobile === report.phone && patient.name?.toLowerCase() === report.patientName?.toLowerCase()) : null; if (match) return patientsService.updatePatient(match.id, toPatientPayload(report)); return patientsService.createPatient(toPatientPayload(report)); }
 function requireTestId(report: Partial<LabReport>): string { const testId = (report as LabReport & { testId?: string }).testId; if (!testId?.trim()) throw new Error('Please select a configured laboratory test from the Test Catalog.'); return testId; }
 function toPatientPayload(report: Partial<LabReport>) { return { name: report.patientName, age: report.age, gender: mapGenderToApi(report.gender), mobile: report.phone, email: report.email || undefined }; }
@@ -154,4 +155,4 @@ function mapGenderFromApi(gender?: string): LabReport['gender'] { if (gender ===
 function formatRange(parameter: any) { const ref = parameter?.referenceRange; if (ref && typeof ref === 'object' && !Array.isArray(ref)) return Object.entries(ref as Record<string, unknown>).map(([key, value]) => `${key}: ${String(value)}`).join(' · '); const min=parameter?.normalMin; const max=parameter?.normalMax; if(min!=null&&max!=null)return `${min} - ${max}`; if(min!=null)return `>= ${min}`; if(max!=null)return `<= ${max}`; return 'Clinical reference'; }
 function toDateTimeLocal(value?: string | Date | null) { const date = value ? new Date(value) : new Date(); if (Number.isNaN(date.getTime())) return ''; const pad=(n:number)=>String(n).padStart(2,'0'); return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`; }
 function toIso(value?: string) { if (!value) return undefined; const date = new Date(value); return Number.isNaN(date.getTime()) ? undefined : date.toISOString(); }
-export default { listReports, getReport, createReport, createCombinedReport, updateReport, deleteReport, generateReport, finalizeReport, downloadReportPdf, openReportPdf, listReportTemplates, getSavedReportTemplate, saveReportTemplate };
+export default { listReports, createReport, createCombinedReport, getReport, updateReport, deleteReport, generateReport, finalizeReport, downloadReportPdf, openReportPdf, listReportTemplates, getSavedReportTemplate, saveReportTemplate };

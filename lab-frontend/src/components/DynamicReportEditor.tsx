@@ -21,12 +21,11 @@ export default function DynamicReportEditor({ editingReport, onSaveReport, onCan
   const [email, setEmail] = useState('');
   const [referredBy, setReferredBy] = useState('Dr. Self / Walk-in');
   const [dateCollected, setDateCollected] = useState('');
-  const [testId, setTestId] = useState('');
+  const [testIds, setTestIds] = useState<string[]>([]);
   const [status, setStatus] = useState<LabReport['status']>('Draft');
-  const [parameters, setParameters] = useState<EditableParameter[]>([]);
+  const [parametersByTest, setParametersByTest] = useState<Record<string, EditableParameter[]>>({});
   const [interpretation, setInterpretation] = useState('');
 
-  const selectedTest = tests.find((test) => test.id === testId);
   const createParameters = (test: LabTest, existing: TestParameter[] = []): EditableParameter[] => test.parameters.map((p) => {
     const saved = existing.find((item) => item.name.toLowerCase() === p.name.toLowerCase());
     return { name: p.name, value: saved?.value ?? p.defaultValue ?? '', unit: p.unit || '', refRange: formatRange(p), minRef: p.normalMin ?? undefined, maxRef: p.normalMax ?? undefined, inputType: p.inputType, options: Array.isArray(p.options) ? p.options.filter((value): value is string => typeof value === 'string') : undefined, status: saved?.status ?? 'Normal', required: p.isRequired, validation: p.validation, decimalPlaces: p.decimalPlaces, defaultValue: p.defaultValue, criticalLow: p.criticalLow, criticalHigh: p.criticalHigh, formula: p.formula };
@@ -35,28 +34,57 @@ export default function DynamicReportEditor({ editingReport, onSaveReport, onCan
   useEffect(() => {
     const reportTestId = (editingReport as LabReport & { testId?: string } | null)?.testId;
     if (editingReport) {
-      setPatientName(editingReport.patientName); setAge(editingReport.age); setGender(editingReport.gender); setPhone(editingReport.phone); setEmail(editingReport.email || ''); setReferredBy(editingReport.referredBy); setDateCollected(editingReport.dateCollected); setStatus(editingReport.status); setInterpretation(editingReport.interpretation); setTestId(reportTestId || '');
+      setPatientName(editingReport.patientName); setAge(editingReport.age); setGender(editingReport.gender); setPhone(editingReport.phone); setEmail(editingReport.email || ''); setReferredBy(editingReport.referredBy); setDateCollected(editingReport.dateCollected); setStatus(editingReport.status); setInterpretation(editingReport.interpretation); setTestIds(reportTestId ? [reportTestId] : []);
       const catalogTest = reportTestId ? tests.find((test) => test.id === reportTestId) : undefined;
-      setParameters(catalogTest ? createParameters(catalogTest, editingReport.parameters) : editingReport.parameters as EditableParameter[]);
-    } else if (!testId && tests[0]) {
-      setTestId(tests[0].id); setParameters(createParameters(tests[0]));
+      setParametersByTest(catalogTest ? { [reportTestId!]: createParameters(catalogTest, editingReport.parameters) } : {});
+    } else if (!testIds.length && tests[0]) {
+      setTestIds([tests[0].id]); setParametersByTest({ [tests[0].id]: createParameters(tests[0]) });
     }
   }, [editingReport, tests]);
 
-  const selectTest = (id: string) => { setTestId(id); const test = tests.find((item) => item.id === id); if (test) setParameters(createParameters(test)); };
-  const changeValue = (index: number, value: string) => setParameters((current) => current.map((p, i) => i === index ? { ...p, value, status: flagForValue(value, p) } : p));
-  const changeFlag = (index: number, statusValue: TestParameter['status']) => setParameters((current) => current.map((p, i) => i === index ? { ...p, status: statusValue } : p));
+  const selectTests = (ids: string[]) => {
+    const uniqueIds = [...new Set(ids)];
+    setTestIds(uniqueIds);
+    setParametersByTest((current) => {
+      const next = { ...current };
+      uniqueIds.forEach((id) => {
+        if (!next[id]) {
+          const test = tests.find((item) => item.id === id);
+          if (test) next[id] = createParameters(test);
+        }
+      });
+      return next;
+    });
+  };
+
+  const changeValue = (testId: string, index: number, value: string) => setParametersByTest((current) => ({ ...current, [testId]: (current[testId] || []).map((p, i) => i === index ? { ...p, value, status: flagForValue(value, p) } : p) }));
+  const changeFlag = (testId: string, index: number, statusValue: TestParameter['status']) => setParametersByTest((current) => ({ ...current, [testId]: (current[testId] || []).map((p, i) => i === index ? { ...p, status: statusValue } : p) }));
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!patientName.trim() || !phone.trim() || !testId) { toast.show({ type: 'error', message: 'Patient name, phone and test are required.' }); return; }
-    const missing = parameters.filter((parameter) => parameter.required && !parameter.value.trim());
-    if (missing.length && status !== 'Draft') { toast.show({ type: 'error', message: `Required result fields missing: ${missing.map((item) => item.name).join(', ')}` }); return; }
-    const invalid = parameters.find((parameter) => !passesValidation(parameter.value, parameter.validation));
-    if (invalid) { toast.show({ type: 'error', message: `Invalid value for ${invalid.name}. Please check the field validation.` }); return; }
-    const payload = { id: editingReport?.id || `draft-${Date.now()}`, patientName, age, gender, phone, email, referredBy, dateCollected, dateReported: new Date().toISOString(), status, parameters: parameters as TestParameter[], interpretation, testType: selectedTest?.name || '', testId };
-    try { const saved = editingReport ? await reportsService.updateReport(payload.id, payload) : await reportsService.createReport(payload); onSaveReport(saved); }
-    catch (error) { toast.show({ type: 'error', message: error instanceof Error ? error.message : 'Unable to save report.' }); }
+    if (!patientName.trim() || !phone.trim() || !testIds.length) { toast.show({ type: 'error', message: 'Patient name, phone and at least one test are required.' }); return; }
+    for (const id of testIds) {
+      const parameters = parametersByTest[id] || [];
+      const missing = parameters.filter((parameter) => parameter.required && !parameter.value.trim());
+      if (missing.length && status !== 'Draft') { toast.show({ type: 'error', message: `Required result fields missing for ${tests.find((t) => t.id === id)?.name || 'selected test'}: ${missing.map((item) => item.name).join(', ')}` }); return; }
+      const invalid = parameters.find((parameter) => !passesValidation(parameter.value, parameter.validation));
+      if (invalid) { toast.show({ type: 'error', message: `Invalid value for ${invalid.name}. Please check the field validation.` }); return; }
+    }
+    try {
+      if (editingReport) {
+        const id = testIds[0];
+        const test = tests.find((item) => item.id === id);
+        const payload = { id: editingReport.id, patientName, age, gender, phone, email, referredBy, dateCollected, dateReported: new Date().toISOString(), status, parameters: (parametersByTest[id] || []) as TestParameter[], interpretation, testType: test?.name || '', testId: id };
+        const saved = await reportsService.updateReport(payload.id, payload); onSaveReport(saved); return;
+      }
+      const savedReports: LabReport[] = [];
+      for (const id of testIds) {
+        const test = tests.find((item) => item.id === id);
+        const payload = { id: `draft-${Date.now()}-${id}`, patientName, age, gender, phone, email, referredBy, dateCollected, dateReported: new Date().toISOString(), status, parameters: (parametersByTest[id] || []) as TestParameter[], interpretation, testType: test?.name || '', testId: id };
+        savedReports.push(await reportsService.createReport(payload));
+      }
+      if (savedReports.length) onSaveReport(savedReports[savedReports.length - 1]);
+    } catch (error) { toast.show({ type: 'error', message: error instanceof Error ? error.message : 'Unable to save report.' }); }
   };
 
   return <div className="editor-container animate-fade-in report-editor-page">
@@ -67,14 +95,14 @@ export default function DynamicReportEditor({ editingReport, onSaveReport, onCan
       <div className="grid-2-col"><div className="form-group"><label className="form-label">Phone</label><input className="form-input" value={phone} onChange={(e)=>setPhone(e.target.value)} required/></div><div className="form-group"><label className="form-label">Email</label><input className="form-input" type="email" value={email} onChange={(e)=>setEmail(e.target.value)}/></div></div>
       <div className="form-group"><label className="form-label">Referred By</label><input className="form-input" value={referredBy} onChange={(e)=>setReferredBy(e.target.value)}/></div>
       <div className="form-group"><label className="form-label">Sample Collected</label><input className="form-input" type="datetime-local" value={dateCollected} onChange={(e)=>setDateCollected(e.target.value)}/></div>
-      <div className="form-group test-selection-field"><div className="test-selection-heading"><div><label className="form-label">Laboratory Test</label><span>Search by test name, code, short name or synonym.</span></div><Search size={17}/></div><TestCatalogPicker selectedIds={testId ? [testId] : []} onChange={(ids) => selectTest(ids[ids.length - 1] || '')} disabled={Boolean(editingReport) || isLoading}/></div>
+      <div className="form-group test-selection-field"><div className="test-selection-heading"><div><label className="form-label">Laboratory Test</label><span>Search by test name, code, short name or synonym. Select one or more tests.</span></div><Search size={17}/></div><TestCatalogPicker selectedIds={testIds} onChange={selectTests} disabled={Boolean(editingReport) || isLoading}/></div>
       <div className="form-group"><label className="form-label">Workflow Status</label><select className="form-select" value={status} onChange={(e)=>setStatus(e.target.value as LabReport['status'])}><option value="Draft">Draft</option><option value="Pending">Pending</option><option value="Completed">Completed</option><option value="Critical">Critical</option></select></div>
-    </div><div className="glass-panel editor-parameters-card"><div className="card-header border-b"><Activity size={18}/><h3>{selectedTest?.name || 'Test parameters'}</h3></div>
-      {!selectedTest && <div className="empty-state">Select an enabled test from the catalog.</div>}
-      <div className="param-form-list">{parameters.map((param,index)=><ParameterInput key={`${param.name}-${index}`} parameter={param} onChange={(value)=>changeValue(index,value)} onFlagChange={(value)=>changeFlag(index,value)} />)}</div>
+    </div><div className="glass-panel editor-parameters-card"><div className="card-header border-b"><Activity size={18}/><h3>{testIds.length ? `${testIds.length} selected test${testIds.length === 1 ? '' : 's'} & parameters` : 'Test parameters'}</h3></div>
+      {!testIds.length && <div className="empty-state">Select an enabled test from the catalog.</div>}
+      {testIds.map((id) => { const test = tests.find((item) => item.id === id); const parameters = parametersByTest[id] || []; return <div key={id} className="selected-test-parameters"><div className="selected-test-title"><Activity size={16}/><strong>{test?.name || 'Selected test'}</strong></div><div className="param-form-list">{parameters.map((param,index)=><ParameterInput key={`${id}-${param.name}-${index}`} parameter={param} onChange={(value)=>changeValue(id,index,value)} onFlagChange={(value)=>changeFlag(id,index,value)} />)}</div></div>; })}
       <div className="preview-divider"/><div className="form-group"><label className="form-label">Clinical Notes</label><textarea className="form-input form-textarea" rows={4} value={interpretation} onChange={(e)=>setInterpretation(e.target.value)} placeholder="Clinical notes or interpretation"/></div><div className="editor-actions-row"><button type="button" onClick={onCancel} className="btn btn-outline">Cancel</button><button type="submit" className="btn btn-primary"><Save size={18}/>Save Diagnostic Report</button></div>
     </div></div></form>
-    <style>{`.report-editor-page{width:100%;max-width:1440px;margin:0 auto;padding:clamp(1rem,2vw,2rem);min-width:0}.report-editor-page *{min-width:0}.report-editor-page .editor-header{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:1.25rem}.report-editor-page .editor-header>div{min-width:0}.report-editor-page .editor-header h1{font-size:clamp(1.45rem,2.5vw,2rem);margin:.25rem 0 .35rem}.report-editor-page .subtitle{color:var(--text);max-width:760px}.report-editor-page .editor-form,.report-editor-page .form-grid-layout{width:100%;min-width:0}.report-editor-page .form-grid-layout{display:grid;grid-template-columns:minmax(280px,.8fr) minmax(0,1.2fr);gap:1rem;align-items:start}.report-editor-page .glass-panel{min-width:0;max-width:100%;overflow:hidden}.report-editor-page .editor-parameters-card{min-width:0}.report-editor-page .test-selection-field{min-width:0}.report-editor-page .test-selection-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;color:var(--primary);margin-bottom:.35rem}.report-editor-page .test-selection-heading>div{display:grid;gap:.15rem}.report-editor-page .test-selection-heading span{font-size:.68rem;color:var(--text)}.report-editor-page .test-catalog-picker{min-width:0}.report-editor-page .test-catalog-picker .picker-list{grid-template-columns:1fr;max-height:300px}.report-editor-page .test-catalog-picker .picker-toolbar{grid-template-columns:minmax(0,1fr)}.report-editor-page .test-catalog-picker .picker-summary{align-items:flex-start}.report-editor-page .test-catalog-picker .picker-test{grid-template-columns:20px 30px minmax(0,1fr) auto}.report-editor-page .param-name-ref-row{min-width:0}.report-editor-page .param-form-ref{min-width:0;overflow-wrap:anywhere}.report-editor-page .param-value-flag-row{display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:.6rem;align-items:start}.report-editor-page .param-val-input{width:100%;min-width:0}.report-editor-page .param-flag-select{width:100%;min-width:0}.report-editor-page .editor-actions-row{display:flex;justify-content:flex-end;gap:.6rem;flex-wrap:wrap}.report-editor-page .editor-actions-row .btn{max-width:100%}@media(max-width:1050px){.report-editor-page .form-grid-layout{grid-template-columns:1fr}.report-editor-page .test-catalog-picker .picker-list{grid-template-columns:1fr 1fr}}@media(max-width:720px){.report-editor-page{padding:1rem}.report-editor-page .editor-header{flex-direction:column}.report-editor-page .editor-header .btn{width:100%}.report-editor-page .test-catalog-picker .picker-list{grid-template-columns:1fr}.report-editor-page .param-value-flag-row{grid-template-columns:1fr}.report-editor-page .editor-actions-row>*{width:100%}}`}</style>
+    <style>{`.report-editor-page{width:100%;max-width:1440px;margin:0 auto;padding:clamp(1rem,2vw,2rem);min-width:0}.report-editor-page *{min-width:0}.report-editor-page .editor-header{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:1.25rem}.report-editor-page .editor-header>div{min-width:0}.report-editor-page .editor-header h1{font-size:clamp(1.45rem,2.5vw,2rem);margin:.25rem 0 .35rem}.report-editor-page .subtitle{color:var(--text);max-width:760px}.report-editor-page .editor-form,.report-editor-page .form-grid-layout{width:100%;min-width:0}.report-editor-page .form-grid-layout{display:grid;grid-template-columns:minmax(280px,.8fr) minmax(0,1.2fr);gap:1rem;align-items:start}.report-editor-page .glass-panel{min-width:0;max-width:100%;overflow:hidden}.report-editor-page .editor-parameters-card{min-width:0}.report-editor-page .test-selection-field{min-width:0}.report-editor-page .test-selection-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;color:var(--primary);margin-bottom:.35rem}.report-editor-page .test-selection-heading>div{display:grid;gap:.15rem}.report-editor-page .test-selection-heading span{font-size:.68rem;color:var(--text)}.report-editor-page .test-catalog-picker{min-width:0}.report-editor-page .test-catalog-picker .picker-list{grid-template-columns:1fr;max-height:300px}.report-editor-page .test-catalog-picker .picker-toolbar{grid-template-columns:minmax(0,1fr)}.report-editor-page .test-catalog-picker .picker-summary{align-items:flex-start}.report-editor-page .test-catalog-picker .picker-test{grid-template-columns:20px 30px minmax(0,1fr) auto}.report-editor-page .param-name-ref-row{min-width:0}.report-editor-page .param-form-ref{min-width:0;overflow-wrap:anywhere}.report-editor-page .param-value-flag-row{display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:.6rem;align-items:start}.report-editor-page .param-val-input{width:100%;min-width:0}.report-editor-page .param-flag-select{width:100%;min-width:0}.report-editor-page .editor-actions-row{display:flex;justify-content:flex-end;gap:.6rem;flex-wrap:wrap}.report-editor-page .editor-actions-row .btn{max-width:100%}.selected-test-parameters{padding:.8rem 0;border-bottom:1px solid var(--border)}.selected-test-title{display:flex;align-items:center;gap:.5rem;margin-bottom:.65rem;color:var(--primary)}.selected-test-title strong{font-size:.9rem}@media(max-width:1050px){.report-editor-page .form-grid-layout{grid-template-columns:1fr}.report-editor-page .test-catalog-picker .picker-list{grid-template-columns:1fr 1fr}}@media(max-width:720px){.report-editor-page{padding:1rem}.report-editor-page .editor-header{flex-direction:column}.report-editor-page .editor-header .btn{width:100%}.report-editor-page .test-catalog-picker .picker-list{grid-template-columns:1fr}.report-editor-page .param-value-flag-row{grid-template-columns:1fr}.report-editor-page .editor-actions-row>*{width:100%}}`}</style>
   </div>;
 }
 

@@ -13,6 +13,14 @@ export async function listReportTemplates(): Promise<ReportTemplate[]> { return 
 export function getSavedReportTemplate(): ReportTemplateId { try { const value = localStorage.getItem('lab_report_template'); return ['classic','modern','compact','detailed','premium','minimal'].includes(value || '') ? value as ReportTemplateId : 'classic'; } catch { return 'classic'; } }
 export function saveReportTemplate(template: ReportTemplateId) { try { localStorage.setItem('lab_report_template', template); } catch {} }
 
+function toDateTimeLocal(value: any): string {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
 /**
  * Patient Register is order-based. A LabOrder is the single clinical record for
  * one patient visit and can contain many tests. Do not read the legacy /reports
@@ -29,7 +37,7 @@ export async function listReports(filters?: { status?: string; search?: string; 
   const details = await Promise.all(orderRows.map((order) => request<ApiReport>(`orders/${order.id}`)));
   let data = details.map((order) => mapOrderAsReport(order));
   if (filters?.status && filters.status !== 'All') data = data.filter((report) => report.status === filters.status);
-  if (filters?.patientId) data = data.filter((report) => report.patientId === filters.patientId);
+  if (filters?.patientId) data = data.filter((report) => (report as any).patientId === filters.patientId);
   if (filters?.testId) data = data.filter((report) => (report as any).testIds?.includes(filters.testId));
   return { data, pagination: Array.isArray(orders) ? undefined : orders.pagination };
 }
@@ -172,16 +180,33 @@ function mapOrderStatus(status: string | undefined, parameters: TestParameter[])
   return 'Draft';
 }
 
-function mapOrderAsDraft(order: ApiReport, testCache: Map<string, any>): LabReport { return mapOrderAsReport({ ...order, items: (order.items ?? []).map((item: any) => ({ ...item, test: item.test ?? testCache.get(item.testId) })) }); }
 async function ensurePatient(report: Partial<LabReport>) { const patientId = (report as any).patientId; if (patientId) return patientsService.updatePatient(patientId, toPatientPayload(report)); const search = report.phone || report.patientName || ''; const existing = search ? await patientsService.listPatients(search).catch(() => []) : []; const match = Array.isArray(existing) ? existing.find((patient) => patient.mobile === report.phone && patient.name?.toLowerCase() === report.patientName?.toLowerCase()) : null; if (match) return patientsService.updatePatient(match.id, toPatientPayload(report)); return patientsService.createPatient(toPatientPayload(report)); }
 function requireTestId(report: Partial<LabReport>): string { const testId = (report as LabReport & { testId?: string }).testId; if (!testId?.trim()) throw new Error('Please select a configured laboratory test from the Test Catalog.'); return testId; }
 function toPatientPayload(report: Partial<LabReport>) { return { name: report.patientName, age: report.age, gender: mapGenderToApi(report.gender), mobile: report.phone, email: report.email || undefined }; }
 function toApiResults(parameters: TestParameter[], apiParameters: any[]) { return parameters.map((parameter) => { const apiParameter = apiParameters.find((item: any) => item.name?.toLowerCase() === parameter.name.toLowerCase()); return apiParameter && parameter.value?.trim() ? { parameterId: apiParameter.id, value: parameter.value.trim() } : null; }).filter(Boolean); }
 function mapParameter(parameter: any, result: any): TestParameter { return { name: parameter.name ?? '', value: result?.value ?? '', unit: parameter.unit ?? '', refRange: formatRange(parameter), minRef: parameter.normalMin ?? undefined, maxRef: parameter.normalMax ?? undefined, status: mapFlag(result?.flag), inputType: parameter.inputType, required: parameter.isRequired ?? true } as TestParameter; }
-function mapFlag(flag: any): TestParameter['status'] { if (flag === 'HIGH') return 'High'; if (flag === 'LOW') return 'Low'; if (flag === 'NORMAL') return 'Normal'; return undefined; }
+function mapFlag(flag: any): TestParameter['status'] { if (flag === 'HIGH') return 'High'; if (flag === 'LOW') return 'Low'; if (flag === 'NORMAL') return 'Normal'; return 'Abnormal'; }
 function formatRange(parameter: any): string { if (parameter.referenceRange) return typeof parameter.referenceRange === 'string' ? parameter.referenceRange : JSON.stringify(parameter.referenceRange); if (parameter.normalMin !== undefined && parameter.normalMax !== undefined) return `${parameter.normalMin} - ${parameter.normalMax}`; if (parameter.normalMin !== undefined) return `>= ${parameter.normalMin}`; if (parameter.normalMax !== undefined) return `<= ${parameter.normalMax}`; return ''; }
 function mapGenderFromApi(value: any): LabReport['gender'] { return value === 'MALE' ? 'Male' : value === 'FEMALE' ? 'Female' : 'Other'; }
 function mapGenderToApi(value: any): any { return value === 'Male' ? 'MALE' : value === 'Female' ? 'FEMALE' : 'OTHER'; }
 function mapReportStatus(status: any, parameters: TestParameter[]): LabReport['status'] { if (status === 'FINAL') return parameters.some((p) => p.status === 'High' || p.status === 'Low' || p.status === 'Abnormal') ? 'Critical' : 'Completed'; if (status === 'RESULT_ENTERED') return 'Pending'; if (status === 'VERIFIED') return 'Completed'; return 'Draft'; }
 function mapFinalStatus(tests: any[]): LabReport['status'] { return tests.some((item: any) => (item.parameters ?? []).some((p: any) => p.flag === 'HIGH' || p.flag === 'LOW')) ? 'Critical' : 'Completed'; }
 function toIso(value: any): string | undefined { if (!value) return undefined; const date = new Date(value); return Number.isNaN(date.getTime()) ? undefined : date.toISOString(); }
+
+const reportsService = {
+  listReportTemplates,
+  getSavedReportTemplate,
+  saveReportTemplate,
+  listReports,
+  getReport,
+  createCombinedReport,
+  createReport,
+  updateReport,
+  deleteReport,
+  generateReport,
+  finalizeReport,
+  downloadReportPdf,
+  openReportPdf,
+};
+
+export default reportsService;

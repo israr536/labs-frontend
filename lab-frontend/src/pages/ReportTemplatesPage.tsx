@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Download, FileText, CheckCircle2, Eye } from 'lucide-react';
+import { Download, CheckCircle2, Eye } from 'lucide-react';
 import reportsService, { type ReportTemplateId, type ReportTemplate } from '../services/reportsService';
 import type { LabReport } from '../data/samples';
 

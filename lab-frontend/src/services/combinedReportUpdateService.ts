@@ -87,7 +87,9 @@ export async function updateCombinedReport(report: EditableReport): Promise<LabR
     await patientsService.updatePatient(report.patientId, {
       name: report.patientName,
       age: report.age,
-      gender: report.gender,
+      // The backend Patient DTO uses the enum values MALE/FEMALE/OTHER.
+      // The UI intentionally displays human-friendly Male/Female/Other.
+      gender: normalizeGender(report.gender),
       mobile: report.phone,
       email: report.email || undefined,
     });
@@ -121,6 +123,18 @@ export async function updateCombinedReport(report: EditableReport): Promise<LabR
   }
 
   return reportsService.getReport(orderId);
+}
+
+function normalizeGender(gender?: string): 'MALE' | 'FEMALE' | 'OTHER' {
+  switch (String(gender ?? '').trim().toUpperCase()) {
+    case 'FEMALE':
+      return 'FEMALE';
+    case 'OTHER':
+      return 'OTHER';
+    case 'MALE':
+    default:
+      return 'MALE';
+  }
 }
 
 function formatRange(parameter: ApiParameter): string {

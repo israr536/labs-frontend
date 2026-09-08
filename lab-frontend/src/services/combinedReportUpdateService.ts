@@ -14,8 +14,6 @@ type EditableReport = Partial<LabReport> & {
 type ApiParameter = {
   id: string;
   name?: string;
-  value?: string;
-  flag?: string;
   unit?: string;
   normalMin?: number | null;
   normalMax?: number | null;
@@ -30,12 +28,8 @@ type ApiParameter = {
   formula?: string | null;
 };
 
-type ApiOrderItem = {
-  testId: string;
-  test?: { parameters?: ApiParameter[] };
-  results?: ApiParameter[];
-};
-
+type ApiResult = { parameterId: string; value?: string; flag?: string };
+type ApiOrderItem = { testId: string; test?: { parameters?: ApiParameter[] }; results?: ApiResult[] };
 type ApiOrder = { id: string; items?: ApiOrderItem[] };
 type ApiTest = { parameters?: Array<{ id: string; name: string }> };
 
@@ -47,7 +41,7 @@ export async function getCombinedReportEditData(orderId: string) {
 
   for (const item of items) {
     const results = item.results ?? [];
-    const resultByParameterId = new Map(results.map((result) => [result.id, result]));
+    const resultByParameterId = new Map(results.map((result) => [result.parameterId, result]));
     parametersByTest[item.testId] = (item.test?.parameters ?? []).map((parameter) => {
       const result = resultByParameterId.get(parameter.id);
       const value = result?.value ?? '';

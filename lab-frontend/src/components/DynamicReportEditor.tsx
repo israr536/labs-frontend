@@ -4,7 +4,7 @@ import type { ChangeEvent, FormEvent, ReactNode } from 'react';
 import { Save, X, Activity, Search } from 'lucide-react';
 import type { LabReport, TestParameter } from '../data/samples';
 import reportsService from '../services/reportsService';
-import { updateCombinedReport } from '../services/combinedReportUpdateService';
+import { getCombinedReportEditData, updateCombinedReport } from '../services/combinedReportUpdateService';
 import testCatalogService, { type CatalogParameter, type LabTest } from '../services/testCatalogService';
 import TestCatalogPicker from './TestCatalogPicker';
 import { useToast } from './Toast';
@@ -44,33 +44,50 @@ export default function DynamicReportEditor({ editingReport, onSaveReport, onCan
   });
 
   useEffect(() => {
-    if (editingReport) {
-      const reportAny = editingReport as LabReport & { testIds?: string[]; testId?: string; orderId?: string };
-      const reportTestIds: string[] = Array.isArray(reportAny.testIds)
-        ? reportAny.testIds
-        : reportAny.testId
-          ? [reportAny.testId]
-          : [];
-      setPatientName(editingReport.patientName);
-      setAge(editingReport.age);
-      setGender(editingReport.gender);
-      setPhone(editingReport.phone);
-      setEmail(editingReport.email || '');
-      setReferredBy(editingReport.referredBy);
-      setDateCollected(editingReport.dateCollected);
-      setStatus(editingReport.status);
-      setInterpretation(editingReport.interpretation);
-      setTestIds(reportTestIds);
-      const nextParams: Record<string, EditableParameter[]> = {};
-      for (const id of reportTestIds) {
-        const catalogTest = tests.find((t) => t.id === id);
-        nextParams[id] = catalogTest ? createParameters(catalogTest, editingReport.parameters) : [];
+    let cancelled = false;
+    const load = async () => {
+      if (editingReport) {
+        const reportAny = editingReport as LabReport & { testIds?: string[]; testId?: string; orderId?: string; patientId?: string };
+        const fallbackTestIds = Array.isArray(reportAny.testIds) ? reportAny.testIds : reportAny.testId ? [reportAny.testId] : [];
+        setPatientName(editingReport.patientName);
+        setAge(editingReport.age);
+        setGender(editingReport.gender);
+        setPhone(editingReport.phone);
+        setEmail(editingReport.email || '');
+        setReferredBy(editingReport.referredBy);
+        setDateCollected(editingReport.dateCollected);
+        setStatus(editingReport.status);
+        setInterpretation(editingReport.interpretation);
+        setTestIds(fallbackTestIds);
+
+        try {
+          const detail = await getCombinedReportEditData(reportAny.orderId || editingReport.id);
+          if (cancelled) return;
+          const ids = detail.testIds.length ? detail.testIds : fallbackTestIds;
+          setTestIds(ids);
+          const nextParams: Record<string, EditableParameter[]> = {};
+          for (const id of ids) {
+            const catalogTest = tests.find((t) => t.id === id);
+            const existing = detail.parametersByTest[id] || [];
+            nextParams[id] = catalogTest ? createParameters(catalogTest, existing) : existing as EditableParameter[];
+          }
+          setParametersByTest(nextParams);
+        } catch {
+          if (cancelled) return;
+          const nextParams: Record<string, EditableParameter[]> = {};
+          for (const id of fallbackTestIds) {
+            const catalogTest = tests.find((t) => t.id === id);
+            nextParams[id] = catalogTest ? createParameters(catalogTest, editingReport.parameters) : [];
+          }
+          setParametersByTest(nextParams);
+        }
+      } else if (!testIds.length && tests[0]) {
+        setTestIds([tests[0].id]);
+        setParametersByTest({ [tests[0].id]: createParameters(tests[0]) });
       }
-      setParametersByTest(nextParams);
-    } else if (!testIds.length && tests[0]) {
-      setTestIds([tests[0].id]);
-      setParametersByTest({ [tests[0].id]: createParameters(tests[0]) });
-    }
+    };
+    void load();
+    return () => { cancelled = true; };
   }, [editingReport, tests]);
 
   const selectTests = (ids: string[]) => {

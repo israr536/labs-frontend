@@ -4,6 +4,7 @@ import type { ChangeEvent, FormEvent, ReactNode } from 'react';
 import { Save, X, Activity, Search } from 'lucide-react';
 import type { LabReport, TestParameter } from '../data/samples';
 import reportsService from '../services/reportsService';
+import { updateCombinedReport } from '../services/combinedReportUpdateService';
 import testCatalogService, { type CatalogParameter, type LabTest } from '../services/testCatalogService';
 import TestCatalogPicker from './TestCatalogPicker';
 import { useToast } from './Toast';
@@ -44,7 +45,7 @@ export default function DynamicReportEditor({ editingReport, onSaveReport, onCan
 
   useEffect(() => {
     if (editingReport) {
-      const reportAny = editingReport as any;
+      const reportAny = editingReport as LabReport & { testIds?: string[]; testId?: string; orderId?: string };
       const reportTestIds: string[] = Array.isArray(reportAny.testIds)
         ? reportAny.testIds
         : reportAny.testId
@@ -93,9 +94,26 @@ export default function DynamicReportEditor({ editingReport, onSaveReport, onCan
 
     try {
       if (editingReport) {
-        const id = testIds[0]; const test = tests.find((item) => item.id === id);
-        const payload = { id: editingReport.id, patientName, age, gender, phone, email, referredBy, dateCollected, dateReported: new Date().toISOString(), status, parameters: (parametersByTest[id] || []) as TestParameter[], interpretation, testType: test?.name || '', testId: id };
-        const saved = await reportsService.updateReport(payload.id, payload); onSaveReport(saved); return;
+        const reportAny = editingReport as LabReport & { testIds?: string[]; testId?: string; orderId?: string; patientId?: string };
+        const saved = await updateCombinedReport({
+          id: editingReport.id,
+          orderId: reportAny.orderId || editingReport.id,
+          patientId: reportAny.patientId,
+          patientName,
+          age,
+          gender,
+          phone,
+          email,
+          referredBy,
+          dateCollected,
+          dateReported: new Date().toISOString(),
+          status,
+          interpretation,
+          testIds,
+          parametersByTest: Object.fromEntries(testIds.map((id) => [id, (parametersByTest[id] || []) as TestParameter[]])),
+        });
+        onSaveReport(saved);
+        return;
       }
 
       const payload: CombinedReportPayload = {

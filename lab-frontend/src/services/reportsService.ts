@@ -82,20 +82,52 @@ export function deleteReport(id: string) { return request<ApiReport>(`reports/${
 export async function generateReport(id: string): Promise<LabReport> { return mapGeneratedReport(await request<ApiReport>(`reports/${id}/generate`)); }
 export async function finalizeReport(id: string): Promise<LabReport> { return mapApiReport(await request<ApiReport>(`reports/${id}/finalize`, { method: 'POST' })); }
 
-export async function downloadReportPdf(id: string, fileName?: string, template: ReportTemplateId = getSavedReportTemplate()) {
+/**
+ * Reports UI is order-based. Always use the final-report endpoint with the
+ * LabOrder ID. The legacy /reports/:id/pdf endpoint expects a legacy Report ID
+ * and must never receive an order ID as a fallback.
+ */
+export async function downloadReportPdf(id: string, fileName?: string, _template: ReportTemplateId = getSavedReportTemplate()) {
   const base = (await import('./api')).default.API_BASE;
-  let response = await fetch(`${base}/orders/${id}/report/pdf`, { headers: { Authorization: `Bearer ${localStorage.getItem('lab_access_token')}` } });
-  if (!response.ok) response = await fetch(`${base}/reports/${id}/pdf?template=${encodeURIComponent(template)}`, { headers: { Authorization: `Bearer ${localStorage.getItem('lab_access_token')}` } });
-  if (!response.ok) throw new Error('Failed to download PDF');
-  const blob = await response.blob(); const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = fileName || `report-${id}-${template}.pdf`; document.body.appendChild(a); a.click(); a.remove(); window.URL.revokeObjectURL(url);
+  const response = await fetch(`${base}/orders/${encodeURIComponent(id)}/report/pdf`, {
+    headers: { Authorization: `Bearer ${localStorage.getItem('lab_access_token')}` },
+  });
+  if (!response.ok) {
+    let message = `Failed to download PDF (${response.status})`;
+    try {
+      const error = await response.json();
+      if (typeof error?.message === 'string') message = error.message;
+    } catch {}
+    throw new Error(message);
+  }
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName || `report-${id}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
 }
 
-export async function openReportPdf(id: string, template: ReportTemplateId = getSavedReportTemplate()) {
+export async function openReportPdf(id: string, _template: ReportTemplateId = getSavedReportTemplate()) {
   const base = (await import('./api')).default.API_BASE;
-  let response = await fetch(`${base}/orders/${id}/report/pdf`, { headers: { Authorization: `Bearer ${localStorage.getItem('lab_access_token')}` } });
-  if (!response.ok) response = await fetch(`${base}/reports/${id}/pdf?template=${encodeURIComponent(template)}`, { headers: { Authorization: `Bearer ${localStorage.getItem('lab_access_token')}` } });
-  if (!response.ok) throw new Error('Failed to generate PDF');
-  const blob = await response.blob(); const url = window.URL.createObjectURL(blob); window.open(url, '_blank', 'noopener,noreferrer'); setTimeout(() => window.URL.revokeObjectURL(url), 60000);
+  const response = await fetch(`${base}/orders/${encodeURIComponent(id)}/report/pdf`, {
+    headers: { Authorization: `Bearer ${localStorage.getItem('lab_access_token')}` },
+  });
+  if (!response.ok) {
+    let message = `Failed to generate PDF (${response.status})`;
+    try {
+      const error = await response.json();
+      if (typeof error?.message === 'string') message = error.message;
+    } catch {}
+    throw new Error(message);
+  }
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+  window.open(url, '_blank', 'noopener,noreferrer');
+  setTimeout(() => window.URL.revokeObjectURL(url), 60000);
 }
 
 function mapApiReport(report: ApiReport): LabReport { const resultByParameterId = new Map((report.results ?? []).map((result: any) => [result.parameterId, result])); const parametersSource = report.test?.parameters?.length ? report.test.parameters : (report.results ?? []).map((result: any) => result.parameter); const parameters = parametersSource.map((parameter: any) => mapParameter(parameter, resultByParameterId.get(parameter.id))); return { id: report.id, patientName: report.patient?.name ?? 'Unknown patient', age: report.patient?.age ?? 0, gender: mapGenderFromApi(report.patient?.gender), phone: report.patient?.mobile ?? '', email: report.patient?.email ?? '', referredBy: report.referredBy ?? 'Dr. Self / Walk-in', dateCollected: toDateTimeLocal(report.sampleCollectedAt ?? report.createdAt), dateReported: toDateTimeLocal(report.reportedAt ?? report.updatedAt ?? report.createdAt), testType: report.test?.name ?? 'Diagnostic Test', status: mapReportStatus(report.status, parameters), parameters, interpretation: report.doctorNotes ?? report.remarks ?? '', ...(report.reportNumber ? { reportNumber: report.reportNumber } : {}), ...(report.patientId ? { patientId: report.patientId } : {}), ...(report.testId ? { testId: report.testId } : {}) } as LabReport; }
@@ -145,14 +177,11 @@ async function ensurePatient(report: Partial<LabReport>) { const patientId = (re
 function requireTestId(report: Partial<LabReport>): string { const testId = (report as LabReport & { testId?: string }).testId; if (!testId?.trim()) throw new Error('Please select a configured laboratory test from the Test Catalog.'); return testId; }
 function toPatientPayload(report: Partial<LabReport>) { return { name: report.patientName, age: report.age, gender: mapGenderToApi(report.gender), mobile: report.phone, email: report.email || undefined }; }
 function toApiResults(parameters: TestParameter[], apiParameters: any[]) { return parameters.map((parameter) => { const apiParameter = apiParameters.find((item: any) => item.name?.toLowerCase() === parameter.name.toLowerCase()); return apiParameter && parameter.value?.trim() ? { parameterId: apiParameter.id, value: parameter.value.trim() } : null; }).filter(Boolean); }
-function mapParameter(parameter: any, result: any): TestParameter { return { name: parameter?.name ?? result?.name ?? 'Parameter', value: result?.value ?? '', unit: parameter?.unit ?? result?.unit ?? '', refRange: formatRange(parameter ?? result), minRef: parameter?.normalMin ?? result?.normalMin ?? undefined, maxRef: parameter?.normalMax ?? result?.normalMax ?? undefined, inputType: parameter?.inputType ?? result?.inputType, options: normalizeOptions(parameter?.options ?? result?.options), status: mapFlag(result?.flag), validation: parameter?.validation ?? result?.validation, decimalPlaces: parameter?.decimalPlaces ?? result?.decimalPlaces, required: parameter?.isRequired ?? result?.isRequired } as TestParameter; }
-function normalizeOptions(value: unknown): string[] | undefined { return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : undefined; }
-function mapReportStatus(status: string | undefined, parameters: TestParameter[]): LabReport['status'] { if (status !== 'FINAL') return 'Draft'; return parameters.some((parameter) => parameter.status === 'High' || parameter.status === 'Low' || parameter.status === 'Abnormal') ? 'Critical' : 'Completed'; }
+function mapParameter(parameter: any, result: any): TestParameter { return { name: parameter.name ?? '', value: result?.value ?? '', unit: parameter.unit ?? '', refRange: formatRange(parameter), minRef: parameter.normalMin ?? undefined, maxRef: parameter.normalMax ?? undefined, status: mapFlag(result?.flag), inputType: parameter.inputType, required: parameter.isRequired ?? true } as TestParameter; }
+function mapFlag(flag: any): TestParameter['status'] { if (flag === 'HIGH') return 'High'; if (flag === 'LOW') return 'Low'; if (flag === 'NORMAL') return 'Normal'; return undefined; }
+function formatRange(parameter: any): string { if (parameter.referenceRange) return typeof parameter.referenceRange === 'string' ? parameter.referenceRange : JSON.stringify(parameter.referenceRange); if (parameter.normalMin !== undefined && parameter.normalMax !== undefined) return `${parameter.normalMin} - ${parameter.normalMax}`; if (parameter.normalMin !== undefined) return `>= ${parameter.normalMin}`; if (parameter.normalMax !== undefined) return `<= ${parameter.normalMax}`; return ''; }
+function mapGenderFromApi(value: any): LabReport['gender'] { return value === 'MALE' ? 'Male' : value === 'FEMALE' ? 'Female' : 'Other'; }
+function mapGenderToApi(value: any): any { return value === 'Male' ? 'MALE' : value === 'Female' ? 'FEMALE' : 'OTHER'; }
+function mapReportStatus(status: any, parameters: TestParameter[]): LabReport['status'] { if (status === 'FINAL') return parameters.some((p) => p.status === 'High' || p.status === 'Low' || p.status === 'Abnormal') ? 'Critical' : 'Completed'; if (status === 'RESULT_ENTERED') return 'Pending'; if (status === 'VERIFIED') return 'Completed'; return 'Draft'; }
 function mapFinalStatus(tests: any[]): LabReport['status'] { return tests.some((item: any) => (item.parameters ?? []).some((p: any) => p.flag === 'HIGH' || p.flag === 'LOW')) ? 'Critical' : 'Completed'; }
-function mapFlag(flag: string | null | undefined): TestParameter['status'] { if (flag === 'HIGH') return 'High'; if (flag === 'LOW') return 'Low'; if (flag === 'NORMAL') return 'Normal'; return 'Normal'; }
-function mapGenderToApi(gender?: string) { if (gender === 'Female') return 'FEMALE'; if (gender === 'Other') return 'OTHER'; return 'MALE'; }
-function mapGenderFromApi(gender?: string): LabReport['gender'] { if (gender === 'FEMALE') return 'Female'; if (gender === 'OTHER') return 'Other'; return 'Male'; }
-function formatRange(parameter: any) { const ref = parameter?.referenceRange; if (ref && typeof ref === 'object' && !Array.isArray(ref)) return Object.entries(ref as Record<string, unknown>).map(([key, value]) => `${key}: ${String(value)}`).join(' · '); const min=parameter?.normalMin; const max=parameter?.normalMax; if(min!=null&&max!=null)return `${min} - ${max}`; if(min!=null)return `>= ${min}`; if(max!=null)return `<= ${max}`; return 'Clinical reference'; }
-function toDateTimeLocal(value?: string | Date | null) { const date = value ? new Date(value) : new Date(); if (Number.isNaN(date.getTime())) return ''; const pad=(n:number)=>String(n).padStart(2,'0'); return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`; }
-function toIso(value?: string) { if (!value) return undefined; const date = new Date(value); return Number.isNaN(date.getTime()) ? undefined : date.toISOString(); }
-export default { listReports, createReport, createCombinedReport, getReport, updateReport, deleteReport, generateReport, finalizeReport, downloadReportPdf, openReportPdf, listReportTemplates, getSavedReportTemplate, saveReportTemplate };
+function toIso(value: any): string | undefined { if (!value) return undefined; const date = new Date(value); return Number.isNaN(date.getTime()) ? undefined : date.toISOString(); }

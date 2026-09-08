@@ -8,6 +8,7 @@ type EditableReport = Partial<LabReport> & {
   patientId?: string;
   orderId?: string;
   testIds?: string[];
+  parametersByTest?: Record<string, TestParameter[]>;
 };
 
 type ApiTest = { parameters?: Array<{ id: string; name: string }> };
@@ -37,7 +38,7 @@ export async function updateCombinedReport(report: EditableReport): Promise<LabR
   for (const testId of testIds) {
     const test = await testsService.getTest(testId) as ApiTest;
     const apiParameters = test.parameters ?? [];
-    const parameters = report.parametersByTest?.[testId] as TestParameter[] | undefined;
+    const parameters = report.parametersByTest?.[testId];
     if (!parameters) continue;
 
     for (const parameter of parameters) {

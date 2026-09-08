@@ -10,6 +10,7 @@ const BOTTOM_CONTENT = 42;
 const TOTAL_PAGES = '{total_pages_count_string}';
 
 type RGB = readonly [number, number, number];
+type PdfTemplate = 'classic' | 'modern' | 'compact' | 'detailed' | 'premium' | 'minimal';
 
 /**
  * Generates the legacy/local laboratory report PDF.
@@ -18,9 +19,15 @@ type RGB = readonly [number, number, number];
  * authorization footer. All content is wrapped before it is drawn so long
  * patient names, addresses, IDs and parameter names cannot overlap.
  */
-export const generateReportPdf = (report: LabReport, settings: LabSettings) => {
+export const generateReportPdf = (report: LabReport, settings: LabSettings, template: PdfTemplate = 'classic') => {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-
+  doc.setFont('helvetica');
+  doc.setFontSize(10);
+  const isPremium = template === 'premium';
+  const isMinimal = template === 'minimal';
+  const isCompact = template === 'compact';
+  const isDetailed = template === 'detailed';
+  const isModern = template === 'modern';
   const colors = {
     ink: [15, 23, 42] as RGB,
     body: [51, 65, 85] as RGB,
@@ -28,8 +35,8 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings) => {
     border: [203, 213, 225] as RGB,
     panel: [248, 250, 252] as RGB,
     white: [255, 255, 255] as RGB,
-    accent: [3, 105, 161] as RGB,
-    accentLight: [239, 246, 255] as RGB,
+    accent: isPremium ? [124, 58, 237] as RGB : isModern ? [6, 95, 70] as RGB : [3, 105, 161] as RGB,
+    accentLight: isPremium ? [243, 232, 255] as RGB : isModern ? [236, 253, 245] as RGB : [239, 246, 255] as RGB,
     high: [185, 28, 28] as RGB,
     highBg: [254, 242, 242] as RGB,
     low: [180, 83, 9] as RGB,
@@ -38,6 +45,8 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings) => {
     normalBg: [240, 253, 244] as RGB,
   };
 
+  const headerFontSize = isCompact ? 14 : isDetailed ? 18 : 17;
+  const patientFieldText = isCompact ? 6.8 : 7.6;
   const setText = (color: RGB) => doc.setTextColor(...color);
   const setFill = (color: RGB) => doc.setFillColor(...color);
   const setDraw = (color: RGB) => doc.setDrawColor(...color);
@@ -82,13 +91,21 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings) => {
   };
 
   const drawHeader = () => {
+    const topBand = isPremium ? 8 : 6;
     setFill(colors.accent);
-    doc.rect(0, 0, PAGE_WIDTH, 3, 'F');
+    doc.rect(0, 0, PAGE_WIDTH, topBand, 'F');
+
+    if (isPremium || isDetailed || isModern) {
+      setFill(colors.accentLight);
+      doc.rect(MARGIN, 10, CONTENT_WIDTH, 18, 'F');
+      setDraw(colors.border);
+      doc.roundedRect(MARGIN, 9, CONTENT_WIDTH, 19, 2, 2, 'S');
+    }
 
     setText(colors.ink);
     doc.setFont('Helvetica', 'bold');
-    doc.setFontSize(17);
-    doc.text(clean(settings.labName, 'Diagnostic Laboratory'), MARGIN, 13);
+    doc.setFontSize(headerFontSize);
+    doc.text(clean(settings.labName, 'Diagnostic Laboratory'), MARGIN, 14);
 
     setText(colors.accent);
     doc.setFont('Helvetica', 'bold');
@@ -98,34 +115,35 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings) => {
     setText(colors.muted);
     doc.setFont('Helvetica', 'normal');
     doc.setFontSize(7.2);
-    const tagline = doc.splitTextToSize(clean(settings.tagline, ''), 100);
-    doc.text(tagline, MARGIN, 18);
+    const tagline = doc.splitTextToSize(clean(settings.tagline, 'Precision care through reliable testing'), 90);
+    doc.text(tagline, MARGIN, 19.3);
 
     const contactParts = [
-      clean(settings.address, ''),
+      clean(settings.address, '').replace(/\s+/g, ' '),
       settings.phone ? `Phone: ${settings.phone}` : '',
       [settings.email, settings.website].filter(Boolean).join('  |  '),
+      [settings.isoCertification, settings.licenseNumber ? `License: ${settings.licenseNumber}` : ''].filter(Boolean).join('  |  '),
     ].filter(Boolean);
-    let contactY = 11;
-    contactParts.forEach((part) => {
-      const lines = doc.splitTextToSize(part, 78);
-      doc.text(lines, PAGE_WIDTH - MARGIN, contactY, { align: 'right' });
-      contactY += Math.max(3.5, lines.length * 3.2);
-    });
 
-    const accreditation = [settings.isoCertification, settings.licenseNumber ? `LIC: ${settings.licenseNumber}` : '']
-      .filter(Boolean)
-      .join('  |  ');
-    if (accreditation) {
-      setText(colors.accent);
-      doc.setFont('Helvetica', 'bold');
-      doc.setFontSize(6.6);
-      doc.text(doc.splitTextToSize(accreditation, CONTENT_WIDTH), MARGIN, 29);
-    }
+    setText(colors.body);
+    doc.setFont('Helvetica', 'normal');
+    doc.setFontSize(6.2);
+    contactParts.forEach((part, index) => {
+      const lines = doc.splitTextToSize(part, 72);
+      doc.text(lines, PAGE_WIDTH - MARGIN, 15 + index * 3.5, { align: 'right' });
+    });
 
     setDraw(colors.border);
     doc.setLineWidth(0.3);
-    doc.line(MARGIN, 33, PAGE_WIDTH - MARGIN, 33);
+    doc.line(MARGIN, 31, PAGE_WIDTH - MARGIN, 31);
+  };
+
+  const drawMinimalTopBar = () => {
+    setFill(colors.accent);
+    doc.rect(0, 0, PAGE_WIDTH, 3, 'F');
+    setDraw(colors.border);
+    doc.setLineWidth(0.3);
+    doc.line(MARGIN, 16, PAGE_WIDTH - MARGIN, 16);
   };
 
   const drawPatientField = (label: string, value: unknown, x: number, y: number, width: number) => {
@@ -136,17 +154,19 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings) => {
 
     setText(colors.ink);
     doc.setFont('Helvetica', 'normal');
-    doc.setFontSize(7.6);
+    doc.setFontSize(patientFieldText);
     const lines = doc.splitTextToSize(clean(value), width);
     doc.text(lines, x, y + 3.6);
   };
 
+  const cardHeight = isMinimal ? 28 : isCompact ? 32 : 40;
+
   const drawPatientCard = () => {
     const y = TOP_CONTENT;
-    const height = 39;
-    setFill(colors.panel);
+    const height = cardHeight;
+    setFill(isPremium ? [250, 247, 255] as RGB : isModern ? [239, 253, 247] as RGB : colors.panel);
     setDraw(colors.border);
-    doc.roundedRect(MARGIN, y, CONTENT_WIDTH, height, 1.5, 1.5, 'FD');
+    doc.roundedRect(MARGIN, y, CONTENT_WIDTH, height, 2, 2, 'FD');
 
     setText(colors.accent);
     doc.setFont('Helvetica', 'bold');
@@ -193,13 +213,19 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings) => {
   const ensureSpace = (height: number) => {
     if (cursorY + height <= PAGE_HEIGHT - BOTTOM_CONTENT) return;
     doc.addPage();
-    drawHeader();
-    cursorY = TOP_CONTENT;
+    drawMinimalTopBar();
+    cursorY = TOP_CONTENT + 47;
   };
 
   let cursorY = TOP_CONTENT + 47;
   drawHeader();
   drawPatientCard();
+
+  // premium report summary line to look more sales-ready
+  setText(colors.muted);
+  doc.setFont('Helvetica', 'normal');
+  doc.setFontSize(6.5);
+  doc.text('Results reported with clinical reference ranges and validated doctor review.', MARGIN, cursorY + 40, { maxWidth: CONTENT_WIDTH });
 
   drawSectionTitle(
     clean(report.testType, 'Laboratory Test'),
@@ -238,8 +264,8 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings) => {
 
     if (cursorY + rowHeight > PAGE_HEIGHT - BOTTOM_CONTENT) {
       doc.addPage();
-      drawHeader();
-      cursorY = TOP_CONTENT;
+      drawMinimalTopBar();
+      cursorY = TOP_CONTENT + 47;
       drawTableHeader();
     }
 
@@ -303,7 +329,7 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings) => {
   const signatureY = PAGE_HEIGHT - 43;
   if (cursorY > signatureY - 7) {
     doc.addPage();
-    drawHeader();
+    drawMinimalTopBar();
   }
 
   setText(colors.muted);
@@ -359,5 +385,5 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings) => {
   }
 
   doc.putTotalPages(TOTAL_PAGES);
-  doc.save(`LabReport_${String(report.patientName).replace(/[^A-Za-z0-9]+/g, '_')}_${reportNumber.replace(/[^A-Za-z0-9-]+/g, '_')}.pdf`);
+  return doc;
 };

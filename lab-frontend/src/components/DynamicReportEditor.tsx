@@ -43,12 +43,33 @@ export default function DynamicReportEditor({ editingReport, onSaveReport, onCan
   });
 
   useEffect(() => {
-    const reportTestId = (editingReport as LabReport & { testId?: string } | null)?.testId;
     if (editingReport) {
-      setPatientName(editingReport.patientName); setAge(editingReport.age); setGender(editingReport.gender); setPhone(editingReport.phone); setEmail(editingReport.email || ''); setReferredBy(editingReport.referredBy); setDateCollected(editingReport.dateCollected); setStatus(editingReport.status); setInterpretation(editingReport.interpretation); setTestIds(reportTestId ? [reportTestId] : []);
-      const catalogTest = reportTestId ? tests.find((test) => test.id === reportTestId) : undefined;
-      setParametersByTest(catalogTest && reportTestId ? { [reportTestId]: createParameters(catalogTest, editingReport.parameters) } : {});
-    } else if (!testIds.length && tests[0]) { setTestIds([tests[0].id]); setParametersByTest({ [tests[0].id]: createParameters(tests[0]) }); }
+      const reportAny = editingReport as any;
+      const reportTestIds: string[] = Array.isArray(reportAny.testIds)
+        ? reportAny.testIds
+        : reportAny.testId
+          ? [reportAny.testId]
+          : [];
+      setPatientName(editingReport.patientName);
+      setAge(editingReport.age);
+      setGender(editingReport.gender);
+      setPhone(editingReport.phone);
+      setEmail(editingReport.email || '');
+      setReferredBy(editingReport.referredBy);
+      setDateCollected(editingReport.dateCollected);
+      setStatus(editingReport.status);
+      setInterpretation(editingReport.interpretation);
+      setTestIds(reportTestIds);
+      const nextParams: Record<string, EditableParameter[]> = {};
+      for (const id of reportTestIds) {
+        const catalogTest = tests.find((t) => t.id === id);
+        nextParams[id] = catalogTest ? createParameters(catalogTest, editingReport.parameters) : [];
+      }
+      setParametersByTest(nextParams);
+    } else if (!testIds.length && tests[0]) {
+      setTestIds([tests[0].id]);
+      setParametersByTest({ [tests[0].id]: createParameters(tests[0]) });
+    }
   }, [editingReport, tests]);
 
   const selectTests = (ids: string[]) => {

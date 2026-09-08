@@ -1,5 +1,7 @@
-import type { LabReport, TestParameter } from '../data/samples';
+import { DEFAULT_SETTINGS, type LabReport, type LabSettings, type TestParameter } from '../data/samples';
+import { generateReportPdf } from '../utils/pdfGenerator';
 import { request } from './api';
+import labsService from './labsService';
 import patientsService from './patientsService';
 import testsService from './testsService';
 
@@ -10,7 +12,7 @@ export type ReportTemplate = { id: ReportTemplateId; name: string; description: 
 type CombinedReportBody = Partial<LabReport> & { testIds?: string[]; parametersByTest?: Record<string, TestParameter[]> };
 
 export async function listReportTemplates(): Promise<ReportTemplate[]> { return request<ReportTemplate[]>('reports/templates'); }
-export function getSavedReportTemplate(): ReportTemplateId { try { const value = localStorage.getItem('lab_report_template'); return ['classic','modern','compact','detailed','premium','minimal'].includes(value || '') ? value as ReportTemplateId : 'classic'; } catch { return 'classic'; } }
+export function getSavedReportTemplate(): ReportTemplateId { try { const value = localStorage.getItem('lab_report_template'); return ['classic','modern','compact','detailed','premium','minimal'].includes(value || '') ? value as ReportTemplateId : 'premium'; } catch { return 'premium'; } }
 export function saveReportTemplate(template: ReportTemplateId) { try { localStorage.setItem('lab_report_template', template); } catch {} }
 
 function toDateTimeLocal(value: any): string {
@@ -81,10 +83,32 @@ export async function createCombinedReport(body: CombinedReportBody): Promise<La
 
 export async function createReport(body: Partial<LabReport>): Promise<LabReport> { return createCombinedReport(body); }
 export async function updateReport(id: string, body: Partial<LabReport>): Promise<LabReport> {
-  const patientId = (body as any).patientId; if (patientId) await patientsService.updatePatient(patientId, toPatientPayload(body));
-  const testId = requireTestId(body); const test = await testsService.getTest(testId);
-  const updated = await request<ApiReport>(`reports/${id}`, { method: 'PATCH', body: JSON.stringify({ referredBy: body.referredBy, sampleCollectedAt: toIso(body.dateCollected), doctorNotes: body.interpretation, remarks: body.status === 'Critical' ? 'Critical result review required' : undefined, results: toApiResults(body.parameters ?? [], test.parameters ?? []) }) });
-  if (body.status === 'Completed' || body.status === 'Critical') return finalizeReport(id); return mapApiReport(updated);
+  const patientId = (body as any).patientId;
+  if (patientId) await patientsService.updatePatient(patientId, toPatientPayload(body));
+
+  const testId = requireTestId(body);
+  const test = await testsService.getTest(testId);
+  const resultsPayload = { referredBy: body.referredBy, sampleCollectedAt: toIso(body.dateCollected), doctorNotes: body.interpretation, remarks: body.status === 'Critical' ? 'Critical result review required' : undefined, results: toApiResults(body.parameters ?? [], test.parameters ?? []) };
+
+  // Try legacy reports endpoint first; if it 404s, fall back to order-based endpoints.
+  try {
+    const updated = await request<ApiReport>(`reports/${id}`, { method: 'PATCH', body: JSON.stringify(resultsPayload) });
+    if (body.status === 'Completed' || body.status === 'Critical') return finalizeReport(id);
+    return mapApiReport(updated);
+  } catch (err: any) {
+    const statusCode = err instanceof Error && 'status' in err ? (err as any).status : err && (err.statusCode ?? err.status);
+    if (statusCode === 404) {
+      const orderId = (body as any).orderId || id;
+      await request<ApiReport>(`orders/${orderId}/results`, { method: 'PATCH', body: JSON.stringify({ results: toApiResults(body.parameters ?? [], test.parameters ?? []) }) });
+      if (body.status === 'Completed' || body.status === 'Critical') {
+        await request<ApiReport>(`orders/${orderId}/verify`, { method: 'POST' });
+        await request<ApiReport>(`orders/${orderId}/finalize`, { method: 'POST' });
+        return mapFinalReport(await request<ApiReport>(`orders/${orderId}/report`));
+      }
+      return mapOrderAsReport(await request<ApiReport>(`orders/${orderId}`));
+    }
+    throw err;
+  }
 }
 export function deleteReport(id: string) { return request<ApiReport>(`reports/${id}`, { method: 'DELETE' }); }
 export async function generateReport(id: string): Promise<LabReport> { return mapGeneratedReport(await request<ApiReport>(`reports/${id}/generate`)); }
@@ -95,7 +119,30 @@ export async function finalizeReport(id: string): Promise<LabReport> { return ma
  * LabOrder ID. The legacy /reports/:id/pdf endpoint expects a legacy Report ID
  * and must never receive an order ID as a fallback.
  */
-export async function downloadReportPdf(id: string, fileName?: string, _template: ReportTemplateId = getSavedReportTemplate()) {
+async function generateLocalPdf(reportId: string, template: ReportTemplateId, fileName?: string) {
+  const report = await getReport(reportId);
+  const settings = await labsService.getSettings().catch(() => DEFAULT_SETTINGS as LabSettings);
+  const doc = generateReportPdf(report, settings, template);
+  const blob = doc.output('blob');
+  const url = window.URL.createObjectURL(blob);
+  return { url, fileName: fileName || `report-${reportId}.pdf` };
+}
+
+export async function downloadReportPdf(id: string, fileName?: string, template: ReportTemplateId = getSavedReportTemplate()) {
+  try {
+    const { url, fileName: finalName } = await generateLocalPdf(id, template, fileName);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = finalName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+    return;
+  } catch {
+    // Fallback to the server PDF endpoint if local generation fails.
+  }
+
   const base = (await import('./api')).default.API_BASE;
   const response = await fetch(`${base}/orders/${encodeURIComponent(id)}/report/pdf`, {
     headers: { Authorization: `Bearer ${localStorage.getItem('lab_access_token')}` },
@@ -119,7 +166,16 @@ export async function downloadReportPdf(id: string, fileName?: string, _template
   window.URL.revokeObjectURL(url);
 }
 
-export async function openReportPdf(id: string, _template: ReportTemplateId = getSavedReportTemplate()) {
+export async function openReportPdf(id: string, template: ReportTemplateId = getSavedReportTemplate()) {
+  try {
+    const { url } = await generateLocalPdf(id, template);
+    window.open(url, '_blank', 'noopener,noreferrer');
+    setTimeout(() => window.URL.revokeObjectURL(url), 60000);
+    return;
+  } catch {
+    // Fallback to backend PDF if local generation is unavailable.
+  }
+
   const base = (await import('./api')).default.API_BASE;
   const response = await fetch(`${base}/orders/${encodeURIComponent(id)}/report/pdf`, {
     headers: { Authorization: `Bearer ${localStorage.getItem('lab_access_token')}` },

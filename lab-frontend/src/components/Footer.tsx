@@ -10,6 +10,14 @@ export default function Footer() {
             Clinical lab reporting software designed for modern diagnostic
             teams. Secure, efficient, and built to keep workflows moving.
           </p>
+          <a
+            href="https://wa.me/919876543210?text=Hello%20ApexLab%2C%20I%20want%20to%20book%20a%20demo."
+            target="_blank"
+            rel="noreferrer"
+            className="footer-demo-btn"
+          >
+            Book demo on WhatsApp
+          </a>
         </div>
 
         <div>
@@ -18,6 +26,7 @@ export default function Footer() {
             <Link to="/pricing">Pricing</Link>
             <Link to="/about">About</Link>
             <Link to="/contact">Contact</Link>
+            <Link to="/faqs">FAQs</Link>
           </nav>
         </div>
 
@@ -32,7 +41,7 @@ export default function Footer() {
         <div>
           <h4>Contact</h4>
           <p className="footer-contact">support@apexlab.com</p>
-          <p className="footer-contact">+1 (555) 123-4567</p>
+          <p className="footer-contact">+91 98765 43210</p>
           <p className="footer-contact">210 Health Avenue, Medical City</p>
         </div>
       </div>

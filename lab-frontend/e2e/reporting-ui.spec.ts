@@ -56,7 +56,7 @@ test.describe('ApexLab browser reporting flow', () => {
     await page.getByRole('button', { name: /sign in/i }).first().click();
     await page.locator('#login-email').fill('admin@example.com');
     await page.locator('#login-password').fill('Password123!');
-    await page.getByRole('button', { name: 'Sign in' }).click();
+    await page.locator('form').getByRole('button', { name: /^Sign in$/ }).click();
     await expect(page.getByText(/Good to see you/i)).toBeVisible();
     await page.getByRole('button', { name: 'New Report' }).click();
     await expect(page.getByRole('heading', { name: 'Create diagnostic report' })).toBeVisible();
@@ -75,6 +75,7 @@ test.describe('ApexLab browser reporting flow', () => {
     const downloadPromise = page.waitForEvent('download');
     await page.locator('button[title^="Download"]').first().click();
     await downloadPromise;
+    await page.locator('button[title^="Print"]').first().click();
     await page.getByRole('button', { name: 'Sign out' }).click();
     await expect(page.getByRole('button', { name: /sign in/i }).first()).toBeVisible();
   });

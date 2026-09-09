@@ -58,7 +58,7 @@ test.describe('ApexLab browser reporting flow', () => {
     await page.locator('#login-password').fill('Password123!');
     await page.locator('form').getByRole('button', { name: /^Sign in$/ }).click();
     await expect(page.getByText(/Good to see you/i)).toBeVisible();
-    await page.getByRole('button', { name: 'New Report' }).click();
+    await page.getByRole('button', { name: 'New Report', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Create diagnostic report' })).toBeVisible();
     await page.getByLabel('Patient Full Name').fill('UI Test Patient');
     await page.getByLabel('Phone').fill('9999999999');

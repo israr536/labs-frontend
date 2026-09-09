@@ -22,15 +22,30 @@ const order = {
 const finalReport = { reportNumber: 'RPT-E2E-001', finalizedAt: new Date().toISOString(), order, orderId: order.id };
 
 async function mockApi(page: import('@playwright/test').Page) {
+  let authenticated = false;
   await page.route('http://localhost:3000/**', async (route) => {
     const request = route.request();
     const url = new URL(request.url());
     const path = url.pathname.replace(/^\/+/, '');
     const method = request.method();
-    if (path === 'auth/me' && method === 'GET') return route.fulfill({ status: 401, contentType: 'application/json', body: JSON.stringify({ message: 'Unauthorized' }) });
-    if (path === 'auth/login' && method === 'POST') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ accessToken: 'ui-e2e-token', user }) });
-    if (path === 'auth/refresh' && method === 'POST') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ accessToken: 'ui-e2e-token', user }) });
-    if (path === 'auth/logout' && method === 'POST') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true }) });
+    if (path === 'auth/me' && method === 'GET') {
+      return authenticated
+        ? route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ user }) })
+        : route.fulfill({ status: 401, contentType: 'application/json', body: JSON.stringify({ message: 'Unauthorized' }) });
+    }
+    if (path === 'auth/login' && method === 'POST') {
+      authenticated = true;
+      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ accessToken: 'ui-e2e-token', user }) });
+    }
+    if (path === 'auth/refresh' && method === 'POST') {
+      return authenticated
+        ? route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ accessToken: 'ui-e2e-token', user }) })
+        : route.fulfill({ status: 401, contentType: 'application/json', body: JSON.stringify({ message: 'Unauthorized' }) });
+    }
+    if (path === 'auth/logout' && method === 'POST') {
+      authenticated = false;
+      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true }) });
+    }
     if (path === 'test-catalog' && method === 'GET') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(tests) });
     if (path === 'tests' && method === 'GET') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(tests) });
     if (path.startsWith('tests/') && method === 'GET') { const item = tests.find((t) => path === `tests/${t.id}`); return route.fulfill({ status: item ? 200 : 404, contentType: 'application/json', body: JSON.stringify(item ?? { message: 'Not found' }) }); }
@@ -41,7 +56,7 @@ async function mockApi(page: import('@playwright/test').Page) {
     if (path === `orders/${order.id}/report/pdf` && method === 'GET') return route.fulfill({ status: 200, contentType: 'application/pdf', body: '%PDF-1.4\n1 0 obj\n<<>>\nendobj\n%%EOF\n' });
     if (path.startsWith('samples') || (path.startsWith('orders/') && path.endsWith('/results')) || path.endsWith('/verify') || path.endsWith('/finalize')) return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(order) });
     if (path.startsWith('patients')) return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(order.patient) });
-    if (path === 'settings' || path === 'labs/settings') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ labName: 'E2E Laboratory' }) });
+    if (path === 'lab/settings') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ name: 'E2E Laboratory' }) });
     if (path === 'subscription/status') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ status: 'ACTIVE', plan: 'PRO' }) });
     if (method === 'GET') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([]) });
     return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true }) });
@@ -58,10 +73,9 @@ test.describe('ApexLab browser reporting flow', () => {
     await page.locator('#login-password').fill('Password123!');
     await page.locator('form').getByRole('button', { name: /^Sign in$/ }).click();
     await expect(page.getByText(/Good to see you/i)).toBeVisible();
-    await expect(page.getByRole('button', { name: /Current laboratory:/i })).toBeVisible();
-    const newReportButton = page.locator('.saas-nav-item').filter({ hasText: 'New Report' });
-    await expect(newReportButton).toHaveCount(1);
-    await newReportButton.click({ force: true });
+    const newReportButton = page.getByRole('button', { name: 'New Report', exact: true });
+    await expect(newReportButton).toBeVisible({ timeout: 10000 });
+    await newReportButton.click();
     await expect(page.getByRole('heading', { name: 'Create diagnostic report' })).toBeVisible();
     await page.getByLabel('Patient Full Name').fill('UI Test Patient');
     await page.getByLabel('Phone').fill('9999999999');

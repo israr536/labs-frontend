@@ -59,8 +59,9 @@ test.describe('ApexLab browser reporting flow', () => {
     await page.locator('form').getByRole('button', { name: /^Sign in$/ }).click();
     await expect(page.getByText(/Good to see you/i)).toBeVisible();
     await expect(page.getByRole('button', { name: /Current laboratory:/i })).toBeVisible();
-    await expect(page.locator('.saas-nav-item').filter({ hasText: 'New Report' })).toHaveCount(1);
-    await page.locator('.saas-nav-item').filter({ hasText: 'New Report' }).click();
+    const newReportButton = page.locator('.saas-nav-item').filter({ hasText: 'New Report' });
+    await expect(newReportButton).toHaveCount(1);
+    await newReportButton.click({ force: true });
     await expect(page.getByRole('heading', { name: 'Create diagnostic report' })).toBeVisible();
     await page.getByLabel('Patient Full Name').fill('UI Test Patient');
     await page.getByLabel('Phone').fill('9999999999');

@@ -45,7 +45,7 @@ export default function OrdersWorkspaceV2({ role }: { role?: Role }) {
   const [resultDraft, setResultDraft] = useState<Record<string, string>>({});
   const canCreate = role === 'ADMIN' || role === 'RECEPTIONIST';
   const canResults = role === 'ADMIN' || role === 'TECHNICIAN';
-  const canFinalize = role === 'ADMIN' || role === 'PATHOLOGIST';
+  const canFinalize = role === 'ADMIN' || role === 'TECHNICIAN';
   const canSamples = canCreate || role === 'TECHNICIAN';
   const load = async () => { setLoading(true); try { const response = await ordersService.listOrders({ limit: 50 }); setOrders(records(response)); } catch (e) { setError(e instanceof Error ? e.message : 'Unable to load orders'); } finally { setLoading(false); } };
   useEffect(() => { void load(); void (async () => { try { const patientData = await patientsService.listPatients(); setPatients(records(patientData) as PatientRecord[]); } catch (e) { setError(e instanceof Error ? e.message : 'Unable to load patients'); } })(); }, []);

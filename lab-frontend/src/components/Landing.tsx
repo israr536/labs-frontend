@@ -39,11 +39,19 @@ const testGroups = [
 		name: 'Lipid Profile',
 		tests: ['Total Cholesterol', 'HDL', 'LDL', 'Triglycerides']
 	},
-	{
-		name: 'Thyroid Panel',
-		tests: ['TSH', 'Free T4', 'Free T3']
-	}
-];
+		{
+			name: 'Thyroid Panel',
+			tests: ['TSH', 'Free T4', 'Free T3']
+		},
+		{
+			name: 'Kidney Function Test (KFT)',
+			tests: ['Urea', 'Creatinine', 'eGFR', 'Sodium', 'Potassium', 'Bicarbonate']
+		},
+		{
+			name: 'Widal Test',
+			tests: ['Salmonella typhi O', 'Salmonella typhi H', 'Paratyphi AH', 'Paratyphi BH']
+		}
+	];
 
 const faqs = [
 	{ q: 'Can I book a live demo?', a: 'Yes — use the Book demo on WhatsApp button or contact form to schedule a walkthrough tailored to your lab.' },

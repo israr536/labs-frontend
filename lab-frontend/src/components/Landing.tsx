@@ -138,19 +138,26 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 				</div>
 			</section>
 
-			<section className="landing-proof">
-				<span>BUILT AROUND THE WAY LABS ACTUALLY WORK</span>
-				<div>
+				<section className="landing-proof">
+					<span>BUILT AROUND THE WAY LABS ACTUALLY WORK</span>
+					<div>
 					<strong>Patients</strong>
 					<strong>Tests</strong>
 					<strong>Samples</strong>
 					<strong>Results</strong>
 					<strong>Final reports</strong>
 					<strong>Audit trail</strong>
-				</div>
-			</section>
+					</div>
+				</section>
 
-			<section className="landing-section">
+				<section className="landing-trust-grid" aria-label="ApexLab product assurances">
+					<div><ShieldCheck size={18} /><span><strong>Role-based access</strong><small>Give each team member a focused workspace.</small></span></div>
+					<div><FileCheck2 size={18} /><span><strong>Audit-ready history</strong><small>Keep approvals and workflow events traceable.</small></span></div>
+					<div><Zap size={18} /><span><strong>Fast implementation</strong><small>Start with your core panels and grow from there.</small></span></div>
+					<div><Users2 size={18} /><span><strong>Built for teams</strong><small>Reception, technicians and administrators stay aligned.</small></span></div>
+				</section>
+
+				<section className="landing-section">
 				<div className="landing-section-heading">
 					<span className="landing-eyebrow">One connected workflow</span>
 					<h2>Everything your team needs, without the operational clutter.</h2>
@@ -282,8 +289,12 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 				.landing-actions{display:flex;gap:12px;align-items:center;margin-top:20px}
 				.landing-primary{background:var(--primary);color:#fff;padding:12px 18px;border-radius:12px;border:1px solid rgba(0,0,0,0.02);font-weight:800;box-shadow:0 12px 30px rgba(6,96,137,0.12)}
 				.landing-secondary{background:transparent;border:1px solid var(--border);padding:10px 16px;border-radius:12px;color:var(--text-bold);font-weight:700}
-				.landing-whatsapp{background:#25d366;border-color:#25d366;color:#fff;padding:11px 16px;border-radius:12px;font-weight:800;text-decoration:none}
-				.landing-trust{display:flex;gap:12px;align-items:center;margin-top:20px;color:var(--text);font-weight:700}
+					.landing-whatsapp{background:#25d366;border-color:#25d366;color:#fff;padding:11px 16px;border-radius:12px;font-weight:800;text-decoration:none}
+					.landing-trust{display:flex;gap:12px;align-items:center;margin-top:20px;color:var(--text);font-weight:700}
+					.landing-trust-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;margin:0 0 32px;border:1px solid var(--border);border-radius:15px;background:var(--border);overflow:hidden}
+					.landing-trust-grid>div{display:flex;align-items:flex-start;gap:10px;padding:17px 16px;background:var(--panel-bg)}
+					.landing-trust-grid svg{flex:0 0 auto;color:var(--primary);margin-top:2px}
+					.landing-trust-grid span{display:grid;gap:4px}.landing-trust-grid strong{font-size:.72rem;color:var(--text-bold)}.landing-trust-grid small{font-size:.62rem;line-height:1.5;color:var(--text)}
 				/* Product card */
 				.landing-product-card{padding:18px;border-radius:16px;background:linear-gradient(180deg, var(--panel-bg), color-mix(in srgb, var(--panel-bg) 88%, transparent));border:1px solid var(--border);box-shadow:0 18px 40px rgba(15,23,42,0.06)}
 				.product-window-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
@@ -309,7 +320,8 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 				.faq-cta{display:flex;gap:12px;margin-top:18px}
 				/* Responsive tweaks */
 				@media(max-width:1100px){.landing-hero{grid-template-columns:1fr 380px}.test-groups-grid{grid-template-columns:repeat(2,1fr)}.faq-cards{grid-template-columns:repeat(2,1fr)}}
-				@media(max-width:760px){.landing-hero{grid-template-columns:1fr;gap:22px}.test-groups-grid{grid-template-columns:1fr}.faq-cards{grid-template-columns:1fr}.landing-product-card{order:2}}
+					@media(max-width:760px){.landing-hero{grid-template-columns:1fr;gap:22px}.test-groups-grid{grid-template-columns:1fr}.faq-cards{grid-template-columns:1fr}.landing-product-card{order:2}.landing-trust-grid{grid-template-columns:1fr 1fr}.landing-trust-grid>div{padding:14px 12px}}
+					@media(max-width:460px){.landing-trust-grid{grid-template-columns:1fr}}
 			`}</style>
 
 			</div>

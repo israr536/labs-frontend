@@ -23,21 +23,33 @@ export default function Modal({
   isDangerous = false,
 }: Props) {
   const [loading, setLoading] = React.useState(false);
+  const dialogRef = React.useRef<HTMLDivElement>(null);
+  const previouslyFocused = React.useRef<HTMLElement | null>(null);
   const titleId = React.useId();
   const descriptionId = React.useId();
 
   React.useEffect(() => {
+    previouslyFocused.current = document.activeElement as HTMLElement | null;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+    window.setTimeout(() => dialogRef.current?.querySelector<HTMLElement>('button, input, select, textarea, [tabindex]:not([tabindex="-1"])')?.focus(), 0);
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && !loading) onClose?.();
+      if (event.key === 'Tab' && dialogRef.current) {
+        const focusable = Array.from(dialogRef.current.querySelectorAll<HTMLElement>('button, input, select, textarea, [href], [tabindex]:not([tabindex="-1"])')).filter((element) => !element.hasAttribute('disabled'));
+        if (!focusable.length) return;
+        const first = focusable[0]; const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      }
     };
 
     window.addEventListener('keydown', onKeyDown);
     return () => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener('keydown', onKeyDown);
+      previouslyFocused.current?.focus();
     };
   }, [loading, onClose]);
 
@@ -60,6 +72,7 @@ export default function Modal({
       }}
     >
       <div
+        ref={dialogRef}
         className="saas-modal"
         role="dialog"
         aria-modal="true"

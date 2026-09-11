@@ -1,0 +1,27 @@
+/* ApexLab accessible product layer: the final stylesheet in the cascade. */
+.skip-link{position:fixed;left:16px;top:12px;z-index:2000;transform:translateY(-180%);padding:10px 14px;border-radius:9px;background:var(--saas-primary);color:#fff;font-weight:800;text-decoration:none;box-shadow:var(--saas-shadow-lg)}
+.skip-link:focus{transform:translateY(0)}
+.saas-page,.saas-dashboard,.public-saas-page,.public-page{font-size:1rem}
+.saas-page p,.saas-dashboard p,.saas-page td,.saas-page th,.saas-page label,.saas-page input,.saas-page select,.saas-page textarea,.saas-page button{font-size:max(.875rem,1em)}
+.saas-page .saas-eyebrow,.saas-dashboard .saas-eyebrow{font-size:.72rem;line-height:1.4}
+.saas-page-header h1,.saas-dashboard-heading h1{font-weight:780;color:var(--saas-text)}
+.saas-page-header p,.saas-dashboard-heading p{max-width:760px}
+.saas-page button,.saas-dashboard button,.public-saas-page button{min-height:40px}
+.saas-page input,.saas-page select,.saas-page textarea{font-size:.9rem;line-height:1.4}
+.saas-page .table-empty,.saas-page .audit-empty{font-size:.9rem}
+.saas-page .table-empty strong,.saas-page .audit-empty strong{font-size:1rem}
+.saas-page .muted,.saas-page .table-subtext{font-size:.78rem}
+.saas-table tbody tr:focus-within{outline:2px solid color-mix(in srgb,var(--saas-primary) 45%,transparent);outline-offset:-2px}
+.saas-primary-btn:focus-visible,.saas-secondary-btn:focus-visible,.icon-action:focus-visible,.mobile-menu:focus-visible{outline-offset:3px}
+.public-saas-page p,.public-page p{line-height:1.7}
+.public-saas-page h1,.public-saas-page h2,.public-saas-page h3{color:var(--text-bold);text-wrap:balance}
+.public-saas-page .pricing-card-new,.public-saas-page .contact-form-new,.public-saas-page .contact-info-new,.public-saas-page .faq-item,.public-saas-page .faq-list{border-color:var(--border);box-shadow:var(--shadow)}
+.public-saas-page .pricing-card-new,.public-saas-page .contact-form-new,.public-saas-page .contact-info-new{border-radius:18px}
+.public-saas-page input,.public-saas-page select,.public-saas-page textarea{min-height:44px;border:1px solid var(--border);border-radius:10px;background:var(--panel-bg);color:var(--text-bold);padding:10px 12px}
+.public-saas-page input:focus,.public-saas-page select:focus,.public-saas-page textarea:focus{border-color:var(--primary);box-shadow:0 0 0 4px var(--primary-light);outline:none}
+.public-saas-page .pricing-btn,.public-saas-page .contact-submit,.public-saas-page .contact-whatsapp{min-height:44px;border-radius:10px;font-size:.86rem}
+.public-saas-page .faq-item summary{padding:18px 20px;font-size:.95rem;line-height:1.5;cursor:pointer}.public-saas-page .faq-item p{padding:0 20px 18px}
+.legal-page{font-size:1rem}.legal-page .legal-section p,.legal-page .legal-hero p{font-size:1rem;line-height:1.8}.legal-page .legal-sidebar a{font-size:.86rem}
+@media(max-width:700px){.saas-page,.saas-dashboard{font-size:.96rem}.saas-page-header h1,.saas-dashboard-heading h1{font-size:clamp(1.8rem,8vw,2.4rem)}.saas-page button,.saas-dashboard button{min-height:44px}}
+@media(prefers-contrast:more){:root{--saas-border:#98a2b3}.dark-theme{--saas-border:#667085}.saas-primary-btn,.header-cta{box-shadow:none}.saas-card,.glass-panel,.saas-table-wrap{border-width:2px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}

@@ -8,6 +8,7 @@ import './styles/saas.css';
 import './styles/typography.css';
 import './styles/layout-fixes.css';
 import './styles/production-overrides.css';
+import './styles/accessibility-saas.css';
 import App from './App.tsx';
 
 const queryClient = new QueryClient({

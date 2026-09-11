@@ -7,8 +7,8 @@ export default function Footer() {
         <div className="footer-brand">
           <div className="footer-logo">ApexLab</div>
           <p>
-            Clinical lab reporting software designed for modern diagnostic
-            teams. Secure, efficient, and built to keep workflows moving.
+            ApexLab is the operating workspace for diagnostic laboratories—connecting
+            patient records, test workflows, verification, governance, and final reporting.
           </p>
           <a
             href="https://wa.me/919876543210?text=Hello%20ApexLab%2C%20I%20want%20to%20book%20a%20demo."

@@ -53,11 +53,18 @@ const testGroups = [
 		}
 	];
 
-const faqs = [
-	{ q: 'Can I book a live demo?', a: 'Yes — use the Book demo on WhatsApp button or contact form to schedule a walkthrough tailored to your lab.' },
-	{ q: 'Does ApexLab support audit trails?', a: 'We record workflow events, user actions and report approvals to help compliance and traceability.' },
-	{ q: 'Can I customize report templates?', a: 'Yes — create and choose custom templates so final PDFs reflect your laboratory brand and clinical layout.' }
-];
+	const faqs = [
+		{ q: 'How quickly can we start using ApexLab?', a: 'Most laboratories can begin after their workspace identity, core test catalog, users, and report standards are configured. The exact timeline depends on your operating model and whether you need custom templates or implementation support.' },
+		{ q: 'What should we configure first?', a: 'Start with laboratory identity and report standards, activate the panels you run most often, establish reference ranges, invite the operational team, and complete a representative test order.' },
+		{ q: 'Can ApexLab fit our existing workflow?', a: 'ApexLab is designed to be configured around your tests, specimen types, methods, reference ranges, report identity, role boundaries, and team responsibilities.' },
+		{ q: 'Does the platform support multi-test reports?', a: 'Yes. Combined panels and multi-test orders can be managed in one workflow, with each parameter presented clearly for verification and final report generation.' },
+		{ q: 'Can we print and download PDF reports?', a: 'Yes. Reports can be previewed, printed, and downloaded as clean A4 PDF documents. Templates can be configured to reflect your laboratory identity and presentation standards.' },
+		{ q: 'Can I customize report templates?', a: 'Yes. ApexLab supports configurable report layouts and presentation styles so your final documents can align with your laboratory brand and clinical communication standards.' },
+		{ q: 'How does ApexLab support accountable access?', a: 'Workspace access is organized around authenticated team members and role boundaries. Laboratories remain responsible for assigning appropriate access and reviewing their operational policies.' },
+		{ q: 'Does ApexLab maintain an audit trail?', a: 'ApexLab records workflow events and relevant user actions so administrators can review activity around reports, orders, patients, settings, and approvals.' },
+		{ q: 'Who is responsible for patient data policies?', a: 'Your laboratory remains responsible for the information entered into the workspace, including accuracy, lawful use, retention, permissions, and applicable privacy or healthcare requirements.' },
+		{ q: 'Can I book a live demo?', a: 'Yes — use the Book demo on WhatsApp button or contact form to schedule a walkthrough tailored to your lab.' }
+	];
 
 export default function Landing({ onLoginClick, onSignupClick }: Props) {
 	const [previewMode, setPreviewMode] = useState<'overview' | 'report'>('overview');

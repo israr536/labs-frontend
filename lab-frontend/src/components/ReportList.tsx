@@ -94,18 +94,18 @@ export default function ReportList({ reports, settings: _settings, onDeleteRepor
               <thead><tr><th>Report ID</th><th>Patient Info</th><th>Diagnostic Test Type</th><th>Date Reported</th><th>Status</th><th>Actions</th></tr></thead>
               <tbody>
                 {filteredReports.length ? filteredReports.map((report) => (
-                  <tr key={report.id} className={`clickable-row ${selectedReportId === report.id ? 'active-row' : ''}`} onClick={() => setSelectedReportId(report.id)}>
+                  <tr key={report.id} className={`clickable-row ${selectedReportId === report.id ? 'active-row' : ''}`} onClick={() => setSelectedReportId(report.id)} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setSelectedReportId(report.id); } }} tabIndex={0} aria-label={`Open report ${report.patientName}`}>
                     <td className="font-bold">{(report as any).reportNumber ?? report.id}</td>
                     <td><div className="patient-cell"><span className="patient-name-span">{report.patientName}</span><span className="patient-meta-span">{report.gender} • {report.age} Yrs</span></div></td>
                     <td><span className="test-type-span">{report.testType}</span></td>
                     <td><div className="date-cell"><Calendar size={14} /><span>{new Date(report.dateReported).toLocaleDateString()}</span></div></td>
                     <td><span className={`badge ${statusClass(report.status)}`}>{report.status}</span></td>
                     <td><div className="actions-cell" onClick={(e) => e.stopPropagation()}>
-                      <button onClick={() => setSelectedReportId(report.id)} className="row-action-btn view-btn" title="Quick View"><Eye size={16} /></button>
-                      <button onClick={() => onEditReport(report)} disabled={report.status === 'Completed' || report.status === 'Critical'} className="row-action-btn edit-btn" title="Edit Report"><Edit3 size={16} /></button>
-                      <button onClick={() => handlePrint(report)} disabled={busyId !== null} className="row-action-btn print-btn" title={`Print ${template} PDF`}><Printer size={16} /></button>
-                      <button onClick={() => handleDownload(report)} disabled={busyId !== null} className="row-action-btn download-btn" title={`Download ${template} PDF`}><Download size={16} /></button>
-                      <button disabled={report.status === 'Completed' || report.status === 'Critical'} onClick={async () => { if (!confirm(`Are you sure you want to delete report ${report.id} for ${report.patientName}?`)) return; try { await onDeleteReport(report.id); toast.show({ type: 'success', message: `Deleted report ${report.id}` }); } catch (error: any) { toast.show({ type: 'error', message: error?.message || 'Failed to delete report' }); } }} className="row-action-btn delete-btn" title="Delete Record"><Trash2 size={16} /></button>
+                      <button onClick={() => setSelectedReportId(report.id)} className="row-action-btn view-btn" title="Quick View" aria-label={`Quick view ${report.patientName}`}><Eye size={16} /></button>
+                      <button onClick={() => onEditReport(report)} disabled={report.status === 'Completed' || report.status === 'Critical'} className="row-action-btn edit-btn" title="Edit Report" aria-label={`Edit report for ${report.patientName}`}><Edit3 size={16} /></button>
+                      <button onClick={() => handlePrint(report)} disabled={busyId !== null} className="row-action-btn print-btn" title={`Print ${template} PDF`} aria-label={`Print report for ${report.patientName}`}><Printer size={16} /></button>
+                      <button onClick={() => handleDownload(report)} disabled={busyId !== null} className="row-action-btn download-btn" title={`Download ${template} PDF`} aria-label={`Download report for ${report.patientName}`}><Download size={16} /></button>
+                      <button disabled={report.status === 'Completed' || report.status === 'Critical'} onClick={async () => { if (!confirm(`Are you sure you want to delete report ${report.id} for ${report.patientName}?`)) return; try { await onDeleteReport(report.id); toast.show({ type: 'success', message: `Deleted report ${report.id}` }); } catch (error: any) { toast.show({ type: 'error', message: error?.message || 'Failed to delete report' }); } }} className="row-action-btn delete-btn" title="Delete Record" aria-label={`Delete report for ${report.patientName}`}><Trash2 size={16} /></button>
                     </div></td>
                   </tr>
                 )) : <tr><td colSpan={6} className="empty-table-cell">No matching diagnostic reports found.</td></tr>}

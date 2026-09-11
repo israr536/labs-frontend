@@ -126,9 +126,10 @@ export default function DashboardOverview({
             <PlusCircle size={18} />
             <span>Start a report</span>
           </button>
-          <button onClick={() => fetchLive()} className="btn btn-outline" disabled={isRefreshing} style={{ marginLeft: 8 }}>
+          <button onClick={() => fetchLive()} className="btn btn-outline" disabled={isRefreshing} aria-label="Refresh laboratory overview" style={{ marginLeft: 8 }}>
             <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
           </button>
+          <span className="dashboard-live-status" aria-live="polite">{isRefreshing ? 'Updating live data' : 'Live data ready'}</span>
         </div>
       </div>
 
@@ -140,6 +141,7 @@ export default function DashboardOverview({
             <div 
               key={i} 
               className={`glass-panel stat-card ${card.alert ? 'critical-pulse' : ''}`}
+              aria-label={`${card.title}: ${card.value}. ${card.sub}`}
               style={{ background: card.gradient }}
             >
               <div className="stat-header">
@@ -170,7 +172,7 @@ export default function DashboardOverview({
           </div>
           <div className="chart-wrapper">
             {/* SVG line chart */}
-            <svg viewBox="0 0 500 200" className="svg-chart">
+            <svg viewBox="0 0 500 200" className="svg-chart" role="img" aria-label="Daily patient flow over the past seven days">
               <defs>
                 <linearGradient id="chart-grad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.25"/>
@@ -231,7 +233,7 @@ export default function DashboardOverview({
             <p className="card-sub">Top clinical parameters requested</p>
           </div>
           <div className="donut-chart-container">
-            <svg width="150" height="150" viewBox="0 0 42 42" className="donut-chart">
+            <svg width="150" height="150" viewBox="0 0 42 42" className="donut-chart" role="img" aria-label="Test distribution by clinical group">
               <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--border)" strokeWidth="4.5" />
               {/* Segment 1: CBC (35%) - Dasharray 35, Dashoffset 100 */}
               <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--primary)" strokeWidth="4.5" 
@@ -300,6 +302,7 @@ export default function DashboardOverview({
                       setActiveTab('reports');
                     }}
                     className="alert-action-btn"
+                    aria-label={`Inspect critical report for ${report.patientName}`}
                   >
                     <span>Inspect</span>
                     <ArrowRight size={14} />
@@ -309,7 +312,7 @@ export default function DashboardOverview({
             ) : (
               <div className="empty-alerts">
                 <ShieldCheck size={40} className="text-success" />
-                <p>No critical biochemical alerts detected. All reports are stable.</p>
+                <p>No critical alerts detected. Your report queue is stable.</p>
               </div>
             )}
           </div>
@@ -320,7 +323,7 @@ export default function DashboardOverview({
           <h3>Quick Operations</h3>
           <p className="card-sub">Common workflows and tools for lab managers</p>
           <div className="ops-grid">
-            <button onClick={() => { setActiveTab('new-report'); }} className="op-card">
+            <button onClick={() => { setActiveTab('new-report'); }} className="op-card" aria-label="Start a new laboratory report">
               <div className="op-icon bg-primary">
                 <PlusCircle size={22} />
               </div>
@@ -329,7 +332,7 @@ export default function DashboardOverview({
                 <p>Create patient diagnostics records using smart templates.</p>
               </div>
             </button>
-            <button onClick={() => { setActiveTab('patients'); }} className="op-card">
+            <button onClick={() => { setActiveTab('patients'); }} className="op-card" aria-label="Open the patient registry">
               <div className="op-icon bg-secondary">
                 <FileText size={22} />
               </div>
@@ -338,7 +341,7 @@ export default function DashboardOverview({
                 <p>Find returning patients, register new records, and keep contact details current.</p>
               </div>
             </button>
-            <button onClick={() => { setActiveTab('settings'); }} className="op-card">
+            <button onClick={() => { setActiveTab('settings'); }} className="op-card" aria-label="Open laboratory settings">
               <div className="op-icon bg-info">
                 <SettingsIcon size={22} />
               </div>

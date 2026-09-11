@@ -63,9 +63,9 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 					<h1>
 						Run your lab with <em>clarity, speed and control.</em>
 					</h1>
-					<p className="landing-lead">
-						ApexLab brings patients, tests, samples, results and final reports into one focused workspace built for modern diagnostic teams.
-					</p>
+						<p className="landing-lead">
+							ApexLab is the operating workspace for diagnostic laboratories: register patients, move samples, verify results, and deliver consistent reports without losing the thread.
+						</p>
 					<div className="landing-actions">
 						<button className="landing-primary" onClick={onSignupClick}>
 							Start your workspace <ArrowRight size={17} />
@@ -160,8 +160,8 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 				<section className="landing-section">
 				<div className="landing-section-heading">
 					<span className="landing-eyebrow">One connected workflow</span>
-					<h2>Everything your team needs, without the operational clutter.</h2>
-					<p>Replace disconnected tools and manual handoffs with a workspace where every step has a clear owner and status.</p>
+						<h2>Turn every sample into a clear next action.</h2>
+						<p>Replace disconnected tools and manual handoffs with one traceable flow from patient registration to a signed, report-ready result.</p>
 				</div>
 				<div className="capability-grid">
 					{capabilities.map(({ icon: Icon, title, text }) => (

@@ -16,7 +16,7 @@ import patientsService from '../services/patientsService';
 
 interface DashboardOverviewProps {
   reports: LabReport[];
-  setActiveTab: (tab: 'dashboard' | 'reports' | 'new-report' | 'settings') => void;
+  setActiveTab: (tab: 'dashboard' | 'reports' | 'patients' | 'new-report' | 'settings') => void;
   setSelectedReportId: (id: string | null) => void;
   pollIntervalMs?: number; // optional polling interval, default 30s
 }
@@ -118,13 +118,13 @@ export default function DashboardOverview({
     <div className="dashboard-content animate-fade-in">
       <div className="dashboard-header">
         <div>
-          <h1>Laboratory Dashboard</h1>
-          <p className="subtitle">Real-time analytical insights and clinical worklists</p>
+          <h1>Today in your laboratory</h1>
+          <p className="subtitle">A live view of patient volume, report progress, and work that needs attention.</p>
         </div>
         <div className="dashboard-actions">
           <button onClick={() => { setActiveTab('new-report'); }} className="btn btn-primary">
             <PlusCircle size={18} />
-            <span>Create New Report</span>
+            <span>Start a report</span>
           </button>
           <button onClick={() => fetchLive()} className="btn btn-outline" disabled={isRefreshing} style={{ marginLeft: 8 }}>
             <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
@@ -329,13 +329,13 @@ export default function DashboardOverview({
                 <p>Create patient diagnostics records using smart templates.</p>
               </div>
             </button>
-            <button onClick={() => { setActiveTab('reports'); }} className="op-card">
+            <button onClick={() => { setActiveTab('patients'); }} className="op-card">
               <div className="op-icon bg-secondary">
                 <FileText size={22} />
               </div>
               <div className="op-body">
-                <h4>Patient Records</h4>
-                <p>Search, filter, view, print, or edit diagnostic reports.</p>
+                <h4>Patient Registry</h4>
+                <p>Find returning patients, register new records, and keep contact details current.</p>
               </div>
             </button>
             <button onClick={() => { setActiveTab('settings'); }} className="op-card">

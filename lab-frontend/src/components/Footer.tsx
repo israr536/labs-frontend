@@ -23,10 +23,12 @@ export default function Footer() {
         <div>
           <h4>Product</h4>
           <nav className="footer-links">
+            <Link to="/solutions">Solutions</Link>
             <Link to="/pricing">Pricing</Link>
             <Link to="/about">About</Link>
             <Link to="/contact">Contact</Link>
             <Link to="/faqs">FAQs</Link>
+            <Link to="/help">Help center</Link>
           </nav>
         </div>
 

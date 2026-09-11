@@ -150,14 +150,18 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 					</div>
 				</section>
 
-				<section className="landing-trust-grid" aria-label="ApexLab product assurances">
-					<div><ShieldCheck size={18} /><span><strong>Role-based access</strong><small>Give each team member a focused workspace.</small></span></div>
-					<div><FileCheck2 size={18} /><span><strong>Audit-ready history</strong><small>Keep approvals and workflow events traceable.</small></span></div>
-					<div><Zap size={18} /><span><strong>Fast implementation</strong><small>Start with your core panels and grow from there.</small></span></div>
-					<div><Users2 size={18} /><span><strong>Built for teams</strong><small>Reception, technicians and administrators stay aligned.</small></span></div>
-				</section>
+					<section className="landing-trust-grid" aria-label="ApexLab product assurances">
+						<div><ShieldCheck size={18} /><span><strong>Role-based access</strong><small>Give each team member a focused workspace.</small></span></div>
+						<div><FileCheck2 size={18} /><span><strong>Audit-ready history</strong><small>Keep approvals and workflow events traceable.</small></span></div>
+						<div><Zap size={18} /><span><strong>Fast implementation</strong><small>Start with your core panels and grow from there.</small></span></div>
+						<div><Users2 size={18} /><span><strong>Built for teams</strong><small>Reception, technicians and administrators stay aligned.</small></span></div>
+					</section>
+					<section className="landing-decision-bar" aria-label="ApexLab next steps">
+						<div><strong>Evaluating laboratory software?</strong><span>See the answers buyers ask before implementation.</span></div>
+						<div><a href="/faqs">Explore FAQs <ArrowRight size={14} /></a><a className="landing-decision-demo" href="https://wa.me/919876543210?text=Hello%20ApexLab%2C%20I%20want%20to%20book%20a%20demo." target="_blank" rel="noreferrer">Book a demo on WhatsApp <ArrowRight size={14} /></a></div>
+					</section>
 
-				<section className="landing-section">
+					<section className="landing-section">
 				<div className="landing-section-heading">
 					<span className="landing-eyebrow">One connected workflow</span>
 						<h2>Turn every sample into a clear next action.</h2>

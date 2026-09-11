@@ -1,4 +1,5 @@
 import { ArrowRight, BarChart3, FileCheck2, ShieldCheck, Sparkles, Users2, Zap } from 'lucide-react';
+import { useState } from 'react';
 
 type Props = { onLoginClick: () => void; onSignupClick: () => void };
 
@@ -51,6 +52,7 @@ const faqs = [
 ];
 
 export default function Landing({ onLoginClick, onSignupClick }: Props) {
+	const [previewMode, setPreviewMode] = useState<'overview' | 'report'>('overview');
 	return (
 		<div className="landing-page">
 			<section className="landing-hero">
@@ -84,16 +86,21 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 
 					</div>
 				</div>
-				<div className="landing-product-card">
-					<div className="product-window-top">
+					<div className="landing-product-card">
+						<div className="product-window-top">
 						<span className="product-brand">
 							<span className="product-brand-mark">A</span> ApexLab
 						</span>
-						<span className="live-chip">
-							<i /> Live workspace
-						</span>
-					</div>
-					<div className="product-greeting">
+							<span className="live-chip">
+								<i /> Live workspace
+							</span>
+						</div>
+						<div className="preview-switcher" role="tablist" aria-label="Product preview mode">
+							<button className={previewMode === 'overview' ? 'is-active' : ''} onClick={() => setPreviewMode('overview')} role="tab" aria-selected={previewMode === 'overview'}>Operations view</button>
+							<button className={previewMode === 'report' ? 'is-active' : ''} onClick={() => setPreviewMode('report')} role="tab" aria-selected={previewMode === 'report'}>Report review</button>
+						</div>
+						{previewMode === 'overview' ? <>
+						<div className="product-greeting">
 						<div>
 							<span>Today at a glance</span>
 							<strong>Laboratory overview</strong>
@@ -123,7 +130,7 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 							))}
 						</div>
 					</div>
-					<div className="mini-queue">
+						<div className="mini-queue">
 						<div>
 							<span className="queue-icon">
 								<FileCheck2 size={14} />
@@ -133,9 +140,15 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 								<small>12 reports need technician approval</small>
 							</span>
 						</div>
-						<b>12</b>
+							<b>12</b>
+						</div>
+						</> : <div className="report-preview-panel">
+							<div className="report-preview-head"><span>FINAL REPORT REVIEW</span><b>Ready for sign-off</b></div>
+							<div className="report-preview-patient"><strong>Nashrin · Female · 26 years</strong><span>Order LAB-10482 · Collected today</span></div>
+							<div className="report-preview-table"><div><span>Hemoglobin</span><b>12.8 g/dL</b><i>Normal</i></div><div><span>WBC count</span><b>7.4 ×10⁹/L</b><i>Normal</i></div><div><span>Platelets</span><b>248 ×10⁹/L</b><i>Normal</i></div></div>
+							<div className="report-preview-footer"><span><ShieldCheck size={14} /> Verified parameters</span><button onClick={onSignupClick}>Create a report <ArrowRight size={13} /></button></div>
+						</div>}
 					</div>
-				</div>
 			</section>
 
 				<section className="landing-proof">

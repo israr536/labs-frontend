@@ -1,72 +1,20 @@
-import { CircleHelp, MessageCircleQuestion } from 'lucide-react';
+import { ArrowRight, CircleHelp, FileCheck2, Headphones, LockKeyhole, Settings2 } from 'lucide-react';
 
-const faqs = [
-  {
-    question: 'How quickly can we start using ApexLab?',
-    answer: 'Most labs can start in a few days, depending on test catalog setup, user roles, and whether you need custom report templates or onboarding support. Our team can help you configure the workspace for your workflow.'
-  },
-  {
-    question: 'Does the platform support multi-test reports?',
-    answer: 'Yes. ApexLab is designed to handle combined panels and multi-test orders. Each test is listed in sequence, making final reports easier to review and more readable for clinicians and patients.'
-  },
-  {
-    question: 'Can we print and download PDF reports?',
-    answer: 'Yes. Reports can be previewed, printed, and downloaded as clean A4 PDF documents. Templates are configurable and designed for professional diagnostic output.'
-  },
-  {
-    question: 'Is patient data secure?',
-    answer: 'Yes. The product is built around role-based access, careful workflow controls, and secure handling of laboratory data. Internal privacy controls and operational policies should still be reviewed according to local regulations.'
-  },
-  {
-    question: 'Do you support demo requests?',
-    answer: 'Yes. You can book a live demo on WhatsApp or request a product walkthrough through our contact form. We can show the workflows for patient registration, ordering, verification, and report generation.'
-  },
-  {
-    question: 'Can we customize report templates for our brand?',
-    answer: 'Yes. You can configure report design templates for different presentation styles and preferred layouts, including modern and premium clinical presentation options.'
-  },
+const groups = [
+  { icon: Settings2, label: 'Implementation', items: [
+    ['How quickly can we start using ApexLab?', 'Most laboratories can begin after their workspace identity, core test catalog, users, and report standards are configured. The exact timeline depends on your operating model and whether you need custom templates or implementation support.'],
+    ['What should we configure first?', 'Start with laboratory identity and report standards, activate the panels you run most often, establish reference ranges, invite the operational team, and complete a representative test order.'],
+    ['Can ApexLab fit our existing workflow?', 'ApexLab is designed to be configured around your tests, specimen types, methods, reference ranges, report identity, role boundaries, and team responsibilities.'],
+  ]},
+  { icon: FileCheck2, label: 'Reporting operations', items: [
+    ['Does the platform support multi-test reports?', 'Yes. Combined panels and multi-test orders can be managed in one workflow, with each parameter presented clearly for verification and final report generation.'],
+    ['Can we print and download PDF reports?', 'Yes. Reports can be previewed, printed, and downloaded as clean A4 PDF documents. Templates can be configured to reflect your laboratory identity and presentation standards.'],
+    ['Can we customize report templates?', 'Yes. ApexLab supports configurable report layouts and presentation styles so your final documents can align with your laboratory brand and clinical communication standards.'],
+  ]},
+  { icon: LockKeyhole, label: 'Governance and access', items: [
+    ['How does ApexLab support accountable access?', 'Workspace access is organized around authenticated team members and role boundaries. Laboratories remain responsible for assigning appropriate access and reviewing their operational policies.'],
+    ['Does ApexLab maintain an audit trail?', 'ApexLab records workflow events and relevant user actions so administrators can review activity around reports, orders, patients, settings, and approvals.'],
+    ['Who is responsible for patient data policies?', 'Your laboratory remains responsible for the information entered into the workspace, including accuracy, lawful use, retention, permissions, and applicable privacy or healthcare requirements.'],
+  ]},
 ];
-
-export default function FaqPage() {
-  return (
-    <div className="public-saas-page legal-page faq-page">
-      <section className="legal-hero">
-        <div className="legal-hero-copy">
-          <span className="public-eyebrow"><CircleHelp size={13} /> FAQ</span>
-          <h1>Frequently asked questions.</h1>
-          <p>Everything you need to know before starting with ApexLab, from onboarding and PDF reporting to patient workflows and security.</p>
-          <div className="legal-meta">
-            <span><MessageCircleQuestion size={14} /> Live support available</span>
-            <span>Demo requests · product onboarding · implementation support</span>
-          </div>
-        </div>
-      </section>
-
-      <section className="faq-list">
-        {faqs.map((item, index) => (
-          <details key={item.question} className="faq-item" open={index === 0}>
-            <summary>{item.question}</summary>
-            <p>{item.answer}</p>
-          </details>
-        ))}
-      </section>
-
-      <style>{`
-        .faq-page { padding-top: 24px; }
-        .faq-list { display: grid; gap: 18px; max-width: 980px; margin: 0 auto; }
-        .faq-item { border: 1px solid var(--border); border-radius: 18px; background: var(--panel-bg); padding: 0 20px; }
-        .faq-item summary {
-          list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 20px 0; font-weight: 700; font-size: 1.1rem; color: var(--text-bold);
-        }
-        .faq-item summary::-webkit-details-marker { display: none; }
-        .faq-item summary::after { content: '+'; font-size: 1.5rem; color: var(--primary); }
-        .faq-item[open] summary::after { content: '−'; }
-        .faq-item p { margin: 0 0 20px; line-height: 1.8; color: var(--text); font-size: 1rem; }
-        @media (max-width: 600px) {
-          .faq-item summary { font-size: 1rem; }
-          .faq-item p { font-size: 0.98rem; }
-        }
-      `}</style>
-    </div>
-  );
-}
+export default function FaqPage() { return <div className="public-saas-page faq-enterprise-page"><section className="faq-enterprise-hero"><div><span className="public-eyebrow"><CircleHelp size={13} /> ApexLab answers</span><h1>Clarity before implementation.</h1><p>Answers for laboratory owners, operations leaders, and implementation teams evaluating a controlled workspace for patient records, testing, results, and final reporting.</p><div className="faq-hero-meta"><span><Headphones size={14} /> Implementation support available</span><span>Reporting · governance · onboarding</span></div></div><div className="faq-hero-card"><div className="faq-hero-icon"><FileCheck2 size={20} /></div><strong>Need a workflow review?</strong><p>Bring your most common panels and the people who use them. We can walk through how ApexLab fits your current operation.</p><a href="/contact">Talk to the ApexLab team <ArrowRight size={14} /></a></div></section><section className="faq-topic-nav">{groups.map(({ icon: Icon, label }, index) => <a href={`#faq-group-${index + 1}`} key={label}><Icon size={16} /><span><strong>{label}</strong><small>{groups[index].items.length} answers</small></span></a>)}</section><section className="faq-enterprise-body">{groups.map(({ icon: Icon, label, items }, index) => <section className="faq-group" id={`faq-group-${index + 1}`} key={label}><div className="faq-group-heading"><span><Icon size={18} /></span><div><span className="faq-kicker">0{index + 1}</span><h2>{label}</h2></div></div><div className="faq-enterprise-list">{items.map(([question, answer], itemIndex) => <details key={question} open={index === 0 && itemIndex === 0}><summary>{question}</summary><p>{answer}</p></details>)}</div></section>)}</section><section className="faq-enterprise-cta"><div><span className="public-eyebrow">Still evaluating?</span><h2>Make the next conversation specific.</h2><p>Tell us about your departments, panels, report format, and rollout goals.</p></div><div><a className="landing-primary" href="/contact">Request a workflow review <ArrowRight size={16} /></a><a className="faq-whatsapp" href="https://wa.me/919876543210?text=Hello%20ApexLab%2C%20I%20want%20to%20book%20a%20demo." target="_blank" rel="noreferrer">Book a demo on WhatsApp</a></div></section><style>{`.faq-enterprise-page{padding:46px 0 75px}.faq-enterprise-hero{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:70px;align-items:end;padding:30px 0 62px}.faq-enterprise-hero h1{font-size:clamp(2.9rem,6vw,5.6rem);line-height:.95;letter-spacing:-.07em;margin:17px 0 20px;max-width:760px}.faq-enterprise-hero p{max-width:700px;font-size:1.03rem;line-height:1.82;color:var(--text);margin:0}.faq-hero-meta{display:flex;flex-wrap:wrap;gap:9px;margin-top:25px}.faq-hero-meta span{display:inline-flex;align-items:center;gap:7px;padding:9px 12px;border:1px solid var(--border);border-radius:999px;background:var(--panel-bg);font-size:.74rem;color:var(--text)}.faq-hero-meta span:first-child{color:var(--primary);font-weight:800}.faq-hero-card{padding:25px;border:1px solid var(--border);border-radius:20px;background:var(--panel-bg);box-shadow:var(--shadow)}.faq-hero-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:12px;background:var(--primary-light);color:var(--primary);margin-bottom:18px}.faq-hero-card strong{font-size:1rem}.faq-hero-card p{font-size:.86rem;line-height:1.75;margin:10px 0 17px}.faq-hero-card a,.faq-enterprise-cta a{display:inline-flex;align-items:center;gap:6px;color:var(--primary);font-size:.8rem;font-weight:850;text-decoration:none}.faq-topic-nav{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:16px 0}.faq-topic-nav a{display:flex;align-items:center;gap:10px;padding:12px;color:var(--text);text-decoration:none;border-radius:11px}.faq-topic-nav a:hover{background:var(--primary-light);color:var(--primary)}.faq-topic-nav a>svg{color:var(--primary)}.faq-topic-nav span{display:grid;gap:3px}.faq-topic-nav strong{font-size:.82rem}.faq-topic-nav small{font-size:.7rem;color:var(--text)}.faq-enterprise-body{max-width:940px;margin:0 auto}.faq-group{display:grid;grid-template-columns:240px 1fr;gap:65px;padding:72px 0;border-bottom:1px solid var(--border);scroll-margin-top:25px}.faq-group-heading{display:flex;align-items:flex-start;gap:12px}.faq-group-heading>span{width:35px;height:35px;display:grid;place-items:center;border-radius:10px;background:var(--primary-light);color:var(--primary)}.faq-kicker{font-size:.64rem;font-weight:900;letter-spacing:.1em;color:var(--primary)}.faq-group h2{font-size:1.35rem;letter-spacing:-.035em;margin:7px 0 0}.faq-enterprise-list{display:grid;gap:10px}.faq-enterprise-list details{border:1px solid var(--border);border-radius:13px;background:var(--panel-bg);padding:0 17px}.faq-enterprise-list summary{list-style:none;cursor:pointer;padding:17px 0;font-size:.88rem;font-weight:800;color:var(--text-bold);display:flex;justify-content:space-between;gap:16px}.faq-enterprise-list summary::-webkit-details-marker{display:none}.faq-enterprise-list summary:after{content:'+';color:var(--primary);font-size:1.15rem;line-height:1}.faq-enterprise-list details[open] summary:after{content:'−'}.faq-enterprise-list p{margin:0;padding:0 0 17px;font-size:.86rem;line-height:1.75;color:var(--text)}.faq-enterprise-cta{display:flex;align-items:center;justify-content:space-between;gap:30px;margin-top:50px;padding:29px 31px;border-radius:20px;background:var(--text-bold);color:#fff}.faq-enterprise-cta h2{font-size:1.55rem;margin:9px 0 7px}.faq-enterprise-cta p{margin:0;color:rgba(255,255,255,.72);font-size:.87rem}.faq-enterprise-cta .public-eyebrow{color:#8bd7ff}.faq-enterprise-cta>div:last-child{display:flex;align-items:center;gap:14px;white-space:nowrap}.faq-enterprise-cta .landing-primary{color:#fff;text-decoration:none}.faq-whatsapp{color:#b4ebca!important}@media(max-width:850px){.faq-enterprise-hero{grid-template-columns:1fr;gap:28px}.faq-topic-nav{grid-template-columns:1fr}.faq-group{grid-template-columns:1fr;gap:22px;padding:52px 0}.faq-enterprise-cta{display:grid}.faq-enterprise-cta>div:last-child{align-items:stretch;flex-direction:column}.faq-enterprise-cta>div:last-child a{justify-content:center}}@media(max-width:520px){.faq-enterprise-page{padding:24px 15px 60px}.faq-enterprise-hero h1{font-size:clamp(2.5rem,13vw,3.7rem)}}`}</style></div> }

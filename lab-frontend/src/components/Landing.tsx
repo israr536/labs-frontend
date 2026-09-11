@@ -266,9 +266,9 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 
 			<section className="landing-faq-preview">
 				<div className="landing-section-heading">
-					<span className="landing-eyebrow">FAQ</span>
-					<h2>Questions customers commonly ask</h2>
-					<p>Short answers to get you started — visit the full FAQ for more details or to book a demo.</p>
+						<span className="landing-eyebrow">Before you choose your laboratory platform</span>
+						<h2>Questions worth answering before implementation.</h2>
+						<p>Review the practical questions laboratory owners and operations teams ask about onboarding, reporting, audit history, and workflow fit.</p>
 				</div>
 				<div className="faq-cards">
 					{faqs.map(item => (

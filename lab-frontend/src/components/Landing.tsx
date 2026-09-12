@@ -1,4 +1,4 @@
-import { ArrowRight, BarChart3, FileCheck2, ShieldCheck, Sparkles, Users2, Zap } from 'lucide-react';
+import { ArrowRight, BarChart3, Check, ClipboardList, Download, Eye, FileCheck2, ShieldCheck, Sparkles, Users2, Zap } from 'lucide-react';
 import { useState } from 'react';
 
 type Props = { onLoginClick: () => void; onSignupClick: () => void };
@@ -64,6 +64,27 @@ const testGroups = [
 		{ q: 'Does ApexLab maintain an audit trail?', a: 'ApexLab records workflow events and relevant user actions so administrators can review activity around reports, orders, patients, settings, and approvals.' },
 		{ q: 'Who is responsible for patient data policies?', a: 'Your laboratory remains responsible for the information entered into the workspace, including accuracy, lawful use, retention, permissions, and applicable privacy or healthcare requirements.' },
 		{ q: 'Can I book a live demo?', a: 'Yes — use the Book demo on WhatsApp button or contact form to schedule a walkthrough tailored to your lab.' }
+	];
+
+	const reportScreenshots = [
+		{
+			label: 'Final report',
+			title: 'A patient-ready report in seconds',
+			text: 'Review verified values, reference ranges and interpretation before sharing a professional PDF.',
+			kind: 'final',
+		},
+		{
+			label: 'Report queue',
+			title: 'Keep every report moving',
+			text: 'Search by patient or report number, filter by status, and take action without leaving the queue.',
+			kind: 'queue',
+		},
+		{
+			label: 'Result entry',
+			title: 'Enter results with confidence',
+			text: 'Use your configured test templates and see normal, high or low values at a glance.',
+			kind: 'entry',
+		},
 	];
 
 export default function Landing({ onLoginClick, onSignupClick }: Props) {
@@ -211,7 +232,7 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 				</div>
 			</section>
 
-			<section id="workflow" className="landing-workflow">
+				<section id="workflow" className="landing-workflow">
 				<div className="workflow-copy">
 					<span className="landing-eyebrow">Designed for every role</span>
 					<h2>From front desk to final sign-off.</h2>
@@ -261,9 +282,37 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 						<b>Next</b>
 					</div>
 				</div>
-			</section>
+				</section>
 
-			<section className="landing-cta">
+				<section className="landing-how-to" aria-labelledby="how-to-title">
+					<div className="landing-section-heading how-to-heading">
+						<span className="landing-eyebrow">See the workflow before you start</span>
+						<h2 id="how-to-title">From a new patient to a polished report.</h2>
+						<p>Use the same simple path every time. The screenshots below show what your team will see at each important moment.</p>
+					</div>
+					<div className="how-to-steps">
+						<div className="how-to-step"><span>01</span><div><strong>Register</strong><small>Add the patient and create a test order.</small></div></div>
+						<div className="how-to-step"><span>02</span><div><strong>Process</strong><small>Select a test template and enter the sample results.</small></div></div>
+						<div className="how-to-step"><span>03</span><div><strong>Verify</strong><small>Review flagged values and confirm the report.</small></div></div>
+						<div className="how-to-step"><span>04</span><div><strong>Deliver</strong><small>View, download or print the final patient report.</small></div></div>
+					</div>
+					<div className="report-gallery">
+						{reportScreenshots.map((shot, index) => (
+							<article className={`screenshot-card screenshot-${shot.kind}`} key={shot.kind}>
+								<div className="screenshot-copy"><span className="screenshot-label">{shot.label}</span><h3>{shot.title}</h3><p>{shot.text}</p><a href="#workflow">Learn this step <ArrowRight size={14} /></a></div>
+								<div className="screenshot-frame" aria-label={`${shot.label} screenshot preview`}>
+									<div className="mock-browser-bar"><i /><i /><i /><span>ApexLab / {shot.label}</span></div>
+									{index === 0 && <div className="mock-report"><div className="mock-report-brand"><b>A</b><span><strong>APEXLAB DIAGNOSTICS</strong><small>Trusted laboratory reporting</small></span><em>FINAL REPORT</em></div><div className="mock-patient"><span><small>Patient</small><strong>Nashrin Ahmed</strong></span><span><small>Report ID</small><strong>LAB-10482</strong></span><span><small>Collected</small><strong>12 Sep 2026</strong></span></div><div className="mock-result-head"><span>Test parameter</span><span>Result</span><span>Reference range</span><span>Status</span></div>{[['Hemoglobin','12.8 g/dL','12.0 – 16.0','Normal'],['WBC count','7.4 ×10⁹/L','4.0 – 11.0','Normal'],['Platelets','248 ×10⁹/L','150 – 450','Normal']].map(row => <div className="mock-result-row" key={row[0]}><span>{row[0]}</span><b>{row[1]}</b><span>{row[2]}</span><i><Check size={10} />{row[3]}</i></div>)}<div className="mock-signature"><span><Check size={12} /> Verified by technician</span><b>Ready to share</b></div></div>}
+									{index === 1 && <div className="mock-queue"><div className="mock-queue-title"><strong>Reports</strong><span>186 total <Download size={12} /></span></div><div className="mock-search">⌕&nbsp; Search patient or report number</div>{[['LAB-10482','Nashrin Ahmed','CBC','Completed'],['LAB-10481','Arjun Mehta','Lipid Profile','Pending'],['LAB-10480','Maya Shah','Thyroid Panel','Draft']].map(row => <div className="mock-queue-row" key={row[0]}><b>{row[0]}</b><span>{row[1]}</span><span>{row[2]}</span><i className={row[3].toLowerCase()}>{row[3]}</i><Eye size={13} /></div>)}</div>}
+									{index === 2 && <div className="mock-entry"><div className="mock-entry-head"><div><small>New report</small><strong>Nashrin Ahmed</strong></div><span>Complete Blood Count (CBC)⌄</span></div><div className="mock-entry-fields"><div><small>Hemoglobin</small><b>12.8 <em>g/dL</em></b></div><div><small>WBC count</small><b>7.4 <em>×10⁹/L</em></b></div><div><small>Platelets</small><b>248 <em>×10⁹/L</em></b></div><div><small>Report status</small><b className="entry-complete">● Completed</b></div></div><div className="mock-entry-note"><ClipboardList size={13} /><span>Interpretation is ready for clinical review.</span></div></div>}
+								</div>
+							</article>
+						))}
+					</div>
+					<div className="how-to-footer"><ShieldCheck size={17} /><span><strong>Tip for a smooth setup:</strong> configure your lab identity, test templates and reference ranges first. Your team can then start with a real order immediately.</span><button className="landing-primary" onClick={onSignupClick}>Try the workflow <ArrowRight size={15} /></button></div>
+				</section>
+
+				<section className="landing-cta">
 				<div>
 					<span className="landing-eyebrow">Ready when you are</span>
 					<h2>Give your lab a calmer operating system.</h2>
@@ -344,15 +393,18 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 				.group-name{display:block;margin-bottom:10px;color:var(--text-bold);font-weight:800}
 				.group-tests{list-style:none;padding:0;margin:0;display:block}
 				.group-tests li{padding:6px 0;border-bottom:1px dashed rgba(15,23,42,0.04);font-size:0.98rem;color:var(--text)}
-				/* FAQ preview */
-				.faq-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}
+					/* FAQ preview */
+					/* Guided workflow + screenshot gallery */
+					.landing-how-to{padding:76px 0 22px}.how-to-heading{max-width:720px}.how-to-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:28px 0 26px}.how-to-step{display:flex;gap:11px;padding:15px;border:1px solid var(--border);border-radius:13px;background:var(--panel-bg)}.how-to-step>span{color:var(--primary);font-size:.72rem;font-weight:900;letter-spacing:.08em}.how-to-step div{display:grid;gap:4px}.how-to-step strong{font-size:.88rem;color:var(--text-bold)}.how-to-step small{font-size:.73rem;line-height:1.45;color:var(--text)}
+					.report-gallery{display:grid;grid-template-columns:1fr;gap:22px}.screenshot-card{display:grid;grid-template-columns:240px 1fr;gap:28px;align-items:center;padding:22px;border:1px solid var(--border);border-radius:18px;background:linear-gradient(135deg,var(--panel-bg),rgba(255,255,255,.48));overflow:hidden}.screenshot-card:nth-child(even){grid-template-columns:1fr 240px}.screenshot-card:nth-child(even) .screenshot-copy{order:2}.screenshot-copy{padding:0 4px}.screenshot-label{display:inline-block;color:var(--primary);font-size:.68rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase}.screenshot-copy h3{font-size:1.25rem;line-height:1.15;margin:9px 0}.screenshot-copy p{font-size:.83rem;line-height:1.6;color:var(--text);margin-bottom:13px}.screenshot-copy a{display:inline-flex;gap:6px;align-items:center;color:var(--primary);font-size:.78rem;font-weight:800;text-decoration:none}.screenshot-frame{border:1px solid #dbe5ea;border-radius:12px;background:#f7fafb;box-shadow:0 16px 30px rgba(15,23,42,.1);padding:0;min-height:202px;overflow:hidden}.mock-browser-bar{height:25px;display:flex;align-items:center;gap:4px;padding:0 10px;background:#edf3f5;border-bottom:1px solid #dbe5ea}.mock-browser-bar i{width:5px;height:5px;border-radius:50%;background:#9eb1b9}.mock-browser-bar span{margin-left:8px;font-size:7px;color:#84969f}.mock-report,.mock-queue,.mock-entry{padding:15px;color:#31434d;font-family:var(--font-sans)}.mock-report-brand{display:flex;align-items:center;gap:7px;border-bottom:1px solid #d9e4e8;padding-bottom:10px}.mock-report-brand>b{display:grid;place-items:center;width:24px;height:24px;border-radius:7px;background:#08648e;color:#fff;font-size:11px}.mock-report-brand span{display:grid}.mock-report-brand strong{font-size:7px;letter-spacing:.07em}.mock-report-brand small{font-size:6px;color:#8a9da6}.mock-report-brand em{margin-left:auto;font-style:normal;font-size:6px;color:#0c8d78;font-weight:800}.mock-patient{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:10px;padding:11px 0}.mock-patient span,.mock-result-head,.mock-result-row{display:grid;gap:3px}.mock-patient small,.mock-result-head,.mock-result-row span{font-size:6px;color:#8b9da5}.mock-patient strong,.mock-result-row b{font-size:7px}.mock-result-head,.mock-result-row{grid-template-columns:1.3fr 1fr 1.1fr .7fr;align-items:center;padding:7px 6px;border-top:1px solid #e4ecef}.mock-result-row i{display:flex;align-items:center;gap:2px;color:#0b9277;font-size:6px;font-style:normal;font-weight:800}.mock-signature{display:flex;justify-content:space-between;margin-top:13px;padding-top:9px;border-top:1px solid #d9e4e8;font-size:6px;color:#0b9277}.mock-signature b{color:#08648e}.mock-queue-title,.mock-entry-head{display:flex;justify-content:space-between;align-items:end;margin-bottom:13px}.mock-queue-title strong,.mock-entry-head strong{display:block;font-size:13px}.mock-queue-title span{display:flex;align-items:center;gap:5px;font-size:7px;color:#7d9099}.mock-search{padding:7px 9px;border:1px solid #d9e4e8;border-radius:6px;color:#9aabb2;font-size:7px;margin-bottom:7px}.mock-queue-row{display:grid;grid-template-columns:.8fr 1.4fr 1.2fr .8fr 16px;gap:7px;align-items:center;padding:8px 4px;border-bottom:1px solid #e4ecef;font-size:7px}.mock-queue-row>b{font-size:6px;color:#08648e}.mock-queue-row i{font-style:normal;font-size:6px;font-weight:800;padding:3px 5px;border-radius:9px;text-align:center}.mock-queue-row .completed{color:#0a8c74;background:#dff6ee}.mock-queue-row .pending{color:#aa7010;background:#fff1d2}.mock-queue-row .draft{color:#6464bc;background:#e9e8ff}.mock-entry-head{padding-bottom:11px;border-bottom:1px solid #d9e4e8}.mock-entry-head small{display:block;color:#8a9da6;font-size:6px;margin-bottom:3px}.mock-entry-head strong{font-size:12px}.mock-entry-head>span{padding:7px 9px;border:1px solid #d7e3e7;border-radius:6px;font-size:7px;color:#536871}.mock-entry-fields{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:14px 0}.mock-entry-fields>div{padding:9px;border-radius:7px;background:#fff;border:1px solid #e4ecef}.mock-entry-fields small{display:block;font-size:6px;color:#8a9da6;margin-bottom:5px}.mock-entry-fields b{font-size:9px}.mock-entry-fields em{font-size:6px;color:#8a9da6;font-style:normal;font-weight:400}.mock-entry-fields .entry-complete{font-size:7px;color:#0b9277}.mock-entry-note{display:flex;gap:6px;align-items:center;padding:9px;background:#e8f7f3;border-radius:7px;color:#0b806c;font-size:7px}.how-to-footer{display:flex;align-items:center;gap:10px;margin-top:22px;padding:14px 16px;border:1px solid rgba(6,96,137,.14);border-radius:13px;background:var(--primary-light);color:var(--text);font-size:.78rem}.how-to-footer svg{flex:0 0 auto;color:var(--primary)}.how-to-footer span{flex:1}.how-to-footer strong{color:var(--text-bold)}.how-to-footer button{display:flex;align-items:center;gap:7px;white-space:nowrap}
+					.faq-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}
 				.faq-card{padding:14px;border-radius:12px;border:1px solid var(--border);background:var(--panel-bg);cursor:pointer}
 				.faq-card summary{cursor:pointer;font-weight:800;list-style:none;outline:none}
 				.faq-card p{margin-top:10px;color:var(--text);line-height:1.7}
 				.faq-cta{display:flex;gap:12px;margin-top:18px}
 				/* Responsive tweaks */
-				@media(max-width:1100px){.landing-hero{grid-template-columns:1fr 380px}.test-groups-grid{grid-template-columns:repeat(2,1fr)}.faq-cards{grid-template-columns:repeat(2,1fr)}}
-					@media(max-width:760px){.landing-hero{grid-template-columns:1fr;gap:22px}.test-groups-grid{grid-template-columns:1fr}.faq-cards{grid-template-columns:1fr}.landing-product-card{order:2}.landing-trust-grid{grid-template-columns:1fr 1fr}.landing-trust-grid>div{padding:14px 12px}}
+					@media(max-width:1100px){.landing-hero{grid-template-columns:1fr 380px}.test-groups-grid{grid-template-columns:repeat(2,1fr)}.faq-cards{grid-template-columns:repeat(2,1fr)}.how-to-steps{grid-template-columns:repeat(2,1fr)}}
+						@media(max-width:760px){.landing-hero{grid-template-columns:1fr;gap:22px}.test-groups-grid{grid-template-columns:1fr}.faq-cards{grid-template-columns:1fr}.landing-product-card{order:2}.landing-trust-grid{grid-template-columns:1fr 1fr}.landing-trust-grid>div{padding:14px 12px}.how-to-steps{grid-template-columns:1fr}.screenshot-card,.screenshot-card:nth-child(even){grid-template-columns:1fr;gap:16px}.screenshot-card:nth-child(even) .screenshot-copy{order:0}.screenshot-copy{padding:0}.how-to-footer{align-items:flex-start;flex-wrap:wrap}.how-to-footer button{margin-left:27px}}
 					@media(max-width:460px){.landing-trust-grid{grid-template-columns:1fr}}
 			`}</style>
 

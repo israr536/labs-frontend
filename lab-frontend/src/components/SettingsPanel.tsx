@@ -200,6 +200,22 @@ export default function SettingsPanel({ settings, onSaveSettings }: SettingsPane
                 placeholder="e.g. ISO 9001:2015 & NABL Accredited" 
               />
             </div>
+
+            <div className="report-setting-toggle">
+              <div>
+                <strong>Show test method names on reports</strong>
+                <small>Display the configured method below each test name in downloaded and printed reports.</small>
+              </div>
+              <label className="toggle-switch">
+                <input
+                  type="checkbox"
+                  checked={formData.showMethodNames}
+                  onChange={(e) => { setFormData(prev => ({ ...prev, showMethodNames: e.target.checked })); setSuccessMsg(false); }}
+                  aria-label="Show test method names on reports"
+                />
+                <span className="toggle-slider" />
+              </label>
+            </div>
           </div>
 
           {/* Doctor Signatures */}
@@ -315,6 +331,18 @@ export default function SettingsPanel({ settings, onSaveSettings }: SettingsPane
           flex-direction: column;
           gap: 1.25rem;
         }
+
+        .report-setting-toggle { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:13px 14px; border:1px solid var(--border); border-radius:12px; background:rgba(6,96,137,.04); }
+        .report-setting-toggle div { display:grid; gap:4px; }
+        .report-setting-toggle strong { color:var(--text-bold); font-size:.82rem; }
+        .report-setting-toggle small { color:var(--text); font-size:.7rem; line-height:1.45; }
+        .toggle-switch { position:relative; width:44px; height:24px; flex:0 0 auto; cursor:pointer; }
+        .toggle-switch input { position:absolute; opacity:0; width:1px; height:1px; }
+        .toggle-slider { position:absolute; inset:0; border-radius:999px; background:#cbd5e1; transition:background .2s ease; }
+        .toggle-slider::after { content:''; position:absolute; width:18px; height:18px; top:3px; left:3px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(15,23,42,.25); transition:transform .2s ease; }
+        .toggle-switch input:checked + .toggle-slider { background:var(--primary); }
+        .toggle-switch input:checked + .toggle-slider::after { transform:translateX(20px); }
+        .toggle-switch input:focus-visible + .toggle-slider { outline:3px solid rgba(6,96,137,.22); outline-offset:2px; }
 
         .flex-col {
           display: flex;

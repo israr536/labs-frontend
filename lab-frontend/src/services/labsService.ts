@@ -13,6 +13,7 @@ export function updateSettings(body: Partial<LabSettings>) {
       mobile: body.phone,
       email: body.email,
       address: body.address,
+      showMethodNames: body.showMethodNames,
     }),
   }).then((data) => mapLabSettings(data, body));
 }
@@ -25,6 +26,7 @@ function mapLabSettings(data: any, previous?: Partial<LabSettings>): LabSettings
     address: data?.address ?? previous?.address ?? DEFAULT_SETTINGS.address,
     phone: data?.mobile ?? previous?.phone ?? DEFAULT_SETTINGS.phone,
     email: data?.email ?? previous?.email ?? DEFAULT_SETTINGS.email,
+    showMethodNames: data?.showMethodNames ?? previous?.showMethodNames ?? DEFAULT_SETTINGS.showMethodNames,
   };
 }
 

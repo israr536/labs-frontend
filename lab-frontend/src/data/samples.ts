@@ -60,6 +60,7 @@ export interface LabSettings {
   website: string;
   licenseNumber: string;
   isoCertification: string;
+  showMethodNames: boolean;
   doctors: {
     name: string;
     qualification: string;
@@ -77,6 +78,7 @@ export const DEFAULT_SETTINGS: LabSettings = {
   website: "www.apexdiagnostics.com",
   licenseNumber: "DL-34892-MED",
   isoCertification: "ISO 9001:2015 & NABL Accredited (M-2245)",
+  showMethodNames: true,
   doctors: [
     {
       name: "Dr. Rachel Green, MD",

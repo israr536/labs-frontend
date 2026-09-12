@@ -1168,6 +1168,21 @@ h6 {
   margin-bottom: 1.25rem
 }
 
+.report-editor-page .report-editor-hero { align-items: flex-start; margin-bottom: 1rem; }
+.report-editor-page .report-editor-hero-actions { display:flex; align-items:center; gap:.6rem; flex-wrap:wrap; }
+.report-editor-page .report-draft-pill { display:inline-flex; align-items:center; gap:7px; padding:.48rem .7rem; border:1px solid var(--border); border-radius:999px; background:var(--panel-bg); color:var(--text); font-size:.68rem; font-weight:750; }
+.report-editor-page .report-draft-pill span { width:7px; height:7px; border-radius:50%; background:#f59e0b; box-shadow:0 0 0 3px rgba(245,158,11,.14); }
+.report-workflow-steps { display:flex; align-items:center; gap:10px; margin:0 0 1rem; padding:12px 14px; border:1px solid var(--border); border-radius:13px; background:linear-gradient(110deg, var(--panel-bg), var(--bg)); box-shadow:var(--shadow); }
+.report-step { display:flex; align-items:center; gap:8px; min-width:0; opacity:.58; }
+.report-step.is-current,.report-step.is-complete { opacity:1; }
+.report-step>span { width:29px; height:29px; display:grid; place-items:center; flex:0 0 auto; border:1px solid var(--border); border-radius:9px; color:var(--text); background:var(--panel-bg); }
+.report-step.is-current>span { border-color:var(--primary); color:var(--primary); background:var(--primary-light); }
+.report-step.is-complete>span { border-color:rgba(14,184,157,.35); color:var(--secondary); background:var(--secondary-light); }
+.report-step div { display:grid; gap:2px; min-width:0; }
+.report-step strong { color:var(--text-bold); font-size:.7rem; white-space:nowrap; }
+.report-step small { color:var(--text); font-size:.58rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.report-step-arrow { flex:0 0 auto; color:var(--text); }
+
 .report-editor-page .editor-header>div {
   min-width: 0
 }
@@ -1190,7 +1205,7 @@ h6 {
 
 .report-editor-page .form-grid-layout {
   display: grid;
-  /* grid-template-columns: minmax(280px, .8fr) minmax(0, 1.2fr); */
+  grid-template-columns: minmax(330px, .78fr) minmax(0, 1.22fr);
   gap: 1rem;
   align-items: start
 }
@@ -1200,6 +1215,14 @@ h6 {
   max-width: 100%;
   overflow: hidden
 }
+
+.report-editor-page .report-card-heading { align-items:flex-start; }
+.report-editor-page .report-card-heading>svg { color:var(--primary); margin-top:3px; }
+.report-card-kicker { display:block; margin-bottom:3px; color:var(--primary); font-size:.58rem; font-weight:850; letter-spacing:.1em; text-transform:uppercase; }
+.report-empty-results { display:grid; justify-items:center; gap:7px; min-height:220px; align-content:center; text-align:center; color:var(--text); }
+.report-empty-results svg { color:var(--primary); }
+.report-empty-results strong { color:var(--text-bold); font-size:.82rem; }
+.report-empty-results span { max-width:280px; font-size:.68rem; line-height:1.55; }
 
 .report-editor-page .editor-parameters-card {
   min-width: 0
@@ -1307,6 +1330,10 @@ h6 {
   flex-wrap: wrap
 }
 
+.report-editor-page .report-editor-actions { position:sticky; bottom:12px; z-index:3; align-items:center; padding:11px 0 2px; background:linear-gradient(180deg, transparent, var(--bg) 28%); }
+.report-editor-page .report-editor-actions>div { flex:1; }
+.report-action-hint { color:var(--text); font-size:.65rem; }
+
 .report-editor-page .editor-actions-row .btn {
   max-width: 100%
 }
@@ -1326,6 +1353,12 @@ h6 {
     flex-direction: column
   }
 
+  .report-editor-page .report-editor-hero-actions { width:100%; justify-content:space-between; }
+  .report-workflow-steps { align-items:flex-start; gap:14px; overflow-x:auto; }
+  .report-step-arrow { display:none; }
+  .report-step { flex:1; flex-direction:column; align-items:flex-start; }
+  .report-step small { max-width:88px; white-space:normal; }
+
   .report-editor-page .editor-header .btn {
     width: 100%
   }
@@ -1341,6 +1374,8 @@ h6 {
   .report-editor-page .editor-actions-row>* {
     width: 100%
   }
+
+  .report-editor-page .report-editor-actions>div { flex-basis:100%; }
 }
 
 @media(max-width:980px) {

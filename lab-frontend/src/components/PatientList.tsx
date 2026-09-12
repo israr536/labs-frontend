@@ -127,25 +127,7 @@ export default function PatientList({ onSelectPatient, onAddNew }: PatientListPr
         </Modal>
       )}
 
-      <style>{`
-        .patient-list { display: flex; flex-direction: column; gap: 20px; }
-        .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .list-header h2 { margin: 0; }
-        .search-bar { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: rgba(148,163,184,0.05); border-radius: 12px; border: 1px solid rgba(148,163,184,0.2); }
-        .search-input { flex: 1; border: none; background: transparent; outline: none; font-size: 14px; }
-        .loading-state, .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; text-align: center; }
-        .spinner { animation: spin 1s linear infinite; }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .patients-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
-        .patient-card { padding: 16px; background: rgba(255,255,255,0.5); border: 1px solid rgba(148,163,184,0.2); border-radius: 12px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-        .patient-info h3 { margin: 0 0 8px 0; font-size: 16px; }
-        .patient-info p { margin: 4px 0; font-size: 13px; }
-        .text-sm { font-size: 13px; }
-        .text-muted { color: var(--text); opacity: 0.7; }
-        .patient-actions { display: flex; gap: 8px; }
-        .btn-sm { padding: 8px 12px; font-size: 12px; }
-        .btn-danger { background: #dc2626; color: white; }
-      `}</style>
+
     </div>
   );
 }

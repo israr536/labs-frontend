@@ -361,52 +361,7 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 				</div>
 			</section>
 
-			<style>{`
-			/* Landing page scoped improvements */
-				.landing-page{max-width:1180px;margin:28px auto;padding:28px 20px 80px}
-				.landing-hero{display:grid;grid-template-columns:1fr 420px;gap:42px;align-items:start;padding:28px 0 38px}
-				.landing-hero-copy h1{font-size:clamp(2.2rem,5vw,3.6rem);line-height:1;letter-spacing:-0.02em;margin:14px 0}
-				.landing-lead{font-size:1.03rem;color:var(--text);max-width:640px}
-				.landing-actions{display:flex;gap:12px;align-items:center;margin-top:20px}
-				.landing-primary{background:var(--primary);color:#fff;padding:12px 18px;border-radius:12px;border:1px solid rgba(0,0,0,0.02);font-weight:800;box-shadow:0 12px 30px rgba(6,96,137,0.12)}
-				.landing-secondary{background:transparent;border:1px solid var(--border);padding:10px 16px;border-radius:12px;color:var(--text-bold);font-weight:700}
-					.landing-whatsapp{background:#25d366;border-color:#25d366;color:#fff;padding:11px 16px;border-radius:12px;font-weight:800;text-decoration:none}
-					.landing-trust{display:flex;gap:12px;align-items:center;margin-top:20px;color:var(--text);font-weight:700}
-					.landing-trust-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;margin:0 0 32px;border:1px solid var(--border);border-radius:15px;background:var(--border);overflow:hidden}
-					.landing-trust-grid>div{display:flex;align-items:flex-start;gap:10px;padding:17px 16px;background:var(--panel-bg)}
-					.landing-trust-grid svg{flex:0 0 auto;color:var(--primary);margin-top:2px}
-					.landing-trust-grid span{display:grid;gap:4px}.landing-trust-grid strong{font-size:.72rem;color:var(--text-bold)}.landing-trust-grid small{font-size:.62rem;line-height:1.5;color:var(--text)}
-				/* Product card */
-				.landing-product-card{padding:18px;border-radius:16px;background:linear-gradient(180deg, var(--panel-bg), color-mix(in srgb, var(--panel-bg) 88%, transparent));border:1px solid var(--border);box-shadow:0 18px 40px rgba(15,23,42,0.06)}
-				.product-window-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-				.product-brand{font-weight:800;color:var(--text-bold);display:flex;align-items:center;gap:8px}
-				.product-brand-mark{width:34px;height:34px;border-radius:10px;background:var(--primary);color:#fff;display:grid;place-items:center;font-weight:900}
-				.mini-kpis{display:flex;gap:14px;margin:12px 0}
-				.mini-kpis>div{flex:1;padding:10px;border-radius:10px;background:rgba(255,255,255,0.6);border:1px solid rgba(0,0,0,0.03)}
-				.mini-chart .chart-bars{display:flex;align-items:end;gap:6px;height:72px}
-				.mini-chart .chart-bars span{width:8px;background:linear-gradient(180deg,var(--primary),color-mix(in srgb,var(--primary) 70%, #fff));border-radius:6px}
-				.mini-queue{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
-				/* Test groups */
-				.test-groups-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:12px}
-				.test-group-card{padding:16px;border-radius:12px;background:var(--panel-bg);border:1px solid var(--border);transition:transform .18s ease,box-shadow .18s ease}
-				.test-group-card:hover{transform:translateY(-6px);box-shadow:0 20px 40px rgba(15,23,42,0.06)}
-				.group-name{display:block;margin-bottom:10px;color:var(--text-bold);font-weight:800}
-				.group-tests{list-style:none;padding:0;margin:0;display:block}
-				.group-tests li{padding:6px 0;border-bottom:1px dashed rgba(15,23,42,0.04);font-size:0.98rem;color:var(--text)}
-					/* FAQ preview */
-					/* Guided workflow + screenshot gallery */
-					.landing-how-to{padding:76px 0 22px}.how-to-heading{max-width:720px}.how-to-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:28px 0 26px}.how-to-step{display:flex;gap:11px;padding:15px;border:1px solid var(--border);border-radius:13px;background:var(--panel-bg)}.how-to-step>span{color:var(--primary);font-size:.72rem;font-weight:900;letter-spacing:.08em}.how-to-step div{display:grid;gap:4px}.how-to-step strong{font-size:.88rem;color:var(--text-bold)}.how-to-step small{font-size:.73rem;line-height:1.45;color:var(--text)}
-					.report-gallery{display:grid;grid-template-columns:1fr;gap:22px}.screenshot-card{display:grid;grid-template-columns:240px 1fr;gap:28px;align-items:center;padding:22px;border:1px solid var(--border);border-radius:18px;background:linear-gradient(135deg,var(--panel-bg),rgba(255,255,255,.48));overflow:hidden}.screenshot-card:nth-child(even){grid-template-columns:1fr 240px}.screenshot-card:nth-child(even) .screenshot-copy{order:2}.screenshot-copy{padding:0 4px}.screenshot-label{display:inline-block;color:var(--primary);font-size:.68rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase}.screenshot-copy h3{font-size:1.25rem;line-height:1.15;margin:9px 0}.screenshot-copy p{font-size:.83rem;line-height:1.6;color:var(--text);margin-bottom:13px}.screenshot-copy a{display:inline-flex;gap:6px;align-items:center;color:var(--primary);font-size:.78rem;font-weight:800;text-decoration:none}.screenshot-frame{border:1px solid #dbe5ea;border-radius:12px;background:#f7fafb;box-shadow:0 16px 30px rgba(15,23,42,.1);padding:0;min-height:202px;overflow:hidden}.mock-browser-bar{height:25px;display:flex;align-items:center;gap:4px;padding:0 10px;background:#edf3f5;border-bottom:1px solid #dbe5ea}.mock-browser-bar i{width:5px;height:5px;border-radius:50%;background:#9eb1b9}.mock-browser-bar span{margin-left:8px;font-size:7px;color:#84969f}.mock-report,.mock-queue,.mock-entry{padding:15px;color:#31434d;font-family:var(--font-sans)}.mock-report-brand{display:flex;align-items:center;gap:7px;border-bottom:1px solid #d9e4e8;padding-bottom:10px}.mock-report-brand>b{display:grid;place-items:center;width:24px;height:24px;border-radius:7px;background:#08648e;color:#fff;font-size:11px}.mock-report-brand span{display:grid}.mock-report-brand strong{font-size:7px;letter-spacing:.07em}.mock-report-brand small{font-size:6px;color:#8a9da6}.mock-report-brand em{margin-left:auto;font-style:normal;font-size:6px;color:#0c8d78;font-weight:800}.mock-patient{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:10px;padding:11px 0}.mock-patient span,.mock-result-head,.mock-result-row{display:grid;gap:3px}.mock-patient small,.mock-result-head,.mock-result-row span{font-size:6px;color:#8b9da5}.mock-patient strong,.mock-result-row b{font-size:7px}.mock-result-head,.mock-result-row{grid-template-columns:1.3fr 1fr 1.1fr .7fr;align-items:center;padding:7px 6px;border-top:1px solid #e4ecef}.mock-result-row i{display:flex;align-items:center;gap:2px;color:#0b9277;font-size:6px;font-style:normal;font-weight:800}.mock-signature{display:flex;justify-content:space-between;margin-top:13px;padding-top:9px;border-top:1px solid #d9e4e8;font-size:6px;color:#0b9277}.mock-signature b{color:#08648e}.mock-queue-title,.mock-entry-head{display:flex;justify-content:space-between;align-items:end;margin-bottom:13px}.mock-queue-title strong,.mock-entry-head strong{display:block;font-size:13px}.mock-queue-title span{display:flex;align-items:center;gap:5px;font-size:7px;color:#7d9099}.mock-search{padding:7px 9px;border:1px solid #d9e4e8;border-radius:6px;color:#9aabb2;font-size:7px;margin-bottom:7px}.mock-queue-row{display:grid;grid-template-columns:.8fr 1.4fr 1.2fr .8fr 16px;gap:7px;align-items:center;padding:8px 4px;border-bottom:1px solid #e4ecef;font-size:7px}.mock-queue-row>b{font-size:6px;color:#08648e}.mock-queue-row i{font-style:normal;font-size:6px;font-weight:800;padding:3px 5px;border-radius:9px;text-align:center}.mock-queue-row .completed{color:#0a8c74;background:#dff6ee}.mock-queue-row .pending{color:#aa7010;background:#fff1d2}.mock-queue-row .draft{color:#6464bc;background:#e9e8ff}.mock-entry-head{padding-bottom:11px;border-bottom:1px solid #d9e4e8}.mock-entry-head small{display:block;color:#8a9da6;font-size:6px;margin-bottom:3px}.mock-entry-head strong{font-size:12px}.mock-entry-head>span{padding:7px 9px;border:1px solid #d7e3e7;border-radius:6px;font-size:7px;color:#536871}.mock-entry-fields{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:14px 0}.mock-entry-fields>div{padding:9px;border-radius:7px;background:#fff;border:1px solid #e4ecef}.mock-entry-fields small{display:block;font-size:6px;color:#8a9da6;margin-bottom:5px}.mock-entry-fields b{font-size:9px}.mock-entry-fields em{font-size:6px;color:#8a9da6;font-style:normal;font-weight:400}.mock-entry-fields .entry-complete{font-size:7px;color:#0b9277}.mock-entry-note{display:flex;gap:6px;align-items:center;padding:9px;background:#e8f7f3;border-radius:7px;color:#0b806c;font-size:7px}.how-to-footer{display:flex;align-items:center;gap:10px;margin-top:22px;padding:14px 16px;border:1px solid rgba(6,96,137,.14);border-radius:13px;background:var(--primary-light);color:var(--text);font-size:.78rem}.how-to-footer svg{flex:0 0 auto;color:var(--primary)}.how-to-footer span{flex:1}.how-to-footer strong{color:var(--text-bold)}.how-to-footer button{display:flex;align-items:center;gap:7px;white-space:nowrap}
-					.faq-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}
-				.faq-card{padding:14px;border-radius:12px;border:1px solid var(--border);background:var(--panel-bg);cursor:pointer}
-				.faq-card summary{cursor:pointer;font-weight:800;list-style:none;outline:none}
-				.faq-card p{margin-top:10px;color:var(--text);line-height:1.7}
-				.faq-cta{display:flex;gap:12px;margin-top:18px}
-				/* Responsive tweaks */
-					@media(max-width:1100px){.landing-hero{grid-template-columns:1fr 380px}.test-groups-grid{grid-template-columns:repeat(2,1fr)}.faq-cards{grid-template-columns:repeat(2,1fr)}.how-to-steps{grid-template-columns:repeat(2,1fr)}}
-						@media(max-width:760px){.landing-hero{grid-template-columns:1fr;gap:22px}.test-groups-grid{grid-template-columns:1fr}.faq-cards{grid-template-columns:1fr}.landing-product-card{order:2}.landing-trust-grid{grid-template-columns:1fr 1fr}.landing-trust-grid>div{padding:14px 12px}.how-to-steps{grid-template-columns:1fr}.screenshot-card,.screenshot-card:nth-child(even){grid-template-columns:1fr;gap:16px}.screenshot-card:nth-child(even) .screenshot-copy{order:0}.screenshot-copy{padding:0}.how-to-footer{align-items:flex-start;flex-wrap:wrap}.how-to-footer button{margin-left:27px}}
-					@media(max-width:460px){.landing-trust-grid{grid-template-columns:1fr}}
-			`}</style>
+
 
 			</div>
 		);

@@ -163,33 +163,7 @@ export default function UsersComponent({ currentUser, onAddNew }: UsersComponent
         </Modal>
       )}
 
-      <style>{`
-        .users-component { display: flex; flex-direction: column; gap: 20px; }
-        .component-header { display: flex; justify-content: space-between; align-items: center; }
-        .component-header h2 { margin: 0; }
-        .search-bar { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: rgba(148,163,184,0.05); border-radius: 12px; border: 1px solid rgba(148,163,184,0.2); }
-        .search-input { flex: 1; border: none; background: transparent; outline: none; font-size: 14px; }
-        .loading-state, .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; text-align: center; }
-        .empty-icon { color: rgba(100,116,139,0.5); margin-bottom: 12px; }
-        .spinner { animation: spin 1s linear infinite; }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .users-table { overflow-x: auto; border: 1px solid rgba(148,163,184,0.2); border-radius: 12px; }
-        table { width: 100%; border-collapse: collapse; }
-        thead { background: rgba(148,163,184,0.05); }
-        th { padding: 14px; text-align: left; font-weight: 600; font-size: 13px; }
-        td { padding: 14px; border-top: 1px solid rgba(148,163,184,0.1); font-size: 13px; }
-        tbody tr:hover { background: rgba(56,189,248,0.04); }
-        tbody tr.inactive { opacity: 0.6; }
-        .font-medium { font-weight: 500; }
-        .role-badge { display: inline-block; padding: 4px 12px; border-radius: 12px; color: white; font-size: 12px; font-weight: 600; }
-        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; }
-        .status-badge.active { background: #d1fae5; color: #065f46; }
-        .status-badge.inactive { background: #fee2e2; color: #991b1b; }
-        .actions { display: flex; gap: 8px; }
-        .btn-icon { background: none; border: none; cursor: pointer; padding: 6px; color: #64748b; transition: color 0.2s; }
-        .btn-icon:hover { color: var(--primary); }
-        .btn-icon-danger:hover { color: #dc2626; }
-      `}</style>
+
     </div>
   );
 }

@@ -224,30 +224,7 @@ export default function ReportListComponent({ onEdit, onView, refresh }: ReportL
         </Modal>
       )}
 
-      <style>{`
-        .report-list { display: flex; flex-direction: column; gap: 20px; }
-        .list-controls { display: flex; gap: 12px; align-items: center; }
-        .search-bar { flex: 1; display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: rgba(148,163,184,0.05); border-radius: 12px; border: 1px solid rgba(148,163,184,0.2); }
-        .search-input { flex: 1; border: none; background: transparent; outline: none; font-size: 14px; }
-        .status-filter { padding: 12px 16px; border: 1px solid rgba(148,163,184,0.2); border-radius: 12px; background: rgba(255,255,255,0.5); outline: none; }
-        .loading-state, .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; text-align: center; }
-        .spinner { animation: spin 1s linear infinite; }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .reports-table { overflow-x: auto; border: 1px solid rgba(148,163,184,0.2); border-radius: 12px; }
-        table { width: 100%; border-collapse: collapse; }
-        thead { background: rgba(148,163,184,0.05); }
-        th { padding: 14px; text-align: left; font-weight: 600; font-size: 13px; }
-        td { padding: 14px; border-top: 1px solid rgba(148,163,184,0.1); font-size: 13px; }
-        tbody tr:hover { background: rgba(56,189,248,0.04); }
-        .mono { font-family: monospace; font-size: 12px; }
-        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 12px; color: white; font-size: 12px; font-weight: 600; }
-        .actions { display: flex; gap: 8px; }
-        .btn-icon { background: none; border: none; cursor: pointer; padding: 6px; color: #64748b; transition: color 0.2s; }
-        .btn-icon:hover { color: var(--primary); }
-        .btn-icon-danger:hover { color: #dc2626; }
-        .pagination { display: flex; align-items: center; justify-content: center; gap: 16px; padding: 20px; }
-        .btn-secondary { background: rgba(148,163,184,0.1); }
-      `}</style>
+
     </div>
   );
 }

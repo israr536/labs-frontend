@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { 
-  Save, 
-  X, 
-  Activity, 
+import {
+  Save,
+  X,
+  Activity,
   AlertCircle,
   Sparkles
 } from 'lucide-react';
@@ -46,9 +46,9 @@ export default function ReportEditor({ editingReport, onSaveReport, onCancel }: 
         const pad = (num: number) => String(num).padStart(2, '0');
         return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
       };
-      
+
       setDateCollected(formatTime(now));
-      
+
       // Date reported standard: 4 hours later
       const reportedTime = new Date(now.getTime() + 4 * 60 * 60 * 1000);
       setDateReported(formatTime(reportedTime));
@@ -91,7 +91,7 @@ export default function ReportEditor({ editingReport, onSaveReport, onCancel }: 
         status: 'Normal'
       }));
       setParameters(paramsList);
-      
+
       // Auto pre-populate dummy clinical interpretation
       setInterpretation(getDefaultInterpretation(selectedTemplate));
     }
@@ -159,7 +159,7 @@ export default function ReportEditor({ editingReport, onSaveReport, onCancel }: 
     // Auto-update report status if there is a 'High' or 'Low' or 'Abnormal' status parameter
     const hasAbnormal = updated.some(p => p.status === 'High' || p.status === 'Low' || p.status === 'Abnormal');
     if (hasAbnormal && status === 'Completed') {
-      // Optionally let it mark asCompleted but warn, or auto-set status. 
+      // Optionally let it mark asCompleted but warn, or auto-set status.
       // We will allow the user to select status, but can auto-alert
     }
   };
@@ -281,11 +281,11 @@ export default function ReportEditor({ editingReport, onSaveReport, onCancel }: 
 
             <div className="form-group">
               <label className="form-label">Patient Full Name</label>
-              <input 
-                type="text" 
-                value={patientName} 
+              <input
+                type="text"
+                value={patientName}
                 onChange={(e) => { setPatientName(e.target.value); setValidationError(null); }}
-                className="form-input" 
+                className="form-input"
                 placeholder="First and last name"
                 required
               />
@@ -294,20 +294,20 @@ export default function ReportEditor({ editingReport, onSaveReport, onCancel }: 
             <div className="grid-2-col">
               <div className="form-group">
                 <label className="form-label">Patient Age (Years)</label>
-                <input 
-                  type="number" 
-                  value={age} 
+                <input
+                  type="number"
+                  value={age}
                   onChange={(e) => setAge(Number(e.target.value))}
-                  className="form-input" 
-                  min="0" 
+                  className="form-input"
+                  min="0"
                   max="130"
                   required
                 />
               </div>
               <div className="form-group">
                 <label className="form-label">Patient Gender</label>
-                <select 
-                  value={gender} 
+                <select
+                  value={gender}
                   onChange={(e) => setGender(e.target.value as any)}
                   className="form-select"
                 >
@@ -321,55 +321,55 @@ export default function ReportEditor({ editingReport, onSaveReport, onCancel }: 
             <div className="grid-2-col">
               <div className="form-group">
                 <label className="form-label">Contact Phone</label>
-                <input 
-                  type="text" 
-                  value={phone} 
+                <input
+                  type="text"
+                  value={phone}
                   onChange={(e) => { setPhone(e.target.value); setValidationError(null); }}
-                  className="form-input" 
+                  className="form-input"
                   placeholder="Patient phone number"
                   required
                 />
               </div>
               <div className="form-group">
                 <label className="form-label">Email (Optional)</label>
-                <input 
-                  type="email" 
-                  value={email} 
+                <input
+                  type="email"
+                  value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="form-input" 
-                  placeholder="Patient email address" 
+                  className="form-input"
+                  placeholder="Patient email address"
                 />
               </div>
             </div>
 
             <div className="form-group">
               <label className="form-label">Referred By (Doctor)</label>
-              <input 
-                type="text" 
-                value={referredBy} 
+              <input
+                type="text"
+                value={referredBy}
                 onChange={(e) => setReferredBy(e.target.value)}
-                className="form-input" 
-                placeholder="Doctor name, qualification" 
+                className="form-input"
+                placeholder="Doctor name, qualification"
               />
             </div>
 
             <div className="grid-2-col">
               <div className="form-group">
                 <label className="form-label">Sample Collected Date</label>
-                <input 
-                  type="datetime-local" 
-                  value={dateCollected} 
+                <input
+                  type="datetime-local"
+                  value={dateCollected}
                   onChange={(e) => setDateCollected(e.target.value)}
-                  className="form-input" 
+                  className="form-input"
                 />
               </div>
               <div className="form-group">
                 <label className="form-label">Report Generated Date</label>
-                <input 
-                  type="datetime-local" 
-                  value={dateReported} 
+                <input
+                  type="datetime-local"
+                  value={dateReported}
                   onChange={(e) => setDateReported(e.target.value)}
-                  className="form-input" 
+                  className="form-input"
                 />
               </div>
             </div>
@@ -377,8 +377,8 @@ export default function ReportEditor({ editingReport, onSaveReport, onCancel }: 
             <div className="grid-2-col">
               <div className="form-group">
                 <label className="form-label">Diagnostic Test Category</label>
-                <select 
-                  value={testType} 
+                <select
+                  value={testType}
                   onChange={handleTemplateChange}
                   className="form-select"
                   disabled={isEditMode} /* Keep consistency when editing */
@@ -390,8 +390,8 @@ export default function ReportEditor({ editingReport, onSaveReport, onCancel }: 
               </div>
               <div className="form-group">
                 <label className="form-label">Clinical Workflow Status</label>
-                <select 
-                  value={status} 
+                <select
+                  value={status}
                   onChange={(e) => setStatus(e.target.value as any)}
                   className="form-select"
                 >
@@ -431,12 +431,12 @@ export default function ReportEditor({ editingReport, onSaveReport, onCancel }: 
                         ))}
                       </select>
                     ) : (
-                      <input 
-                        type={param.inputType === 'NUMBER' ? 'number' : 'text'} 
-                        value={param.value} 
+                      <input
+                        type={param.inputType === 'NUMBER' ? 'number' : 'text'}
+                        value={param.value}
                         onChange={(e) => handleParameterValueChange(index, e.target.value)}
                         className="form-input param-val-input"
-                        placeholder="Observed Value" 
+                        placeholder="Observed Value"
                       />
                     )}
                     <select
@@ -458,12 +458,12 @@ export default function ReportEditor({ editingReport, onSaveReport, onCancel }: 
 
             <div className="form-group">
               <label className="form-label">Clinical Interpretation & Advisor Note</label>
-              <textarea 
-                value={interpretation} 
+              <textarea
+                value={interpretation}
                 onChange={(e) => setInterpretation(e.target.value)}
                 rows={4}
-                className="form-input form-textarea" 
-                placeholder="Doctor's diagnostic summaries, diet advisory, and medication indicators..." 
+                className="form-input form-textarea"
+                placeholder="Doctor's diagnostic summaries, diet advisory, and medication indicators..."
               />
             </div>
 
@@ -480,138 +480,7 @@ export default function ReportEditor({ editingReport, onSaveReport, onCancel }: 
         </div>
       </form>
 
-      <style>{`
-        .editor-container {
-          display: flex;
-          flex-direction: column;
-          gap: 1.5rem;
-        }
 
-        .editor-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-
-        .editor-form {
-          display: flex;
-          flex-direction: column;
-          gap: 1.5rem;
-        }
-
-        .form-grid-layout {
-          display: grid;
-          grid-template-columns: 1fr 1.2fr;
-          gap: 1.5rem;
-          align-items: start;
-        }
-
-        @media (max-width: 1024px) {
-          .form-grid-layout {
-            grid-template-columns: 1fr;
-          }
-        }
-
-        .editor-demographics-card, .editor-parameters-card {
-          display: flex;
-          flex-direction: column;
-          gap: 1.25rem;
-        }
-
-        .grid-2-col {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 1rem;
-        }
-
-        @media (max-width: 600px) {
-          .grid-2-col {
-            grid-template-columns: 1fr;
-          }
-        }
-
-        .error-alert {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          background: var(--danger-bg);
-          border: 1px solid rgba(239, 68, 68, 0.2);
-          color: var(--danger);
-          padding: 0.75rem 1.25rem;
-          border-radius: var(--border-radius-md);
-          font-weight: 600;
-          font-size: 0.9rem;
-        }
-
-        .param-form-list {
-          display: flex;
-          flex-direction: column;
-          gap: 1rem;
-          max-height: 480px;
-          overflow-y: auto;
-          padding-right: 0.25rem;
-        }
-
-        .param-input-item {
-          border: 1px solid var(--border);
-          border-radius: var(--border-radius-md);
-          background: var(--bg);
-          padding: 0.75rem 1rem;
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-        }
-
-        .param-name-ref-row {
-          display: flex;
-          justify-content: space-between;
-          align-items: baseline;
-          flex-wrap: wrap;
-          gap: 0.5rem;
-        }
-
-        .param-form-name {
-          font-size: 0.9rem;
-          font-weight: 700;
-          color: var(--text-bold);
-        }
-
-        .param-form-ref {
-          font-size: 0.725rem;
-          color: var(--text);
-          font-weight: 500;
-        }
-
-        .param-value-flag-row {
-          display: flex;
-          gap: 0.5rem;
-        }
-
-        .param-val-input {
-          flex: 2;
-          padding: 0.5rem 0.75rem;
-          font-size: 0.9rem;
-        }
-
-        .param-flag-select {
-          flex: 1;
-          padding: 0.5rem 0.75rem;
-          font-size: 0.85rem;
-        }
-
-        .editor-actions-row {
-          display: flex;
-          justify-content: flex-end;
-          gap: 0.75rem;
-          margin-top: 0.5rem;
-        }
-        .field-error {
-          color: var(--danger);
-          font-size: 0.85rem;
-          margin-top: 0.375rem;
-          font-weight: 600;
-        }
-      `}</style>
     </div>
   );
 }

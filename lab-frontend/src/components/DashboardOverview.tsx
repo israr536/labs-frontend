@@ -1,8 +1,8 @@
-import { 
-  Users, 
-  Clock, 
-  AlertTriangle, 
-  FileCheck, 
+import {
+  Users,
+  Clock,
+  AlertTriangle,
+  FileCheck,
   ArrowRight,
   ShieldCheck,
   PlusCircle,
@@ -21,8 +21,8 @@ interface DashboardOverviewProps {
   pollIntervalMs?: number; // optional polling interval, default 30s
 }
 
-export default function DashboardOverview({ 
-  reports, 
+export default function DashboardOverview({
+  reports,
   setActiveTab,
   setSelectedReportId,
   pollIntervalMs = 30 * 1000,
@@ -138,8 +138,8 @@ export default function DashboardOverview({
         {statCards.map((card, i) => {
           const Icon = card.icon;
           return (
-            <div 
-              key={i} 
+            <div
+              key={i}
               className={`glass-panel stat-card ${card.alert ? 'critical-pulse' : ''}`}
               aria-label={`${card.title}: ${card.value}. ${card.sub}`}
               style={{ background: card.gradient }}
@@ -187,16 +187,16 @@ export default function DashboardOverview({
 
               {/* Chart Line Path */}
               {/* Days points: Mon (40, 160), Tue (113, 110), Wed (186, 130), Thu (259, 80), Fri (332, 95), Sat (405, 145), Sun (478, 165) */}
-              <path 
-                d="M 40 160 Q 113 110 186 130 T 332 95 T 478 165" 
-                fill="none" 
-                stroke="var(--primary)" 
-                strokeWidth="3.5" 
+              <path
+                d="M 40 160 Q 113 110 186 130 T 332 95 T 478 165"
+                fill="none"
+                stroke="var(--primary)"
+                strokeWidth="3.5"
                 strokeLinecap="round"
               />
               {/* Gradient fill underneath path */}
-              <path 
-                d="M 40 160 Q 113 110 186 130 T 332 95 T 478 165 L 478 170 L 40 170 Z" 
+              <path
+                d="M 40 160 Q 113 110 186 130 T 332 95 T 478 165 L 478 170 L 40 170 Z"
                 fill="url(#chart-grad)"
               />
 
@@ -217,7 +217,7 @@ export default function DashboardOverview({
               <text x="332" y="188" textAnchor="middle" fontSize="10" fill="var(--text)" fontWeight="500">Fri</text>
               <text x="405" y="188" textAnchor="middle" fontSize="10" fill="var(--text)" fontWeight="500">Sat</text>
               <text x="478" y="188" textAnchor="middle" fontSize="10" fill="var(--text)" fontWeight="500">Sun</text>
-              
+
               <text x="30" y="163" textAnchor="end" fontSize="9" fill="var(--text)">5</text>
               <text x="30" y="123" textAnchor="end" fontSize="9" fill="var(--text)">10</text>
               <text x="30" y="73" textAnchor="end" fontSize="9" fill="var(--text)">15</text>
@@ -236,19 +236,19 @@ export default function DashboardOverview({
             <svg width="150" height="150" viewBox="0 0 42 42" className="donut-chart" role="img" aria-label="Test distribution by clinical group">
               <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--border)" strokeWidth="4.5" />
               {/* Segment 1: CBC (35%) - Dasharray 35, Dashoffset 100 */}
-              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--primary)" strokeWidth="4.5" 
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--primary)" strokeWidth="4.5"
                       strokeDasharray="35 65" strokeDashoffset="100" />
               {/* Segment 2: Lipid (25%) - Dasharray 25, Dashoffset 65 */}
-              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--secondary)" strokeWidth="4.5" 
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--secondary)" strokeWidth="4.5"
                       strokeDasharray="25 75" strokeDashoffset="65" />
               {/* Segment 3: Thyroid (20%) - Dasharray 20, Dashoffset 40 */}
-              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--warning)" strokeWidth="4.5" 
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--warning)" strokeWidth="4.5"
                       strokeDasharray="20 80" strokeDashoffset="40" />
               {/* Segment 4: Diabetes (15%) - Dasharray 15, Dashoffset 20 */}
-              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--info)" strokeWidth="4.5" 
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--info)" strokeWidth="4.5"
                       strokeDasharray="15 85" strokeDashoffset="20" />
               {/* Segment 5: Others (5%) - Dasharray 5, Dashoffset 5 */}
-              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--draft)" strokeWidth="4.5" 
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--draft)" strokeWidth="4.5"
                       strokeDasharray="5 95" strokeDashoffset="5" />
             </svg>
             <div className="donut-legend">
@@ -296,7 +296,7 @@ export default function DashboardOverview({
                         .join(', ')}
                     </p>
                   </div>
-                  <button 
+                  <button
                     onClick={() => {
                       setSelectedReportId(report.id);
                       setActiveTab('reports');
@@ -354,387 +354,7 @@ export default function DashboardOverview({
         </div>
       </div>
 
-      <style>{`
-        .dashboard-content {
-          display: flex;
-          flex-direction: column;
-          gap: 2rem;
-        }
 
-        .dashboard-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-
-        .subtitle {
-          color: var(--text);
-          font-size: 0.95rem;
-          margin-top: 0.25rem;
-        }
-
-        .stats-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-          gap: 1.5rem;
-        }
-
-        .stat-card {
-          display: flex;
-          flex-direction: column;
-          position: relative;
-          overflow: hidden;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .stat-card:hover {
-          transform: translateY(-5px);
-        }
-
-        .stat-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          margin-bottom: 1rem;
-        }
-
-        .stat-title {
-          font-size: 0.85rem;
-          font-weight: 600;
-          color: var(--text);
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-
-        .stat-icon {
-          width: 38px;
-          height: 38px;
-          border-radius: 10px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .stat-value {
-          font-family: var(--font-heading);
-          font-size: 2.25rem;
-          font-weight: 700;
-          color: var(--text-bold);
-          line-height: 1.1;
-          margin-bottom: 0.25rem;
-        }
-
-        .stat-sub {
-          font-size: 0.75rem;
-          color: var(--text);
-          font-weight: 500;
-        }
-
-        .critical-pulse {
-          border-color: rgba(239, 68, 68, 0.4);
-          animation: card-alert-pulse 2s infinite ease-in-out;
-        }
-
-        @keyframes card-alert-pulse {
-          0%, 100% { border-color: rgba(239, 68, 68, 0.4); box-shadow: var(--shadow); }
-          50% { border-color: rgba(239, 68, 68, 0.8); box-shadow: 0 0 15px rgba(239, 68, 68, 0.15); }
-        }
-
-        .dashboard-main-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 1.5rem;
-        }
-
-        .col-span-2 {
-          grid-column: span 2;
-        }
-
-        @media (max-width: 1024px) {
-          .dashboard-main-grid {
-            grid-template-columns: 1fr;
-          }
-          .col-span-2 {
-            grid-column: span 1;
-          }
-        }
-
-        .chart-card {
-          display: flex;
-          flex-direction: column;
-          gap: 1.5rem;
-        }
-
-        .card-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-
-        .card-header.border-b {
-          border-bottom: 1px solid var(--border);
-          padding-bottom: 1rem;
-          margin-bottom: 0.5rem;
-        }
-
-        .flex-align {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-        }
-
-        .card-sub {
-          font-size: 0.8rem;
-          color: var(--text);
-        }
-
-        .chart-legend {
-          display: flex;
-          gap: 1rem;
-        }
-
-        .legend-item {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          font-size: 0.8rem;
-          font-weight: 600;
-          color: var(--text);
-        }
-
-        .legend-dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          display: inline-block;
-        }
-
-        .legend-dot.primary { background: var(--primary); }
-        .legend-dot.secondary { background: var(--secondary); }
-        .legend-dot.warning { background: var(--warning); }
-        .legend-dot.info { background: var(--info); }
-
-        .chart-wrapper {
-          width: 100%;
-          height: 200px;
-        }
-
-        .svg-chart {
-          width: 100%;
-          height: 100%;
-          overflow: visible;
-        }
-
-        .donut-chart-container {
-          display: flex;
-          align-items: center;
-          justify-content: space-around;
-          gap: 1rem;
-          flex-wrap: wrap;
-        }
-
-        .donut-chart {
-          transform: rotate(-90deg);
-        }
-
-        .donut-legend {
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-        }
-
-        .donut-legend-item {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          font-size: 0.8rem;
-          color: var(--text);
-          font-weight: 500;
-        }
-
-        .dashboard-sub-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 1.5rem;
-        }
-
-        @media (max-width: 768px) {
-          .dashboard-sub-grid {
-            grid-template-columns: 1fr;
-          }
-        }
-
-        .alert-section {
-          display: flex;
-          flex-direction: column;
-        }
-
-        .alerts-list {
-          display: flex;
-          flex-direction: column;
-          gap: 0.75rem;
-          max-height: 280px;
-          overflow-y: auto;
-          margin-top: 1rem;
-          padding-right: 0.25rem;
-        }
-
-        .alert-item {
-          border: 1px solid var(--border);
-          background: var(--bg);
-          border-radius: var(--border-radius-md);
-          padding: 0.85rem 1rem;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          gap: 1rem;
-          transition: all 0.2s;
-        }
-
-        .alert-item:hover {
-          border-color: rgba(239, 68, 68, 0.3);
-          background: rgba(239, 68, 68, 0.01);
-        }
-
-        .alert-body {
-          display: flex;
-          flex-direction: column;
-          gap: 0.15rem;
-        }
-
-        .alert-patient {
-          font-weight: 700;
-          font-size: 0.9rem;
-          color: var(--text-bold);
-        }
-
-        .alert-test {
-          font-size: 0.75rem;
-          font-weight: 600;
-          color: var(--primary);
-        }
-
-        .alert-note {
-          font-size: 0.75rem;
-          color: var(--danger);
-          font-weight: 500;
-        }
-
-        .alert-action-btn {
-          background: var(--danger-bg);
-          border: none;
-          border-radius: var(--border-radius-sm);
-          color: var(--danger);
-          padding: 0.4rem 0.65rem;
-          font-size: 0.75rem;
-          font-weight: 700;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          gap: 0.25rem;
-          transition: all 0.2s;
-        }
-
-        .alert-action-btn:hover {
-          background: var(--danger);
-          color: white;
-        }
-
-        .empty-alerts {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 1rem;
-          text-align: center;
-          padding: 2.5rem;
-          height: 100%;
-        }
-
-        .empty-alerts p {
-          font-size: 0.85rem;
-          color: var(--text);
-          max-width: 250px;
-        }
-
-        .animate-pulse-slow {
-          animation: pulse-slow 2s infinite ease-in-out;
-        }
-
-        @keyframes pulse-slow {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.5; transform: scale(1.05); }
-        }
-
-        .operations-section {
-          display: flex;
-          flex-direction: column;
-        }
-
-        .ops-grid {
-          display: flex;
-          flex-direction: column;
-          gap: 1rem;
-          margin-top: 1.25rem;
-        }
-
-        .op-card {
-          background: var(--bg);
-          border: 1px solid var(--border);
-          border-radius: var(--border-radius-md);
-          padding: 1rem;
-          cursor: pointer;
-          text-align: left;
-          display: flex;
-          gap: 1.25rem;
-          align-items: center;
-          transition: all 0.2s ease;
-          width: 100%;
-        }
-
-        .op-card:hover {
-          border-color: var(--primary);
-          transform: translateX(4px);
-        }
-
-        .op-icon {
-          width: 48px;
-          height: 48px;
-          border-radius: 12px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: white;
-          flex-shrink: 0;
-        }
-
-        .bg-primary { background: linear-gradient(135deg, var(--primary), hsl(198, 93%, 45%)); }
-        .bg-secondary { background: linear-gradient(135deg, var(--secondary), hsl(174, 86%, 48%)); }
-        .bg-info { background: linear-gradient(135deg, var(--info), #2563eb); }
-
-        .op-body h4 {
-          font-size: 0.95rem;
-          font-weight: 700;
-          color: var(--text-bold);
-          margin-bottom: 0.15rem;
-        }
-
-        .op-body p {
-          font-size: 0.75rem;
-          color: var(--text);
-        }
-
-        .animate-fade-in {
-          animation: fadeIn 0.4s ease-out;
-          padding-top: 2rem;
-     
-        }
-
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
     </div>
   );
 }

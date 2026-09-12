@@ -105,43 +105,6 @@ export default function Signup({ onSignupSuccess, onCancel }: Props) {
       <div className="saas-signup-actions"><button type="button" className="saas-signup-secondary" onClick={() => { setError(null); setStep('details'); }}><ArrowLeft size={15} />Edit details</button><button type="submit" className="saas-signup-primary" disabled={loading || otp.length < 6}><CheckCircle2 size={15} />{loading ? 'Verifying…' : 'Create workspace'}</button></div>
     </form>}
 
-    <style>{`
-      .saas-signup-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
-      .saas-signup-header > div { min-width: 0; }
-      .saas-signup-eyebrow { display: block; margin-bottom: 4px; color: var(--saas-primary); font-size: 10px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
-      .saas-signup-header h3 { margin: 0; color: var(--saas-text); font-size: 19px; line-height: 1.3; letter-spacing: -.02em; }
-      .saas-signup-header p { margin: 5px 0 0; color: var(--saas-muted); font-size: 12px; line-height: 1.5; }
-      .saas-signup-cancel { flex: 0 0 auto; padding: 6px 8px; border: 0; border-radius: 7px; background: transparent; color: var(--saas-muted); font: inherit; font-size: 12px; font-weight: 650; cursor: pointer; }
-      .saas-signup-cancel:hover { background: var(--saas-surface-muted); color: var(--saas-text); }
-      .saas-signup-form { width: 100%; display: grid; gap: 18px; }
-      .saas-signup-section { display: grid; gap: 12px; padding-bottom: 17px; border-bottom: 1px solid var(--saas-border); }
-      .saas-signup-section:last-of-type { padding-bottom: 0; border-bottom: 0; }
-      .saas-signup-section-title { display: flex; align-items: center; gap: 8px; color: var(--saas-primary); font-size: 12px; font-weight: 750; }
-      .saas-signup-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-      .saas-signup-field { min-width: 0; display: grid; gap: 6px; color: var(--saas-text); font-size: 11px; font-weight: 650; }
-      .saas-signup-field em { margin-left: 3px; color: var(--saas-muted); font-size: 10px; font-style: normal; font-weight: 500; }
-      .saas-signup-field input, .saas-signup-field textarea { box-sizing: border-box; width: 100%; min-height: 40px; padding: 0 11px; border: 1px solid var(--saas-border); border-radius: 8px; background: var(--saas-surface); color: var(--saas-text); font: inherit; font-weight: 450; outline: none; transition: border-color .15s ease, box-shadow .15s ease; }
-      .saas-signup-field textarea { min-height: 66px; padding: 9px 11px; resize: vertical; }
-      .saas-signup-field input::placeholder, .saas-signup-field textarea::placeholder { color: var(--saas-muted); opacity: .8; }
-      .saas-signup-field input:focus, .saas-signup-field textarea:focus { border-color: var(--saas-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--saas-primary) 12%, transparent); }
-      .saas-signup-note { margin: -3px 0 0; color: var(--saas-muted); font-size: 11px; line-height: 1.45; }
-      .saas-signup-error { padding: 9px 11px; border: 1px solid color-mix(in srgb, var(--saas-danger) 20%, transparent); border-radius: 8px; background: color-mix(in srgb, var(--saas-danger) 7%, var(--saas-surface)); color: var(--saas-danger); font-size: 11px; font-weight: 650; line-height: 1.45; }
-      .saas-signup-actions { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
-      .saas-signup-primary, .saas-signup-secondary { min-height: 39px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 0 13px; border-radius: 8px; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
-      .saas-signup-primary { border: 1px solid var(--saas-primary); background: var(--saas-primary); color: #fff; }
-      .saas-signup-primary:disabled { opacity: .55; cursor: not-allowed; }
-      .saas-signup-secondary { border: 1px solid var(--saas-border); background: var(--saas-surface); color: var(--saas-text); }
-      .saas-signup-secondary:hover { background: var(--saas-surface-muted); }
-      .saas-otp-card { display: grid; grid-template-columns: auto 1fr; gap: 11px; align-items: center; padding: 13px; border: 1px solid var(--saas-border); border-radius: 10px; background: var(--saas-surface-muted); }
-      .saas-otp-icon { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 10px; background: color-mix(in srgb, var(--saas-primary) 10%, var(--saas-surface)); color: var(--saas-primary); }
-      .saas-otp-card h4 { margin: 0; color: var(--saas-text); font-size: 13px; }
-      .saas-otp-card p { margin: 3px 0 0; color: var(--saas-muted); font-size: 11px; line-height: 1.45; }
-      .saas-dev-otp { padding: 9px 11px; border: 1px solid color-mix(in srgb, var(--saas-warning, #f59e0b) 25%, transparent); border-radius: 8px; background: color-mix(in srgb, var(--saas-warning, #f59e0b) 7%, var(--saas-surface)); color: var(--saas-text); font-size: 11px; }
-      .saas-signup-resend { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--saas-muted); font-size: 11px; }
-      .saas-signup-resend button { display: inline-flex; align-items: center; gap: 5px; padding: 0; border: 0; background: transparent; color: var(--saas-primary); font: inherit; font-weight: 700; cursor: pointer; }
-      .saas-signup-resend button:disabled { color: var(--saas-muted); cursor: not-allowed; }
-      @media (max-width: 560px) { .saas-signup-header { gap: 8px; } .saas-signup-grid { grid-template-columns: 1fr; } .saas-signup-full { grid-column: auto; } .saas-signup-actions > button { flex: 1; } .saas-otp-card { grid-template-columns: 1fr; } .saas-signup-resend { align-items: flex-start; flex-direction: column; } }
-      @media (prefers-reduced-motion: reduce) { .saas-signup-primary, .saas-signup-secondary { transition: none; } }
-    `}</style>
+
   </>;
 }

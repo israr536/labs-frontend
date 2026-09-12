@@ -113,7 +113,7 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 						</button>
 						<a
 							className="landing-whatsapp"
-							href="https://wa.me/919876543210?text=Hello%20ApexLab%2C%20I%20want%20to%20book%20a%20demo."
+							href="https://wa.me/916388334513?text=Hello%20Ldiax%2C%20I%20want%20to%20book%20a%20demo."
 							target="_blank"
 							rel="noreferrer"
 						>
@@ -207,7 +207,7 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 					</section>
 					<section className="landing-decision-bar" aria-label="ApexLab next steps">
 						<div><strong>Evaluating laboratory software?</strong><span>See the answers buyers ask before implementation.</span></div>
-						<div><a href="/faqs">Explore FAQs <ArrowRight size={14} /></a><a className="landing-decision-demo" href="https://wa.me/919876543210?text=Hello%20ApexLab%2C%20I%20want%20to%20book%20a%20demo." target="_blank" rel="noreferrer">Book a demo on WhatsApp <ArrowRight size={14} /></a></div>
+						<div><a href="/faqs">Explore FAQs <ArrowRight size={14} /></a><a className="landing-decision-demo" href="https://wa.me/916388334513?text=Hello%20Ldiax%2C%20I%20want%20to%20book%20a%20demo." target="_blank" rel="noreferrer">Book a demo on WhatsApp <ArrowRight size={14} /></a></div>
 					</section>
 
 					<section className="landing-section">
@@ -357,7 +357,7 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 				</div>
 				<div className="faq-cta">
 					<a href="/faqs" className="landing-secondary">View full FAQ</a>
-					<a className="landing-whatsapp" href="https://wa.me/919876543210?text=Hello%20ApexLab%2C%20I%20want%20to%20book%20a%20demo." target="_blank" rel="noreferrer">Book a demo on WhatsApp</a>
+					<a className="landing-whatsapp" href="https://wa.me/916388334513?text=Hello%20Ldiax%2C%20I%20want%20to%20book%20a%20demo." target="_blank" rel="noreferrer">Book a demo on WhatsApp</a>
 				</div>
 			</section>
 

@@ -11,7 +11,7 @@ export default function Footer() {
             patient records, test workflows, verification, governance, and final reporting.
           </p>
           <a
-            href="https://wa.me/919876543210?text=Hello%20Ldiax%2C%20I%20want%20to%20book%20a%20demo."
+            href="https://wa.me/916388334513?text=Hello%20Ldiax%2C%20I%20want%20to%20book%20a%20demo."
             target="_blank"
             rel="noreferrer"
             className="footer-demo-btn"

@@ -1,6 +1,6 @@
 import { MessageCircleMore } from 'lucide-react';
 
-const WHATSAPP_URL = 'https://wa.me/919876543210?text=Hello%20ApexLab%2C%20I%20want%20to%20book%20a%20demo.';
+const WHATSAPP_URL = 'https://wa.me/916388334513?text=Hello%20Ldiax%2C%20I%20want%20to%20book%20a%20demo.';
 
 export default function WhatsAppButton() {
   return (

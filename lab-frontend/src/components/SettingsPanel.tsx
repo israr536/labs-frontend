@@ -28,6 +28,26 @@ export default function SettingsPanel({ settings, onSaveSettings }: SettingsPane
     setSuccessMsg(false);
   };
 
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setErrorMsg('Please choose a PNG, JPG, or WEBP image for the laboratory logo.');
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setErrorMsg('The laboratory logo must be smaller than 2 MB.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setFormData(prev => ({ ...prev, logoDataUrl: String(reader.result ?? '') }));
+      setErrorMsg(null);
+      setSuccessMsg(false);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleDoctorChange = (index: number, field: string, value: string) => {
     const updatedDoctors = formData.doctors.map((doc, idx) => {
       if (idx === index) {
@@ -201,6 +221,20 @@ export default function SettingsPanel({ settings, onSaveSettings }: SettingsPane
               />
             </div>
 
+            <div className="form-group">
+              <label className="form-label">Laboratory Logo</label>
+              <div className="logo-upload-row">
+                <div className="logo-preview">
+                  {formData.logoDataUrl ? <img src={formData.logoDataUrl} alt="Laboratory logo preview" /> : <Building2 size={22} />}
+                </div>
+                <div className="logo-upload-copy">
+                  <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleLogoChange} aria-label="Upload laboratory logo" />
+                  <small>Displayed on the right side of every report header. PNG or JPG, maximum 2 MB.</small>
+                  {formData.logoDataUrl && <button type="button" className="logo-remove" onClick={() => setFormData(prev => ({ ...prev, logoDataUrl: '' }))}>Remove logo</button>}
+                </div>
+              </div>
+            </div>
+
             <div className="report-setting-toggle">
               <div>
                 <strong>Show test method names on reports</strong>
@@ -331,6 +365,14 @@ export default function SettingsPanel({ settings, onSaveSettings }: SettingsPane
           flex-direction: column;
           gap: 1.25rem;
         }
+
+        .logo-upload-row { display:flex; align-items:center; gap:12px; padding:12px; border:1px dashed var(--border); border-radius:12px; background:rgba(6,96,137,.03); }
+        .logo-preview { width:54px; height:54px; display:grid; place-items:center; flex:0 0 auto; overflow:hidden; border:1px solid var(--border); border-radius:10px; background:var(--panel-bg); color:var(--primary); }
+        .logo-preview img { width:100%; height:100%; object-fit:contain; }
+        .logo-upload-copy { display:grid; gap:5px; min-width:0; }
+        .logo-upload-copy input { max-width:100%; font-size:.7rem; color:var(--text); }
+        .logo-upload-copy small { color:var(--muted); font-size:.66rem; line-height:1.4; }
+        .logo-remove { justify-self:start; border:0; padding:0; background:none; color:var(--danger); font-size:.68rem; font-weight:700; cursor:pointer; }
 
         .report-setting-toggle { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:13px 14px; border:1px solid var(--border); border-radius:12px; background:rgba(6,96,137,.04); }
         .report-setting-toggle div { display:grid; gap:4px; }

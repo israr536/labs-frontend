@@ -93,7 +93,6 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings, _tem
 
   const drawTopHeader = () => {
     const hasLogo = settings.logoDataUrl?.startsWith('data:image/');
-    const textLeft = LEFT + (hasLogo ? 25 : 0);
     if (hasLogo) {
       try {
         const format = settings.logoDataUrl.startsWith('data:image/jpeg') || settings.logoDataUrl.startsWith('data:image/jpg') ? 'JPEG' : 'PNG';
@@ -102,10 +101,10 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings, _tem
         // Keep the report usable when a stored logo is invalid or unsupported.
       }
     }
-    text(7, 'bold'); doc.text(upper(settings.labName, 'DIAGNOSTIC LABORATORY'), hasLogo ? textLeft : PAGE_WIDTH - RIGHT, TOP + 1, { align: hasLogo ? 'left' : 'right' });
-    text(5.6); const address = clean(settings.address, ''); if (address) doc.text(doc.splitTextToSize(address, hasLogo ? 70 : 74), hasLogo ? textLeft : PAGE_WIDTH - RIGHT, TOP + 5, { align: hasLogo ? 'left' : 'right' });
+    text(7, 'bold'); doc.text(upper(settings.labName, 'DIAGNOSTIC LABORATORY'), PAGE_WIDTH - RIGHT, TOP + 1, { align: 'right' });
+    text(5.6); const address = clean(settings.address, ''); if (address) doc.text(doc.splitTextToSize(address, 74), PAGE_WIDTH - RIGHT, TOP + 5, { align: 'right' });
     const phoneEmail = [settings.phone ? `Mob: ${settings.phone}` : '', settings.email ? `E-mail: ${settings.email}` : ''].filter(Boolean);
-    doc.text(phoneEmail, hasLogo ? textLeft : PAGE_WIDTH - RIGHT, TOP + 11, { align: hasLogo ? 'left' : 'right' });
+    doc.text(phoneEmail, PAGE_WIDTH - RIGHT, TOP + 11, { align: 'right' });
   };
 
   const drawPatientBox = () => {

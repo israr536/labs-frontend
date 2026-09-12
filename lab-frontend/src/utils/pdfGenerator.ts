@@ -149,12 +149,12 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings, _tem
       const resultLines = doc.splitTextToSize(clean(parameter.value), 28); const refLines = doc.splitTextToSize(referenceRange(parameter), 39); const unitLines = doc.splitTextToSize(clean(parameter.unit), 18);
       const height = Math.max(7, nameLines.length * 3.4 + methodLines.length * 2.5 + 1.5, resultLines.length * 3.4 + 1.5, refLines.length * 3.4 + 1.5, unitLines.length * 3.4 + 1.5);
       ensure(height + 2); if (cursorY < 78) drawTableHeader();
-      text(7, abnormal ? 'bold' : 'normal'); doc.text(nameLines, LEFT, cursorY + 3.2, { lineHeightFactor: 1 });
+      text(7.2, 'bold'); doc.text(nameLines, LEFT, cursorY + 3.2, { lineHeightFactor: 1 });
       if (methodLines.length) { text(4.8); doc.text(methodLines, LEFT + 5, cursorY + 6.2, { lineHeightFactor: 1 }); }
       text(7, abnormal ? 'bold' : 'normal'); if (abnormal) doc.setTextColor(flag.toLowerCase() === 'high' ? 160 : 30, 0, flag.toLowerCase() === 'high' ? 0 : 60); doc.text(resultLines, LEFT + 78, cursorY + 3.2, { lineHeightFactor: 1 });
       text(7, 'bold'); doc.text(flagLabel, LEFT + 119, cursorY + 3.2);
       text(7, abnormal ? 'bold' : 'normal'); doc.text(refLines, LEFT + 133, cursorY + 3.2, { lineHeightFactor: 1 }); doc.text(unitLines, PAGE_WIDTH - RIGHT - 23, cursorY + 3.2, { lineHeightFactor: 1 });
-      line(cursorY + height, 0.12); cursorY += height;
+      cursorY += height;
     });
     cursorY += 3;
   };

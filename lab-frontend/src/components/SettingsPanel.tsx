@@ -229,7 +229,7 @@ export default function SettingsPanel({ settings, onSaveSettings }: SettingsPane
                 </div>
                 <div className="logo-upload-copy">
                   <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleLogoChange} aria-label="Upload laboratory logo" />
-                  <small>Displayed on the right side of every report header. PNG or JPG, maximum 2 MB.</small>
+                  <small>Displayed on the left side of every report header. PNG or JPG, maximum 2 MB.</small>
                   {formData.logoDataUrl && <button type="button" className="logo-remove" onClick={() => setFormData(prev => ({ ...prev, logoDataUrl: '' }))}>Remove logo</button>}
                 </div>
               </div>

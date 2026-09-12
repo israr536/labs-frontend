@@ -139,7 +139,7 @@ function mapGeneratedReport(data: ApiReport): LabReport {
 
 function mapFinalReport(data: ApiReport): LabReport {
   const tests = data.order?.tests ?? [];
-  const parameters: ReportParameter[] = tests.flatMap((item: any) => (item.parameters ?? []).map((parameter: any) => ({ name: parameter.name ?? 'Parameter', value: parameter.value ?? '', unit: parameter.unit ?? '', refRange: formatRange(parameter), minRef: parameter.normalMin ?? undefined, maxRef: parameter.normalMax ?? undefined, status: mapFlag(parameter.flag), testName: item.test?.name ?? 'Test', testCode: item.test?.code, category: item.test?.category, sampleType: item.test?.sampleType, method: item.test?.method })));
+  const parameters: ReportParameter[] = tests.flatMap((item: any) => (item.parameters ?? []).map((parameter: any) => ({ name: parameter.name ?? 'Parameter', value: parameter.value ?? '', unit: parameter.unit ?? '', refRange: formatRange(parameter), minRef: parameter.normalMin ?? undefined, maxRef: parameter.normalMax ?? undefined, status: mapFlag(parameter.flag, parameter.value, parameter.normalMin, parameter.normalMax), testName: item.test?.name ?? 'Test', testCode: item.test?.code, category: item.test?.category, sampleType: item.test?.sampleType, method: item.test?.method })));
   return { id: data.order?.id, patientName: data.order?.patient?.name ?? 'Unknown patient', age: data.order?.patient?.age ?? 0, gender: mapGenderFromApi(data.order?.patient?.gender), phone: data.order?.patient?.mobile ?? '', email: data.order?.patient?.email ?? '', referredBy: data.order?.referredBy ?? 'Dr. Self / Walk-in', dateCollected: toDateTimeLocal(data.order?.samples?.[0]?.collectedAt ?? data.order?.orderedAt), dateReported: toDateTimeLocal(data.finalizedAt ?? data.order?.orderedAt), testType: tests.map((item: any) => item.test?.name).filter(Boolean).join(' + ') || 'Diagnostic Test', status: mapFinalStatus(tests), parameters, interpretation: data.order?.clinicalNotes ?? '', reportNumber: data.reportNumber, patientId: data.order?.patient?.id, orderId: data.order?.id } as LabReport & { orderId: string };
 }
 
@@ -154,12 +154,23 @@ function mapOrderAsReport(order: ApiReport): LabReport {
 }
 
 function mapParameter(parameter: any, result: any, test?: any): ReportParameter {
-  return { name: parameter?.name ?? '', value: result?.value ?? '', unit: parameter?.unit ?? '', refRange: formatRange(parameter), minRef: parameter?.normalMin ?? undefined, maxRef: parameter?.normalMax ?? undefined, status: mapFlag(result?.flag), inputType: parameter?.inputType, required: parameter?.isRequired ?? true, testName: test?.name, testCode: test?.code, category: test?.category, sampleType: test?.sampleType, method: test?.method } as ReportParameter;
+  return { name: parameter?.name ?? '', value: result?.value ?? '', unit: parameter?.unit ?? '', refRange: formatRange(parameter), minRef: parameter?.normalMin ?? undefined, maxRef: parameter?.normalMax ?? undefined, status: mapFlag(result?.flag, result?.value, parameter?.normalMin, parameter?.normalMax), inputType: parameter?.inputType, required: parameter?.isRequired ?? true, testName: test?.name, testCode: test?.code, category: test?.category, sampleType: test?.sampleType, method: test?.method } as ReportParameter;
 }
 function mapOrderStatus(status: string | undefined, parameters: TestParameter[]): LabReport['status'] { if (status === 'FINAL' || status === 'VERIFIED') return parameters.some((p) => p.status !== 'Normal') ? 'Critical' : 'Completed'; if (status === 'RESULT_ENTERED' || status === 'SAMPLE_COLLECTED' || status === 'REGISTERED') return 'Pending'; if (status === 'CANCELLED') return 'Draft'; return 'Draft'; }
 function mapReportStatus(status: any, parameters: TestParameter[]): LabReport['status'] { if (status === 'FINAL') return parameters.some((p) => p.status !== 'Normal') ? 'Critical' : 'Completed'; if (status === 'RESULT_ENTERED' || status === 'VERIFIED') return status === 'VERIFIED' ? 'Completed' : 'Pending'; return 'Draft'; }
 function mapFinalStatus(tests: any[]): LabReport['status'] { return tests.some((item: any) => (item.parameters ?? []).some((p: any) => p.flag === 'HIGH' || p.flag === 'LOW' || p.flag === 'ABNORMAL')) ? 'Critical' : 'Completed'; }
-function mapFlag(flag: any): TestParameter['status'] { if (flag === 'HIGH') return 'High'; if (flag === 'LOW') return 'Low'; if (flag === 'NORMAL') return 'Normal'; return 'Abnormal'; }
+function mapFlag(flag: any, value?: unknown, minRef?: number, maxRef?: number): TestParameter['status'] {
+  if (flag === 'HIGH') return 'High';
+  if (flag === 'LOW') return 'Low';
+  if (flag === 'ABNORMAL') return 'Abnormal';
+  if (flag === 'NORMAL') return 'Normal';
+  const numericValue = Number(value);
+  if (value !== undefined && value !== null && String(value).trim() !== '' && Number.isFinite(numericValue)) {
+    if (minRef !== undefined && numericValue < minRef) return 'Low';
+    if (maxRef !== undefined && numericValue > maxRef) return 'High';
+  }
+  return 'Normal';
+}
 function formatRange(parameter: any): string { if (parameter?.referenceRange) return typeof parameter.referenceRange === 'string' ? parameter.referenceRange : JSON.stringify(parameter.referenceRange); if (parameter?.normalMin !== undefined && parameter?.normalMax !== undefined) return `${parameter.normalMin} - ${parameter.normalMax}`; if (parameter?.normalMin !== undefined) return `>= ${parameter.normalMin}`; if (parameter?.normalMax !== undefined) return `<= ${parameter.normalMax}`; return ''; }
 function mapGenderFromApi(value: any): LabReport['gender'] { return value === 'MALE' ? 'Male' : value === 'FEMALE' ? 'Female' : 'Other'; }
 function mapGenderToApi(value: any): 'MALE' | 'FEMALE' | 'OTHER' { return value === 'Male' ? 'MALE' : value === 'Female' ? 'FEMALE' : 'OTHER'; }

@@ -5,13 +5,13 @@ export default function Footer() {
     <footer className="site-footer">
       <div className="footer-grid">
         <div className="footer-brand">
-          <div className="footer-logo">ApexLab</div>
+          <div className="footer-logo">Ldiax</div>
           <p>
-            ApexLab is the operating workspace for diagnostic laboratories—connecting
+            Ldiax is the operating workspace for diagnostic laboratories—connecting
             patient records, test workflows, verification, governance, and final reporting.
           </p>
           <a
-            href="https://wa.me/919876543210?text=Hello%20ApexLab%2C%20I%20want%20to%20book%20a%20demo."
+            href="https://wa.me/919876543210?text=Hello%20Ldiax%2C%20I%20want%20to%20book%20a%20demo."
             target="_blank"
             rel="noreferrer"
             className="footer-demo-btn"
@@ -42,7 +42,7 @@ export default function Footer() {
 
         <div>
           <h4>Contact</h4>
-          <p className="footer-contact">support@apexlab.com</p>
+          <p className="footer-contact">support@ldiax.com</p>
           <p className="footer-contact">+91 98765 43210</p>
           <p className="footer-contact">210 Health Avenue, Medical City</p>
         </div>

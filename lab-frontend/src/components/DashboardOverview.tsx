@@ -358,14 +358,25 @@ export default function DashboardOverview({
         .dashboard-content {
           display: flex;
           flex-direction: column;
-          gap: 2rem;
+          gap: 1.5rem;
+          max-width: 1480px;
+          margin: 0 auto;
         }
 
         .dashboard-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
+          gap: 1.5rem;
+          padding: .25rem 0 .35rem;
         }
+
+        .dashboard-header h1 { font-size: clamp(1.55rem, 2.4vw, 2.15rem); letter-spacing: -.035em; }
+        .dashboard-header .subtitle { max-width: 620px; line-height: 1.6; }
+        .dashboard-actions { display:flex; align-items:center; justify-content:flex-end; gap:.55rem; flex-wrap:wrap; }
+        .dashboard-actions .btn { min-height:40px; }
+        .dashboard-actions .btn[style] { margin-left:0 !important; }
+        .dashboard-live-status { flex-basis:100%; text-align:right; color:var(--text); font-size:.62rem; font-weight:700; }
 
         .subtitle {
           color: var(--text);
@@ -376,7 +387,7 @@ export default function DashboardOverview({
         .stats-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-          gap: 1.5rem;
+          gap: 1rem;
         }
 
         .stat-card {
@@ -385,6 +396,9 @@ export default function DashboardOverview({
           position: relative;
           overflow: hidden;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          min-height: 154px;
+          padding: 1.35rem;
+          border-radius: 16px;
         }
 
         .stat-card:hover {
@@ -395,15 +409,15 @@ export default function DashboardOverview({
           display: flex;
           justify-content: space-between;
           align-items: flex-start;
-          margin-bottom: 1rem;
+          margin-bottom: .8rem;
         }
 
         .stat-title {
-          font-size: 0.85rem;
-          font-weight: 600;
+          font-size: 0.7rem;
+          font-weight: 800;
           color: var(--text);
           text-transform: uppercase;
-          letter-spacing: 0.5px;
+          letter-spacing: .06em;
         }
 
         .stat-icon {
@@ -417,8 +431,8 @@ export default function DashboardOverview({
 
         .stat-value {
           font-family: var(--font-heading);
-          font-size: 2.25rem;
-          font-weight: 700;
+          font-size: 2.15rem;
+          font-weight: 800;
           color: var(--text-bold);
           line-height: 1.1;
           margin-bottom: 0.25rem;
@@ -443,7 +457,7 @@ export default function DashboardOverview({
         .dashboard-main-grid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
-          gap: 1.5rem;
+          gap: 1rem;
         }
 
         .col-span-2 {
@@ -462,19 +476,23 @@ export default function DashboardOverview({
         .chart-card {
           display: flex;
           flex-direction: column;
-          gap: 1.5rem;
+          gap: 1rem;
+          min-height: 310px;
         }
 
         .card-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
+          gap: 1rem;
         }
+
+        .card-header h3 { font-size: 1rem; letter-spacing: -.015em; }
 
         .card-header.border-b {
           border-bottom: 1px solid var(--border);
-          padding-bottom: 1rem;
-          margin-bottom: 0.5rem;
+          padding-bottom: .85rem;
+          margin-bottom: .15rem;
         }
 
         .flex-align {
@@ -555,10 +573,14 @@ export default function DashboardOverview({
         .dashboard-sub-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 1.5rem;
+          gap: 1rem;
         }
 
         @media (max-width: 768px) {
+          .dashboard-header { align-items: flex-start; flex-direction: column; }
+          .dashboard-actions { width: 100%; justify-content: flex-start; }
+          .dashboard-live-status { text-align: left; }
+          .dashboard-content { gap: 1.1rem; }
           .dashboard-sub-grid {
             grid-template-columns: 1fr;
           }
@@ -567,6 +589,7 @@ export default function DashboardOverview({
         .alert-section {
           display: flex;
           flex-direction: column;
+          min-height: 330px;
         }
 
         .alerts-list {
@@ -669,27 +692,29 @@ export default function DashboardOverview({
         .operations-section {
           display: flex;
           flex-direction: column;
+          min-height: 330px;
         }
 
         .ops-grid {
           display: flex;
           flex-direction: column;
-          gap: 1rem;
-          margin-top: 1.25rem;
+          gap: .65rem;
+          margin-top: 1rem;
         }
 
         .op-card {
           background: var(--bg);
           border: 1px solid var(--border);
           border-radius: var(--border-radius-md);
-          padding: 1rem;
+          padding: .85rem;
           cursor: pointer;
           text-align: left;
           display: flex;
-          gap: 1.25rem;
+          gap: .9rem;
           align-items: center;
           transition: all 0.2s ease;
           width: 100%;
+          min-height: 72px;
         }
 
         .op-card:hover {

@@ -93,7 +93,7 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings, _tem
   };
 
   const drawPatientBox = () => {
-    const y = 38; const h = 31;
+    const y = 38; const h = 36;
     doc.setDrawColor(0, 0, 0); doc.setLineWidth(0.3); doc.rect(LEFT, y, CONTENT_WIDTH, h);
     const colA = LEFT + 3; const colB = LEFT + 99; const labelWidth = 32;
     const row = (label: string, value: unknown, x: number, yy: number, boldValue = false) => { text(7); doc.text(label, x, yy); doc.text(':', x + labelWidth - 1, yy); text(7, boldValue ? 'bold' : 'normal'); doc.text(clean(value), x + labelWidth + 2, yy); };
@@ -108,13 +108,13 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings, _tem
   const drawPageFrame = (continuation = false) => {
     drawTopHeader();
     drawPatientBox();
-    cursorY = 75;
-    if (!continuation) cursorY = 75;
+    cursorY = 81;
+    if (!continuation) cursorY = 81;
   };
 
   const drawTableHeader = () => {
     line(cursorY, 0.35); text(7, 'bold');
-    doc.text('TEST DESCRIPTION', LEFT, cursorY + 5); doc.text('RESULT ENTRY', LEFT + 77, cursorY + 5); doc.text('FLAG', LEFT + 115, cursorY + 5); doc.text('BIO. REF. RANGE', LEFT + 132, cursorY + 5); doc.text('UNIT', PAGE_WIDTH - RIGHT - 25, cursorY + 5);
+    doc.text('TEST DESCRIPTION', LEFT, cursorY + 5); doc.text('RESULT ENTRY', LEFT + 78, cursorY + 5); doc.text('FLAG', LEFT + 119, cursorY + 5); doc.text('BIO. REF. RANGE', LEFT + 133, cursorY + 5); doc.text('UNIT', PAGE_WIDTH - RIGHT - 23, cursorY + 5);
     line(cursorY + 7, 0.3); cursorY += 9;
   };
 
@@ -138,14 +138,16 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings, _tem
     cursorY += 14; drawTableHeader();
     section.parameters.forEach((parameter) => {
       const flag = clean(parameter.status, ''); const abnormal = flag.toLowerCase() !== 'normal' && flag !== '—';
+      const flagLabel = flag.toLowerCase() === 'high' ? 'H ↑' : flag.toLowerCase() === 'low' ? 'L ↓' : flag.toLowerCase() === 'abnormal' ? 'A' : '';
       const nameLines = doc.splitTextToSize(clean(parameter.name), 68); const methodLines = parameter.method ? doc.splitTextToSize(`METHOD : ${upper(parameter.method)}`, 68) : [];
-      const height = Math.max(7, nameLines.length * 3.4 + methodLines.length * 2.5 + 1.5);
+      const resultLines = doc.splitTextToSize(clean(parameter.value), 28); const refLines = doc.splitTextToSize(referenceRange(parameter), 39); const unitLines = doc.splitTextToSize(clean(parameter.unit), 18);
+      const height = Math.max(7, nameLines.length * 3.4 + methodLines.length * 2.5 + 1.5, resultLines.length * 3.4 + 1.5, refLines.length * 3.4 + 1.5, unitLines.length * 3.4 + 1.5);
       ensure(height + 2); if (cursorY < 78) drawTableHeader();
       text(7, abnormal ? 'bold' : 'normal'); doc.text(nameLines, LEFT, cursorY + 3.2, { lineHeightFactor: 1 });
       if (methodLines.length) { text(4.8); doc.text(methodLines, LEFT + 5, cursorY + 6.2, { lineHeightFactor: 1 }); }
-      text(7, abnormal ? 'bold' : 'normal'); if (abnormal) doc.setTextColor(flag.toLowerCase() === 'high' ? 160 : 30, 0, flag.toLowerCase() === 'high' ? 0 : 60); doc.text(clean(parameter.value), LEFT + 77, cursorY + 3.2);
-      text(7, 'bold'); doc.text(abnormal ? `${upper(flag)} ${flag.toLowerCase() === 'high' ? '↑' : '↓'}` : '', LEFT + 115, cursorY + 3.2);
-      text(7, abnormal ? 'bold' : 'normal'); doc.text(referenceRange(parameter), LEFT + 132, cursorY + 3.2); doc.text(clean(parameter.unit), PAGE_WIDTH - RIGHT - 25, cursorY + 3.2);
+      text(7, abnormal ? 'bold' : 'normal'); if (abnormal) doc.setTextColor(flag.toLowerCase() === 'high' ? 160 : 30, 0, flag.toLowerCase() === 'high' ? 0 : 60); doc.text(resultLines, LEFT + 78, cursorY + 3.2, { lineHeightFactor: 1 });
+      text(7, 'bold'); doc.text(flagLabel, LEFT + 119, cursorY + 3.2);
+      text(7, abnormal ? 'bold' : 'normal'); doc.text(refLines, LEFT + 133, cursorY + 3.2, { lineHeightFactor: 1 }); doc.text(unitLines, PAGE_WIDTH - RIGHT - 23, cursorY + 3.2, { lineHeightFactor: 1 });
       line(cursorY + height, 0.12); cursorY += height;
     });
     cursorY += 3;

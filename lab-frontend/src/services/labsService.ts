@@ -13,7 +13,7 @@ export function updateSettings(body: Partial<LabSettings>) {
       mobile: body.phone,
       email: body.email,
       address: body.address,
-      icon: body.logoDataUrl || undefined,
+      icon: body.logoDataUrl ?? undefined,
       showMethodNames: body.showMethodNames,
     }),
   }).then((data) => mapLabSettings(data, body));

@@ -1,5 +1,6 @@
 import { jsPDF } from 'jspdf';
 import type { LabReport, LabSettings, TestParameter } from '../data/samples';
+import interFontData from '../assets/fonts/Inter.ttf?inline';
 
 const PAGE_WIDTH = 210;
 const LEFT = 9;
@@ -62,7 +63,7 @@ function drawBarcode(doc: jsPDF, value: string, x: number, y: number, width: num
     for (let i = 0; i < pattern.length; i += 1) { if (pattern[i] === '1') doc.rect(cursor, y, module, height, 'F'); cursor += module; }
     if (pIndex < patterns.length - 1) cursor += module;
   });
-  doc.setFont('times', 'normal'); doc.setFontSize(5); doc.setTextColor(0, 0, 0); doc.text(value, x + width / 2, y + height + 3, { align: 'center' });
+  doc.setFont('Inter', 'normal'); doc.setFontSize(5); doc.setTextColor(0, 0, 0); doc.text(value, x + width / 2, y + height + 3, { align: 'center' });
 }
 
 function drawQrPlaceholder(doc: jsPDF, x: number, y: number, size: number) {
@@ -76,13 +77,18 @@ function drawQrPlaceholder(doc: jsPDF, x: number, y: number, size: number) {
 
 export const generateReportPdf = (report: LabReport, settings: LabSettings, _template: PdfTemplate = 'premium') => {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  doc.addFileToVFS('Inter.ttf', interFontData.split(',')[1] || interFontData);
+  doc.addFont('Inter.ttf', 'Inter', 'normal');
+  doc.addFont('Inter.ttf', 'Inter', 'bold');
+  doc.addFont('Inter.ttf', 'Inter', 'italic');
+  doc.setFont('Inter', 'normal');
   const accession = reportNumber(report);
   const sections = buildSections(report, (report.parameters ?? []) as ReportParameter[]);
   let cursorY = 0;
   doc.setProperties({ title: `Laboratory Report ${accession}`, subject: 'Laboratory Diagnostic Report', author: clean(settings.labName, 'Laboratory') });
   doc.setLineHeightFactor(1.08);
 
-  const text = (size: number, style: 'normal' | 'bold' | 'italic' = 'normal') => { doc.setFont('times', style); doc.setFontSize(size); doc.setTextColor(0, 0, 0); };
+  const text = (size: number, style: 'normal' | 'bold' | 'italic' = 'normal') => { doc.setFont('Inter', style); doc.setFontSize(size); doc.setTextColor(0, 0, 0); };
   const line = (y: number, width = 0.25) => { doc.setDrawColor(0, 0, 0); doc.setLineWidth(width); doc.line(LEFT, y, PAGE_WIDTH - RIGHT, y); };
 
   const drawTopHeader = () => {

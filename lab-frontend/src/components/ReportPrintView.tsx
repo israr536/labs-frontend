@@ -138,7 +138,7 @@ export default function ReportPrintView({ report, settings }: ReportPrintViewPro
             background: white;
             color: black;
             box-sizing: border-box;
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
             font-size: 10pt;
             line-height: 1.4;
           }
@@ -169,7 +169,7 @@ export default function ReportPrintView({ report, settings }: ReportPrintViewPro
           }
 
           .print-brand-text h2 {
-            font-family: 'Outfit', 'Helvetica Neue', sans-serif;
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
             font-size: 18pt;
             font-weight: 700;
             color: #066089;
@@ -294,7 +294,7 @@ export default function ReportPrintView({ report, settings }: ReportPrintViewPro
           }
 
           .test-title {
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
             font-size: 10.5pt;
             font-weight: bold;
             color: #0f172a;

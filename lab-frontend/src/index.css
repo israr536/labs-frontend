@@ -140,6 +140,16 @@ h6 {
   transition: margin-left 0.3s ease;
 }
 
+/* Report entry controls use a clean field surface without underline rules. */
+.report-editor-page .form-input,
+.report-editor-page .form-select,
+.report-editor-page .form-textarea,
+.report-editor-page .param-val-input,
+.report-editor-page .param-flag-select {
+  border-bottom: 0 !important;
+  box-shadow: none;
+}
+
 @media (max-width: 1024px) {
   .main-content {
     margin-left: 0;

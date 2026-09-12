@@ -63,7 +63,7 @@ function drawBarcode(doc: jsPDF, value: string, x: number, y: number, width: num
     for (let i = 0; i < pattern.length; i += 1) { if (pattern[i] === '1') doc.rect(cursor, y, module, height, 'F'); cursor += module; }
     if (pIndex < patterns.length - 1) cursor += module;
   });
-  doc.setFont('Inter', 'normal'); doc.setFontSize(5); doc.setTextColor(0, 0, 0); doc.text(value, x + width / 2, y + height + 3, { align: 'center' });
+  // Keep the barcode clean; the long accession is already shown in the patient metadata.
 }
 
 function drawQrPlaceholder(doc: jsPDF, x: number, y: number, size: number) {
@@ -106,7 +106,7 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings, _tem
     row('Patient Name', `Mrs. ${upper(report.patientName)}`, colA, y + 7, true); row('Registration', dateText(report.dateCollected), colB, y + 7);
     row('Age/Gender', `${clean(report.age)} Year /${clean(report.gender)}`, colA, y + 13); row('Collected Date', dateText(report.dateCollected), colB, y + 13);
     row('Ref Doctor', upper(report.referredBy), colA, y + 19); row('Reported Date', dateText(report.dateReported), colB, y + 19);
-    row('Lab ID', accession, colA, y + 25); row('Barcode No', accession, colB, y + 25);
+    row('Lab ID', accession, colA, y + 25); row('Barcode No', accession.slice(-12), colB, y + 25);
     row('Client Name/Code', upper(settings.labName), colA, y + 31); row('Report Status', upper(report.status), colB, y + 31);
     drawBarcode(doc, accession, PAGE_WIDTH - RIGHT - 30, y + 19, 28, 8);
   };
@@ -140,8 +140,8 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings, _tem
     ensure(30); text(8, 'bold'); doc.text(upper(section.category || 'HEMATOLOGY'), PAGE_WIDTH / 2, cursorY + 5, { align: 'center' });
     text(8, 'bold'); doc.text(upper(section.name), PAGE_WIDTH / 2, cursorY + 10, { align: 'center' });
     const sample = section.sampleType ? `Sample Type: ${section.sampleType}` : '';
-    if (sample) { text(5.5); doc.text(sample, LEFT, cursorY + 10); }
-    cursorY += 14; drawTableHeader();
+    if (sample) { text(5.5); doc.text(sample, LEFT, cursorY + 15); }
+    cursorY += sample ? 19 : 14; drawTableHeader();
     section.parameters.forEach((parameter) => {
       const flag = clean(parameter.status, ''); const abnormal = flag.toLowerCase() !== 'normal' && flag !== '—';
       const flagLabel = flag.toLowerCase() === 'high' ? 'H ↑' : flag.toLowerCase() === 'low' ? 'L ↓' : flag.toLowerCase() === 'abnormal' ? 'A' : '';

@@ -96,6 +96,12 @@ export default function TestCatalogPicker({ selectedIds, onChange, disabled = fa
       }
     }
     const id = enabled.id;
+    queryClient.setQueryData<LabTest[]>(['tests', 'new-report'], (current) => {
+      const list = current ?? [];
+      const existingIndex = list.findIndex((item) => item.id === enabled!.id);
+      if (existingIndex >= 0) return list.map((item, index) => index === existingIndex ? enabled! : item);
+      return [...list, enabled!];
+    });
     onChange(selectedIds.includes(id) ? selectedIds.filter((value) => value !== id) : [...selectedIds, id], enabled);
   }
 

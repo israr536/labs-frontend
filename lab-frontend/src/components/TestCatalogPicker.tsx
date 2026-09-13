@@ -108,7 +108,6 @@ export default function TestCatalogPicker({ selectedIds, onChange, disabled = fa
 
   const enabledCount = enabledByCode.size;
   const selectedCount = selectedIds.length;
-  const loading = catalogLoading || labTestsLoading;
   const locked = disabled && selectedIds.length > 0;
 
   return (
@@ -139,12 +138,12 @@ export default function TestCatalogPicker({ selectedIds, onChange, disabled = fa
         </select>
       </div>
 
-      {loading && <div className="picker-state">Loading complete laboratory catalog…</div>}
+      {catalogLoading && <div className="picker-state">Loading complete laboratory catalog…</div>}
       {catalogError && <div className="picker-state picker-error">Unable to load the laboratory test catalog.</div>}
       {enableMutation.isError && <div className="picker-state picker-error">The selected test could not be prepared. Please try again.</div>}
-      {!loading && !catalogError && filtered.length === 0 && <div className="picker-state">No tests match your search and filters.</div>}
+      {!catalogLoading && !catalogError && filtered.length === 0 && <div className="picker-state">No tests match your search and filters.</div>}
 
-      {!loading && !catalogError && filtered.length > 0 && (
+      {!catalogLoading && !catalogError && filtered.length > 0 && (
         <div className="picker-list" role="listbox" aria-label="Laboratory tests">
           {filtered.map((test) => {
             const enabled = enabledByCode.has(normalize(test.code));

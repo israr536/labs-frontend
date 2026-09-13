@@ -86,7 +86,8 @@ export default function TestCatalogPicker({ selectedIds, onChange, disabled = fa
   }, [catalog, search, department, category, showDisabled, enabledByCode]);
 
   async function toggle(test: TestCatalogDefinition) {
-    if (disabled || enableMutation.isPending) return;
+    const locked = disabled && selectedIds.length > 0;
+    if (locked || enableMutation.isPending) return;
     let enabled = enabledByCode.get(normalize(test.code));
     if (!enabled) {
       try {
@@ -108,6 +109,7 @@ export default function TestCatalogPicker({ selectedIds, onChange, disabled = fa
   const enabledCount = enabledByCode.size;
   const selectedCount = selectedIds.length;
   const loading = catalogLoading || labTestsLoading;
+  const locked = disabled && selectedIds.length > 0;
 
   return (
     <div className="test-catalog-picker">
@@ -117,7 +119,7 @@ export default function TestCatalogPicker({ selectedIds, onChange, disabled = fa
           <span>{enabledCount.toLocaleString()} configured for this lab · {selectedCount} selected</span>
         </div>
         <label className="picker-toggle">
-          <input type="checkbox" checked={showDisabled} onChange={(event) => setShowDisabled(event.target.checked)} />
+          <input type="checkbox" checked={showDisabled} onChange={(event) => setShowDisabled(event.target.checked)} disabled={locked} />
           Show all catalog tests
         </label>
       </div>
@@ -125,13 +127,13 @@ export default function TestCatalogPicker({ selectedIds, onChange, disabled = fa
       <div className="picker-toolbar">
         <label className="picker-search">
           <Search size={16} />
-          <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search test name, code, short name or synonym…" />
+          <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search test name, code, short name or synonym…" disabled={locked} />
         </label>
-        <select value={department} onChange={(event) => setDepartment(event.target.value)} aria-label="Filter by department">
+        <select value={department} onChange={(event) => setDepartment(event.target.value)} aria-label="Filter by department" disabled={locked}>
           <option value="">All departments</option>
           {departments.map((item) => <option key={item} value={item}>{item}</option>)}
         </select>
-        <select value={category} onChange={(event) => setCategory(event.target.value)} aria-label="Filter by category">
+        <select value={category} onChange={(event) => setCategory(event.target.value)} aria-label="Filter by category" disabled={locked}>
           <option value="">All categories</option>
           {categories.map((item) => <option key={item} value={item}>{item}</option>)}
         </select>
@@ -154,7 +156,7 @@ export default function TestCatalogPicker({ selectedIds, onChange, disabled = fa
                 key={test.id}
                 className={`picker-test ${enabled ? 'enabled' : 'disabled'} ${selected ? 'selected' : ''}`}
                 onClick={() => void toggle(test)}
-                disabled={disabled || enableMutation.isPending}
+                disabled={locked || enableMutation.isPending}
                 aria-pressed={selected}
               >
                 <span className={`picker-check ${selected ? 'checked' : ''}`}>

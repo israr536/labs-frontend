@@ -10,6 +10,7 @@ import TestCatalogPicker from './TestCatalogPicker';
 import { useToast } from './Toast';
 
 type Props = { editingReport: LabReport | null; onSaveReport: (report: LabReport) => void; onCancel: () => void };
+function findTest(tests: LabTest[], id: string) { return tests.find((test) => test.id === id || test.catalogId === id); }
 type EditableParameter = Omit<TestParameter, 'inputType' | 'options'> & {
   inputType?: CatalogParameter['inputType'];
   options?: string[];
@@ -67,7 +68,7 @@ export default function DynamicReportEditor({ editingReport, onSaveReport, onCan
           setTestIds(ids);
           const nextParams: Record<string, EditableParameter[]> = {};
           for (const id of ids) {
-            const catalogTest = tests.find((t) => t.id === id);
+            const catalogTest = findTest(tests, id);
             const existing = detail.parametersByTest[id] || [];
             nextParams[id] = catalogTest ? createParameters(catalogTest, existing) : existing as EditableParameter[];
           }
@@ -76,7 +77,7 @@ export default function DynamicReportEditor({ editingReport, onSaveReport, onCan
           if (cancelled) return;
           const nextParams: Record<string, EditableParameter[]> = {};
           for (const id of fallbackTestIds) {
-            const catalogTest = tests.find((t) => t.id === id);
+            const catalogTest = findTest(tests, id);
             nextParams[id] = catalogTest ? createParameters(catalogTest, editingReport.parameters) : [];
           }
           setParametersByTest(nextParams);

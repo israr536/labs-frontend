@@ -146,7 +146,7 @@ h6 {
 .report-editor-page .form-textarea,
 .report-editor-page .param-val-input,
 .report-editor-page .param-flag-select {
-  border-bottom: 0 !important;
+  /* border-bottom: 0 !important; */
   box-shadow: none;
 }
 

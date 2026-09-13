@@ -42,9 +42,24 @@ export default function Footer() {
 
         <div>
           <h4>Contact</h4>
-          <p className="footer-contact">support@ldiax.com</p>
-          <p className="footer-contact">+91 98765 43210</p>
-          <p className="footer-contact">210 Health Avenue, Medical City</p>
+
+          <p className="footer-contact">
+            <a href="mailto:support@ldiax.com">support@ldiax.com</a>
+          </p>
+
+          <p className="footer-contact">
+            <a href="tel:+916388334513">+91 63883 34513</a>
+          </p>
+
+         <p className="footer-contact">
+    <strong>Hyderabad Office</strong><br />
+    Hyderabad, Telangana, India
+  </p>
+
+  <p className="footer-contact">
+    <strong>Noida Office</strong><br />
+    Noida, Uttar Pradesh, India
+  </p>
         </div>
       </div>
     </footer>

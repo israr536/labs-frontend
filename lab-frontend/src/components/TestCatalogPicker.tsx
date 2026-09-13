@@ -5,7 +5,7 @@ import testCatalogService, { type LabTest, type TestCatalogDefinition } from '..
 
 type Props = {
   selectedIds: string[];
-  onChange: (ids: string[]) => void;
+  onChange: (ids: string[], readyTest?: LabTest) => void;
   disabled?: boolean;
 };
 
@@ -52,6 +52,7 @@ export default function TestCatalogPicker({ selectedIds, onChange, disabled = fa
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['tests', 'order-picker'] });
       void queryClient.invalidateQueries({ queryKey: ['tests'] });
+      void queryClient.invalidateQueries({ queryKey: ['tests', 'new-report'] });
     },
   });
 
@@ -95,7 +96,7 @@ export default function TestCatalogPicker({ selectedIds, onChange, disabled = fa
       }
     }
     const id = enabled.id;
-    onChange(selectedIds.includes(id) ? selectedIds.filter((value) => value !== id) : [...selectedIds, id]);
+    onChange(selectedIds.includes(id) ? selectedIds.filter((value) => value !== id) : [...selectedIds, id], enabled);
   }
 
   const enabledCount = enabledByCode.size;

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Check, Search, TestTube2 } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import testCatalogService, { type LabTest, type TestCatalogDefinition } from '../services/testCatalogService';
 
 type Props = {
@@ -33,6 +33,7 @@ export default function TestCatalogPicker({ selectedIds, onChange, disabled = fa
   const [department, setDepartment] = useState('');
   const [category, setCategory] = useState('');
   const [showDisabled, setShowDisabled] = useState(true);
+  const queryClient = useQueryClient();
 
   const { data: catalogData, isLoading: catalogLoading, isError: catalogError } = useQuery({
     queryKey: ['test-catalog', 'order-picker'],
@@ -44,6 +45,14 @@ export default function TestCatalogPicker({ selectedIds, onChange, disabled = fa
     queryKey: ['tests', 'order-picker'],
     queryFn: () => testCatalogService.myTests(true),
     staleTime: 60_000,
+  });
+
+  const enableMutation = useMutation({
+    mutationFn: (catalogId: string) => testCatalogService.enable(catalogId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['tests', 'order-picker'] });
+      void queryClient.invalidateQueries({ queryKey: ['tests'] });
+    },
   });
 
   const catalog = useMemo(() => asRecords(catalogData) as TestCatalogDefinition[], [catalogData]);
@@ -75,9 +84,16 @@ export default function TestCatalogPicker({ selectedIds, onChange, disabled = fa
       });
   }, [catalog, search, department, category, showDisabled, enabledByCode]);
 
-  function toggle(test: TestCatalogDefinition) {
-    const enabled = enabledByCode.get(normalize(test.code));
-    if (!enabled || disabled) return;
+  async function toggle(test: TestCatalogDefinition) {
+    if (disabled || enableMutation.isPending) return;
+    let enabled = enabledByCode.get(normalize(test.code));
+    if (!enabled) {
+      try {
+        enabled = await enableMutation.mutateAsync(test.id);
+      } catch {
+        return;
+      }
+    }
     const id = enabled.id;
     onChange(selectedIds.includes(id) ? selectedIds.filter((value) => value !== id) : [...selectedIds, id]);
   }
@@ -91,11 +107,11 @@ export default function TestCatalogPicker({ selectedIds, onChange, disabled = fa
       <div className="picker-summary">
         <div>
           <strong>{catalog.length.toLocaleString()} tests available</strong>
-          <span>{enabledCount.toLocaleString()} enabled for this lab · {selectedCount} selected</span>
+          <span>{enabledCount.toLocaleString()} configured for this lab · {selectedCount} selected</span>
         </div>
         <label className="picker-toggle">
           <input type="checkbox" checked={showDisabled} onChange={(event) => setShowDisabled(event.target.checked)} />
-          Show not enabled
+          Show all catalog tests
         </label>
       </div>
 
@@ -116,6 +132,7 @@ export default function TestCatalogPicker({ selectedIds, onChange, disabled = fa
 
       {loading && <div className="picker-state">Loading complete laboratory catalog…</div>}
       {catalogError && <div className="picker-state picker-error">Unable to load the laboratory test catalog.</div>}
+      {enableMutation.isError && <div className="picker-state picker-error">The selected test could not be prepared. Please try again.</div>}
       {!loading && !catalogError && filtered.length === 0 && <div className="picker-state">No tests match your search and filters.</div>}
 
       {!loading && !catalogError && filtered.length > 0 && (
@@ -129,12 +146,12 @@ export default function TestCatalogPicker({ selectedIds, onChange, disabled = fa
                 type="button"
                 key={test.id}
                 className={`picker-test ${enabled ? 'enabled' : 'disabled'} ${selected ? 'selected' : ''}`}
-                onClick={() => toggle(test)}
-                disabled={!enabled || disabled}
+                onClick={() => void toggle(test)}
+                disabled={disabled || enableMutation.isPending}
                 aria-pressed={selected}
               >
                 <span className={`picker-check ${selected ? 'checked' : ''}`}>
-                  {selected ? <Check size={14} /> : enabled ? <span /> : null}
+                  {selected ? <Check size={14} /> : enabled ? <span /> : <span />}
                 </span>
                 <span className="picker-test-icon"><TestTube2 size={16} /></span>
                 <span className="picker-test-content">
@@ -143,15 +160,13 @@ export default function TestCatalogPicker({ selectedIds, onChange, disabled = fa
                   <small>{test.department} · {test.category} · {test.parameters.length} field{test.parameters.length === 1 ? '' : 's'}</small>
                 </span>
                 <span className={`picker-status ${enabled ? 'is-enabled' : 'not-enabled'}`}>
-                  {enabled ? 'Enabled' : 'Not enabled'}
+                  {enabled ? 'Ready' : 'Available'}
                 </span>
               </button>
             );
           })}
         </div>
       )}
-
-
     </div>
   );
 }

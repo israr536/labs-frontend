@@ -2476,7 +2476,7 @@ h6 {
         .editor-demographics-card, .editor-parameters-card {
           display: flex;
           flex-direction: column;
-          gap: 1.25rem;
+          /* gap: 1.25rem; */
         }
 
         .grid-2-col {

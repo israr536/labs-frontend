@@ -23,8 +23,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const dismiss = useCallback((id: string) => setToasts((s) => s.filter((toast) => toast.id !== id)), []);
 
   useEffect(() => {
-    if (!toasts.length) return;
-    const timers = toasts.map((t) =>
+    const timers = toasts.filter((t) => t.type !== 'pending').map((t) =>
       window.setTimeout(() => {
         setToasts((s) => s.filter((x) => x.id !== t.id));
       }, 4000),
@@ -37,14 +36,19 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       {children}
       <div style={{ position: 'fixed', right: 20, bottom: 20, zIndex: 9999 }}>
         {toasts.map((t) => (
-          <div key={t.id} style={{
+          <div key={t.id} role={t.type === 'error' ? 'alert' : 'status'} aria-live="polite" style={{
             marginBottom: 8,
-            minWidth: 260,
-            padding: '10px 12px',
-            borderRadius: 8,
-            color: 'white',
-            background: t.type === 'error' ? 'rgba(220,38,38,0.95)' : t.type === 'success' ? 'rgba(16,185,129,0.95)' : t.type === 'pending' ? 'rgba(245,158,11,0.95)' : 'rgba(45,55,72,0.95)',
-            boxShadow: '0 6px 20px rgba(2,6,23,0.2)'
+            minWidth: 310,
+            maxWidth: 380,
+            padding: '13px 16px',
+            borderRadius: 12,
+            color: '#172033',
+            background: '#ffffff',
+            border: '1px solid #e5eaf1',
+            borderLeft: `4px solid ${t.type === 'error' ? '#dc2626' : t.type === 'success' ? '#059669' : t.type === 'pending' ? '#d97706' : t.type === 'warn' ? '#ca8a04' : '#2563eb'}`,
+            boxShadow: '0 12px 30px rgba(15, 23, 42, 0.12)',
+            fontSize: 13,
+            lineHeight: 1.45
           }}><strong style={{ display: 'block', marginBottom: 3 }}>{t.type === 'error' ? 'Failed' : t.type === 'success' ? 'Success' : t.type === 'pending' ? 'Pending' : t.type === 'warn' ? 'Warning' : 'Info'}</strong><span>{t.message}</span></div>
         ))}
       </div>

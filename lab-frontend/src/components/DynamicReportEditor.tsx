@@ -99,8 +99,11 @@ export default function DynamicReportEditor({ editingReport, onSaveReport, onCan
   const changeValue = (testId: string, index: number, value: string) => setParametersByTest((current) => ({ ...current, [testId]: (current[testId] || []).map((p, i) => i === index ? { ...p, value, status: flagForValue(value, p) } : p) }));
   const changeFlag = (testId: string, index: number, statusValue: TestParameter['status']) => setParametersByTest((current) => ({ ...current, [testId]: (current[testId] || []).map((p, i) => i === index ? { ...p, status: statusValue } : p) }));
 
+  const [isSaving, setIsSaving] = useState(false);
+
   const submit = async (event: FormEvent) => {
     event.preventDefault();
+    if (isSaving) return;
     if (!patientName.trim() || !phone.trim() || !testIds.length) { toast.show({ type: 'error', message: 'Patient name, phone and at least one test are required.' }); return; }
     for (const id of testIds) {
       const parameters = parametersByTest[id] || [];
@@ -111,6 +114,7 @@ export default function DynamicReportEditor({ editingReport, onSaveReport, onCan
     }
 
     const toastId = toast.show({ type: 'pending', message: editingReport ? 'Saving report changes…' : 'Creating report…' });
+    setIsSaving(true);
     try {
       if (editingReport) {
         const reportAny = editingReport as LabReport & { testIds?: string[]; testId?: string; orderId?: string; patientId?: string };
@@ -144,7 +148,7 @@ export default function DynamicReportEditor({ editingReport, onSaveReport, onCan
       const saved = await reportsService.createCombinedReport(payload);
       onSaveReport(saved);
       toast.update(toastId, { type: 'success', message: 'Report created successfully.' });
-    } catch (error) { toast.update(toastId, { type: 'error', message: error instanceof Error ? error.message : 'Unable to save report.' }); }
+    } catch (error) { toast.update(toastId, { type: 'error', message: error instanceof Error ? error.message : 'Unable to save report.' }); } finally { setIsSaving(false); }
   };
 
   return <div className="editor-container animate-fade-in report-editor-page">
@@ -162,7 +166,7 @@ export default function DynamicReportEditor({ editingReport, onSaveReport, onCan
       <div className="glass-panel editor-parameters-card"><div className="card-header border-b report-card-heading"><div><span className="report-card-kicker">Step 2</span><h3>Enter test results</h3></div><Activity size={18} /></div>{!testIds.length && <div className="empty-state report-empty-results"><ClipboardList size={28} /><strong>Results appear here</strong><span>Select at least one enabled test from the left panel to begin entering values.</span></div>}
         <div className="selected-test-parameters">{testIds.map((id) => { const test = tests.find((item) => item.id === id); const parameters = parametersByTest[id] || []; if (!test) return null; return <section className="test-parameter-section" key={id}><div className="test-parameter-title"><strong>{test.name}</strong><span>{parameters.length} parameter{parameters.length === 1 ? '' : 's'}</span></div><div className="param-form-list">{parameters.map((param, index) => <ParameterInput key={`${id}-${param.name}-${index}`} parameter={param} onChange={(value) => changeValue(id, index, value)} onFlagChange={(value) => changeFlag(id, index, value)} />)}</div></section>; })}</div>
         <div className="preview-divider" /><div className="form-group"><label className="form-label" htmlFor="report-clinical-notes">Clinical Notes</label><textarea id="report-clinical-notes" className="form-input form-textarea" rows={4} value={interpretation} onChange={(e) => setInterpretation(e.target.value)} placeholder="Clinical notes or interpretation" /></div>
-        <div className="editor-actions-row report-editor-actions"><div><span className="report-action-hint">{testIds.length ? `${testIds.length} test${testIds.length === 1 ? '' : 's'} ready for review` : 'Select a test before saving'}</span></div><label className="report-status-control" htmlFor="report-status"><select id="report-status" className="form-select" value={status} onChange={(e) => setStatus(e.target.value as LabReport['status'])}><option value="Draft">Draft</option><option value="Pending">Pending</option><option value="Completed">Completed</option><option value="Critical">Critical</option></select></label><button type="button" onClick={onCancel} className="btn btn-outline">Cancel</button><button type="submit" className="btn btn-primary"><Save size={18} />Save report</button></div>
+        <div className="editor-actions-row report-editor-actions"><div><span className="report-action-hint">{testIds.length ? `${testIds.length} test${testIds.length === 1 ? '' : 's'} ready for review` : 'Select a test before saving'}</span></div><label className="report-status-control" htmlFor="report-status"><select id="report-status" className="form-select" value={status} onChange={(e) => setStatus(e.target.value as LabReport['status'])} disabled={isSaving}><option value="Draft">Draft</option><option value="Pending">Pending</option><option value="Completed">Completed</option><option value="Critical">Critical</option></select></label><button type="button" onClick={onCancel} className="btn btn-outline" disabled={isSaving}>Cancel</button><button type="submit" className="btn btn-primary" disabled={isSaving}><Save size={18} />{isSaving ? 'Saving…' : 'Save report'}</button></div>
       </div>
     </div></form>
   </div>;

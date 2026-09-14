@@ -1,7 +1,6 @@
 import type { LabReport, TestParameter } from '../data/samples';
 import { request } from './api';
 import patientsService from './patientsService';
-import testsService from './testsService';
 import reportsService from './reportsService';
 
 type EditableReport = Partial<LabReport> & {
@@ -31,9 +30,7 @@ type ApiParameter = {
 type ApiResult = { parameterId: string; value?: string; flag?: string };
 type ApiOrderItem = { testId: string; test?: { parameters?: ApiParameter[] }; results?: ApiResult[] };
 type ApiOrder = { id: string; items?: ApiOrderItem[] };
-type ApiTest = { parameters?: Array<{ id: string; name: string }> };
 
-/** Loads the order without flattening parameters, so each test keeps its own results while editing. */
 export async function getCombinedReportEditData(orderId: string) {
   const order = await request<ApiOrder>(`orders/${encodeURIComponent(orderId)}`);
   const items = order.items ?? [];
@@ -50,21 +47,11 @@ export async function getCombinedReportEditData(orderId: string) {
       else if (result?.flag === 'LOW') status = 'Low';
       else if (result?.flag && result.flag !== 'NORMAL') status = 'Abnormal';
       return {
-        name: parameter.name ?? '',
-        value: String(value),
-        unit: parameter.unit ?? '',
-        refRange: formatRange(parameter),
-        minRef: parameter.normalMin ?? undefined,
-        maxRef: parameter.normalMax ?? undefined,
-        status,
-        inputType: parameter.inputType,
-        required: parameter.isRequired ?? true,
-        validation: parameter.validation,
-        decimalPlaces: parameter.decimalPlaces,
-        defaultValue: parameter.defaultValue,
-        criticalLow: parameter.criticalLow,
-        criticalHigh: parameter.criticalHigh,
-        formula: parameter.formula,
+        name: parameter.name ?? '', value: String(value), unit: parameter.unit ?? '', refRange: formatRange(parameter),
+        minRef: parameter.normalMin ?? undefined, maxRef: parameter.normalMax ?? undefined, status,
+        inputType: parameter.inputType, required: parameter.isRequired ?? true, validation: parameter.validation,
+        decimalPlaces: parameter.decimalPlaces, defaultValue: parameter.defaultValue,
+        criticalLow: parameter.criticalLow, criticalHigh: parameter.criticalHigh, formula: parameter.formula,
       } as TestParameter;
     });
   }
@@ -72,10 +59,7 @@ export async function getCombinedReportEditData(orderId: string) {
   return { order, testIds: items.map((item) => item.testId).filter(Boolean), parametersByTest };
 }
 
-/**
- * Updates every test in an order. The old edit flow used only testIds[0], which
- * silently dropped all other tests in a multi-test patient report.
- */
+/** Updates a multi-test order without issuing one GET /tests/:id request per test. */
 export async function updateCombinedReport(report: EditableReport): Promise<LabReport> {
   const orderId = report.orderId || report.id;
   if (!orderId) throw new Error('Missing laboratory order ID.');
@@ -85,35 +69,34 @@ export async function updateCombinedReport(report: EditableReport): Promise<LabR
 
   if (report.patientId) {
     await patientsService.updatePatient(report.patientId, {
-      name: report.patientName,
-      age: report.age,
-      // The backend Patient DTO uses the enum values MALE/FEMALE/OTHER.
-      // The UI intentionally displays human-friendly Male/Female/Other.
-      gender: normalizeGender(report.gender),
-      mobile: report.phone,
-      email: report.email || undefined,
+      name: report.patientName, age: report.age, gender: normalizeGender(report.gender),
+      mobile: report.phone, email: report.email || undefined,
     });
   }
 
+  // The order payload already contains each test's parameters. Reuse it instead
+  // of doing N sequential GET /tests/:id calls while saving a report.
+  const order = await request<ApiOrder>(`orders/${encodeURIComponent(orderId)}`);
+  const itemByTestId = new Map((order.items ?? []).map((item) => [item.testId, item]));
   const results: Array<{ parameterId: string; value: string }> = [];
+
   for (const testId of testIds) {
-    const test = await testsService.getTest(testId) as ApiTest;
-    const apiParameters = test.parameters ?? [];
+    const apiParameters = itemByTestId.get(testId)?.test?.parameters ?? [];
     const parameters = report.parametersByTest?.[testId];
     if (!parameters) continue;
+    const parameterByName = new Map(apiParameters.map((item) => [item.name?.trim().toLowerCase(), item]));
 
     for (const parameter of parameters) {
       const value = String(parameter.value ?? '').trim();
       if (!value) continue;
-      const apiParameter = apiParameters.find((item) => item.name?.toLowerCase() === parameter.name?.toLowerCase());
+      const apiParameter = parameterByName.get(parameter.name?.trim().toLowerCase());
       if (apiParameter) results.push({ parameterId: apiParameter.id, value });
     }
   }
 
   if (results.length) {
     await request(`orders/${encodeURIComponent(orderId)}/results`, {
-      method: 'PATCH',
-      body: JSON.stringify({ results }),
+      method: 'PATCH', body: JSON.stringify({ results }),
     });
   }
 
@@ -127,13 +110,10 @@ export async function updateCombinedReport(report: EditableReport): Promise<LabR
 
 function normalizeGender(gender?: string): 'MALE' | 'FEMALE' | 'OTHER' {
   switch (String(gender ?? '').trim().toUpperCase()) {
-    case 'FEMALE':
-      return 'FEMALE';
-    case 'OTHER':
-      return 'OTHER';
+    case 'FEMALE': return 'FEMALE';
+    case 'OTHER': return 'OTHER';
     case 'MALE':
-    default:
-      return 'MALE';
+    default: return 'MALE';
   }
 }
 

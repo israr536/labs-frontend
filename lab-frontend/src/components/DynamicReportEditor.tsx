@@ -110,6 +110,7 @@ export default function DynamicReportEditor({ editingReport, onSaveReport, onCan
       if (invalid) { toast.show({ type: 'error', message: `Invalid value for ${invalid.name}. Please check the field validation.` }); return; }
     }
 
+    const toastId = toast.show({ type: 'pending', message: editingReport ? 'Saving report changes…' : 'Creating report…' });
     try {
       if (editingReport) {
         const reportAny = editingReport as LabReport & { testIds?: string[]; testId?: string; orderId?: string; patientId?: string };
@@ -131,6 +132,7 @@ export default function DynamicReportEditor({ editingReport, onSaveReport, onCan
           parametersByTest: Object.fromEntries(testIds.map((id) => [id, (parametersByTest[id] || []) as TestParameter[]])),
         });
         onSaveReport(saved);
+        toast.update(toastId, { type: 'success', message: 'Report changes saved successfully.' });
         return;
       }
 
@@ -141,7 +143,8 @@ export default function DynamicReportEditor({ editingReport, onSaveReport, onCan
       };
       const saved = await reportsService.createCombinedReport(payload);
       onSaveReport(saved);
-    } catch (error) { toast.show({ type: 'error', message: error instanceof Error ? error.message : 'Unable to save report.' }); }
+      toast.update(toastId, { type: 'success', message: 'Report created successfully.' });
+    } catch (error) { toast.update(toastId, { type: 'error', message: error instanceof Error ? error.message : 'Unable to save report.' }); }
   };
 
   return <div className="editor-container animate-fade-in report-editor-page">

@@ -13,6 +13,7 @@ import { useEffect, useState } from 'react';
 import type { LabReport } from '../data/samples';
 import reportsService from '../services/reportsService';
 import patientsService from '../services/patientsService';
+import { useToast } from './Toast';
 
 interface DashboardOverviewProps {
   reports: LabReport[];
@@ -30,19 +31,22 @@ export default function DashboardOverview({
   const [liveReports, setLiveReports] = useState<LabReport[] | null>(null);
   const [patientsCount, setPatientsCount] = useState<number | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const toast = useToast();
 
-  const fetchLive = async () => {
+  const fetchLive = async (showToast = false) => {
+    const toastId = showToast ? toast.show({ type: 'pending', message: 'Refreshing dashboard data…' }) : null;
     try {
       setIsRefreshing(true);
       const [r, p] = await Promise.all([
-        reportsService.listReports().catch(() => null),
-        patientsService.listPatients().catch(() => null),
+        reportsService.listReports(),
+        patientsService.listPatients(),
       ]);
 
       if (r && Array.isArray(r)) setLiveReports(r as LabReport[]);
       if (p && Array.isArray(p)) setPatientsCount((p as any[]).length);
+      if (toastId) toast.update(toastId, { type: 'success', message: 'Dashboard data refreshed successfully.' });
     } catch (e) {
-      // ignore errors, keep fallback
+      if (toastId) toast.update(toastId, { type: 'error', message: e instanceof Error ? e.message : 'Unable to refresh dashboard data.' });
     } finally {
       setIsRefreshing(false);
     }
@@ -126,7 +130,7 @@ export default function DashboardOverview({
             <PlusCircle size={18} />
             <span>Start a report</span>
           </button>
-          <button onClick={() => fetchLive()} className="btn btn-outline" disabled={isRefreshing} aria-label="Refresh laboratory overview" style={{ marginLeft: 8 }}>
+          <button onClick={() => fetchLive(true)} className="btn btn-outline" disabled={isRefreshing} aria-label="Refresh laboratory overview" style={{ marginLeft: 8 }}>
             <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
           </button>
           <span className="dashboard-live-status" aria-live="polite">{isRefreshing ? 'Updating live data' : 'Live data ready'}</span>

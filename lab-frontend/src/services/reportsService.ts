@@ -43,7 +43,10 @@ export async function getReport(id: string): Promise<LabReport> { return mapOrde
 export async function createCombinedReport(body: CombinedReportBody): Promise<LabReport> {
   const testIds = [...new Set((body.testIds ?? []).map((id) => id.trim()).filter(Boolean))];
   if (!testIds.length) throw new Error('Please select at least one configured laboratory test.');
-  const response = await request<ApiReport>('orders/complete', { method: 'POST', body: JSON.stringify({ patientId: (body as any).patientId, patient: { name: body.patientName, age: body.age, gender: mapGenderToApi(body.gender), mobile: body.phone, email: body.email || undefined }, testIds, parametersByTest: body.parametersByTest ?? {}, referredBy: body.referredBy, clinicalNotes: body.interpretation, status: body.status }) });
+  // This endpoint consolidates patient, order, sample, result, verification,
+  // and finalization writes; remote database latency can exceed the generic
+  // request timeout, so keep the longer timeout scoped to this operation.
+  const response = await request<ApiReport>('orders/complete', { method: 'POST', timeout: 90000, body: JSON.stringify({ patientId: (body as any).patientId, patient: { name: body.patientName, age: body.age, gender: mapGenderToApi(body.gender), mobile: body.phone, email: body.email || undefined }, testIds, parametersByTest: body.parametersByTest ?? {}, referredBy: body.referredBy, clinicalNotes: body.interpretation, status: body.status }) });
   if (response?.order?.tests) return mapFinalReport(response);
   return mapOrderAsReport(response);
 }

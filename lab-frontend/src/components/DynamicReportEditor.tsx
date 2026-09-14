@@ -82,9 +82,6 @@ export default function DynamicReportEditor({ editingReport, onSaveReport, onCan
           }
           setParametersByTest(nextParams);
         }
-      } else if (!testIds.length && tests[0]) {
-        setTestIds([tests[0].id]);
-        setParametersByTest({ [tests[0].id]: createParameters(tests[0]) });
       }
     };
     void load();

@@ -31,9 +31,7 @@ export async function listReports(filters?: { status?: string; search?: string; 
   if (filters?.take !== undefined) params.append('take', String(filters.take));
   const q = params.toString() ? `?${params.toString()}` : '';
   const orders = await request<ReportListApi | ApiReport[]>(`orders${q}`);
-  const orderRows = Array.isArray(orders) ? orders : orders.data;
-  const details = await Promise.all(orderRows.map((order) => request<ApiReport>(`orders/${order.id}`)));
-  let data = details.map(mapOrderAsReport);
+  let data = (Array.isArray(orders) ? orders : orders.data).map(mapOrderAsReport);
   if (filters?.status && filters.status !== 'All') data = data.filter((report) => report.status === filters.status);
   if (filters?.patientId) data = data.filter((report) => (report as any).patientId === filters.patientId);
   if (filters?.testId) data = data.filter((report) => (report as any).testIds?.includes(filters.testId));
@@ -45,20 +43,11 @@ export async function getReport(id: string): Promise<LabReport> { return mapOrde
 export async function createCombinedReport(body: CombinedReportBody): Promise<LabReport> {
   const testIds = [...new Set((body.testIds ?? []).map((id) => id.trim()).filter(Boolean))];
   if (!testIds.length) throw new Error('Please select at least one configured laboratory test.');
-
-  // The complete report workflow is intentionally a single HTTP request.
-  // The backend preserves the existing patient/order/sample/result/finalization behavior.
   const response = await request<ApiReport>('orders/complete', {
     method: 'POST',
     body: JSON.stringify({
       patientId: (body as any).patientId,
-      patient: {
-        name: body.patientName,
-        age: body.age,
-        gender: mapGenderToApi(body.gender),
-        mobile: body.phone,
-        email: body.email || undefined,
-      },
+      patient: { name: body.patientName, age: body.age, gender: mapGenderToApi(body.gender), mobile: body.phone, email: body.email || undefined },
       testIds,
       parametersByTest: body.parametersByTest ?? {},
       referredBy: body.referredBy,
@@ -66,7 +55,6 @@ export async function createCombinedReport(body: CombinedReportBody): Promise<La
       status: body.status,
     }),
   });
-
   if (response?.order?.tests) return mapFinalReport(response);
   return mapOrderAsReport(response);
 }

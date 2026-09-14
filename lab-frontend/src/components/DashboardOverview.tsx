@@ -11,9 +11,9 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import type { LabReport } from '../data/samples';
-import reportsService from '../services/reportsService';
 import patientsService from '../services/patientsService';
 import { useToast } from './Toast';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface DashboardOverviewProps {
   reports: LabReport[];
@@ -28,21 +28,17 @@ export default function DashboardOverview({
   setSelectedReportId,
   pollIntervalMs = 30 * 1000,
 }: DashboardOverviewProps) {
-  const [liveReports, setLiveReports] = useState<LabReport[] | null>(null);
   const [patientsCount, setPatientsCount] = useState<number | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const toast = useToast();
+  const queryClient = useQueryClient();
 
   const fetchLive = async (showToast = false) => {
     const toastId = showToast ? toast.show({ type: 'pending', message: 'Refreshing dashboard data…' }) : null;
     try {
       setIsRefreshing(true);
-      const [r, p] = await Promise.all([
-        reportsService.listReports(),
-        patientsService.listPatients(),
-      ]);
-
-      if (r && Array.isArray(r)) setLiveReports(r as LabReport[]);
+      await queryClient.invalidateQueries({ queryKey: ['reports'] });
+      const p = await patientsService.listPatients();
       if (p && Array.isArray(p)) setPatientsCount((p as any[]).length);
       if (toastId) toast.update(toastId, { type: 'success', message: 'Dashboard data refreshed successfully.' });
     } catch (e) {
@@ -67,7 +63,7 @@ export default function DashboardOverview({
     return () => { mounted = false; if (timer) window.clearInterval(timer); };
   }, [pollIntervalMs]);
 
-  const sourceReports = liveReports ?? reports;
+  const sourceReports = reports;
 
   // Calculate statistics
   const totalPatients = patientsCount ?? sourceReports.length;

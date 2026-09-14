@@ -83,10 +83,15 @@ async function getPdfInputs(reportId: string) {
   const now = Date.now();
   const cached = reportPdfCache.get(reportId);
   if (cached && cached.expiresAt > now) return cached;
-  const [report, settings] = await Promise.all([
-    getReport(reportId),
+
+  // Finalized reports have an immutable snapshot specifically designed for reads/printing.
+  // Avoid GET /orders/:id here because that endpoint materializes catalog parameters and
+  // reloads the complete order graph. Draft reports still use the order endpoint.
+  const [finalizedResult, settings] = await Promise.all([
+    request<ApiReport>(`orders/${reportId}/report`).catch(() => null),
     labsService.getSettings().catch(() => DEFAULT_SETTINGS as LabSettings),
   ]);
+  const report = finalizedResult ? mapFinalReport(finalizedResult) : await getReport(reportId);
   const entry = { report, settings, expiresAt: now + REPORT_PDF_CACHE_TTL };
   reportPdfCache.set(reportId, entry);
   return entry;
@@ -138,7 +143,7 @@ function mapOrderAsReport(order: ApiReport): LabReport {
     return (item.test?.parameters ?? []).map((parameter: any) => mapParameter(parameter, resultByParameterId.get(parameter.id), item.test));
   });
   const testNames = items.map((item: any) => item.test?.name).filter(Boolean);
-  return { id: order.id, patientName: order.patient?.name ?? 'Unknown patient', age: order.patient?.age ?? 0, gender: mapGenderFromApi(order.patient?.gender), phone: order.patient?.mobile ?? '', email: order.patient?.email ?? '', referredBy: order.referredBy ?? 'Dr. Self / Walk-in', dateCollected: toDateTimeLocal(order.samples?.[0]?.collectedAt ?? order.createdAt), dateReported: toDateTimeLocal(order.updatedAt ?? order.createdAt), testType: testNames.join(' + ') || 'Diagnostic Test', status: mapOrderStatus(order.status, parameters), parameters, interpretation: order.clinicalNotes ?? '', reportNumber: order.orderNumber, patientId: order.patient?.id, orderId: order.id, testIds: items.map((item: any) => item.testId) } as LabReport & { orderId: string; testIds: string[] };
+  return { id: order.id, patientName: order.patient?.name ?? 'Unknown patient', age: order.patient?.age ?? 0, gender: mapGenderFromApi(order.patient?.gender), phone: order.patient?.mobile ?? '', email: order.patient?.email ?? '', referredBy: order.referredBy ?? 'Dr. Self / Walk-in', dateCollected: toDateTimeLocal(order.samples?.[0]?.collectedAt ?? order.createdAt), dateReported: toDateTimeLocal(order.updatedAt ?? order.createdAt), testType: testNames.join(' + ') || 'Diagnostic Test', status: mapOrderStatus(order.status, parameters), interpretation: order.clinicalNotes ?? '', reportNumber: order.orderNumber, patientId: order.patient?.id, orderId: order.id, testIds: items.map((item: any) => item.testId) } as LabReport & { orderId: string; testIds: string[] };
 }
 
 function mapParameter(parameter: any, result: any, test?: any): ReportParameter {

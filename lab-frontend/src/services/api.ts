@@ -32,6 +32,16 @@ export function clearTokens() {
   localStorage.removeItem('lab_refresh_token');
 }
 
+// The loader tracks one logical request, not every internal fetch/retry.
+// This prevents token refreshes and retry attempts from making the loader flicker.
+let activeApiRequests = 0;
+function emitApiActivity(type: 'start' | 'end') {
+  if (typeof window === 'undefined') return;
+  if (type === 'start') activeApiRequests += 1;
+  else activeApiRequests = Math.max(0, activeApiRequests - 1);
+  window.dispatchEvent(new CustomEvent('lab:api-activity', { detail: { active: activeApiRequests } }));
+}
+
 // Refresh tokens are now HttpOnly cookies. The single-flight lock prevents
 // concurrent 401 responses from racing the server's one-time token rotation.
 let refreshInFlight: Promise<boolean> | null = null;
@@ -158,8 +168,6 @@ async function fetchWithAuth(path: string, options: RequestInit, timeout: number
 
   if (response.status === 401) {
     let retriedWithNewToken = false;
-    // Another tab may already have rotated the cookie and stored a newer access token.
-    // Retry it before attempting another one-time refresh rotation.
     if (getStoredTokens().accessToken !== accessTokenAtStart) {
       response = await performFetch();
       retriedWithNewToken = true;
@@ -202,51 +210,61 @@ export async function request<T = unknown>(path: string, options: RequestOptions
   const method = (options.method ?? 'GET').toUpperCase();
   const maxRetries = options.retry ?? (isRetryableMethod(method) ? 1 : 0);
   const timeout = options.timeout ?? 30000;
+  emitApiActivity('start');
 
-  for (let attempt = 0; attempt <= maxRetries; attempt += 1) {
-    try {
-      const response = await fetchWithAuth(path, options, timeout);
-      const data = await parseResponse(response);
+  try {
+    for (let attempt = 0; attempt <= maxRetries; attempt += 1) {
+      try {
+        const response = await fetchWithAuth(path, options, timeout);
+        const data = await parseResponse(response);
 
-      if (!response.ok) {
-        const message = typeof data === 'object' && data && 'message' in data
-          ? String((data as { message?: unknown }).message)
-          : response.statusText || 'API request failed';
-        const error = new ApiError(message, response.status, data);
-        try {
-          logger.error(error);
-        } catch {
-          // Logging must never break requests.
+        if (!response.ok) {
+          const message = typeof data === 'object' && data && 'message' in data
+            ? String((data as { message?: unknown }).message)
+            : response.statusText || 'API request failed';
+          const error = new ApiError(message, response.status, data);
+          try {
+            logger.error(error);
+          } catch {
+            // Logging must never break requests.
+          }
+          throw error;
         }
-        throw error;
-      }
 
-      return data as T;
-    } catch (error) {
-      if (attempt >= maxRetries || error instanceof ApiError || !isRetryableMethod(method)) {
-        throw error;
+        return data as T;
+      } catch (error) {
+        if (attempt >= maxRetries || error instanceof ApiError || !isRetryableMethod(method)) {
+          throw error;
+        }
       }
     }
-  }
 
-  throw new Error('API request failed');
+    throw new Error('API request failed');
+  } finally {
+    emitApiActivity('end');
+  }
 }
 
 export async function requestBlob(path: string, options: RequestOptions = {}): Promise<Blob> {
   const method = (options.method ?? 'GET').toUpperCase();
   if (method !== 'GET') throw new Error('Blob requests currently support GET only');
+  emitApiActivity('start');
 
-  const response = await fetchWithAuth(path, options, options.timeout ?? 60000);
+  try {
+    const response = await fetchWithAuth(path, options, options.timeout ?? 60000);
 
-  if (!response.ok) {
-    const data = await parseResponse(response);
-    const message = typeof data === 'object' && data && 'message' in data
-      ? String((data as { message?: unknown }).message)
-      : response.statusText || 'API request failed';
-    throw new ApiError(message, response.status, data);
+    if (!response.ok) {
+      const data = await parseResponse(response);
+      const message = typeof data === 'object' && data && 'message' in data
+        ? String((data as { message?: unknown }).message)
+        : response.statusText || 'API request failed';
+      throw new ApiError(message, response.status, data);
+    }
+
+    return response.blob();
+  } finally {
+    emitApiActivity('end');
   }
-
-  return response.blob();
 }
 
 export { API_BASE };

@@ -8,6 +8,7 @@ import './styles/saas.css';
 import './styles/typography.css';
 import './styles/layout-fixes.css';
 import './styles/production-overrides.css';
+import './styles/report-skeleton.css';
 import './styles/accessibility-saas.css';
 import './styles/theme-refinement.css';
 import App from './App.tsx';

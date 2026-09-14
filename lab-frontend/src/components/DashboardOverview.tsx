@@ -26,7 +26,7 @@ export default function DashboardOverview({
   reports,
   setActiveTab,
   setSelectedReportId,
-  pollIntervalMs = 30 * 1000,
+  pollIntervalMs = 10 * 1000,
 }: DashboardOverviewProps) {
   const [patientsCount, setPatientsCount] = useState<number | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);

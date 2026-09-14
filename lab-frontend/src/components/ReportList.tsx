@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Search, Filter, Eye, Edit3, Trash2, Printer, Download, Calendar, X, User, Phone, Mail, Building, HeartPulse, ArrowUpRight, FileText, SlidersHorizontal } from 'lucide-react';
 import { useToast } from './Toast';
 import type { LabReport, LabSettings } from '../data/samples';

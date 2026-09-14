@@ -2,7 +2,6 @@ import React, { createContext, useContext, useState, useCallback, useEffect } fr
 import { CheckCircle2, Info, LoaderCircle, X, XCircle } from 'lucide-react';
 
 type Toast = { id: string; type: 'info' | 'success' | 'error' | 'warn' | 'pending'; message: string };
-
 type ToastApi = { show: (t: Omit<Toast, 'id'>) => string; update: (id: string, t: Partial<Omit<Toast, 'id'>>) => void; dismiss: (id: string) => void };
 const ToastContext = createContext<ToastApi | null>(null);
 
@@ -24,44 +23,39 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const dismiss = useCallback((id: string) => setToasts((s) => s.filter((toast) => toast.id !== id)), []);
 
   useEffect(() => {
-    const timers = toasts.filter((t) => t.type !== 'pending').map((t) =>
-      window.setTimeout(() => {
-        setToasts((s) => s.filter((x) => x.id !== t.id));
-      }, 4000),
-    );
+    const timers = toasts.filter((t) => t.type !== 'pending').map((t) => window.setTimeout(() => dismiss(t.id), 3600));
     return () => timers.forEach((id) => window.clearTimeout(id));
-  }, [toasts]);
+  }, [toasts, dismiss]);
 
   return (
     <ToastContext.Provider value={{ show, update, dismiss }}>
       {children}
-      <style>{'@keyframes toast-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }'}</style>
-      <div style={{ position: 'fixed', right: 20, bottom: 20, zIndex: 9999 }}>
-        {toasts.map((t) => (
-          <div key={t.id} role={t.type === 'error' ? 'alert' : 'status'} aria-live="polite" style={{
-            position: 'relative',
-            marginBottom: 8,
-            minWidth: 330,
-            maxWidth: 410,
-            padding: '14px 14px 15px',
-            borderRadius: 10,
-            color: '#172033',
-            background: '#ffffff',
-            border: '1px solid #e7ebf0',
-            boxShadow: '0 8px 24px rgba(15, 23, 42, 0.16)',
-            fontSize: 13,
-            lineHeight: 1.45
-          }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 11 }}>
-              <span style={{ color: t.type === 'error' ? '#d92d20' : t.type === 'success' ? '#07883f' : t.type === 'pending' ? '#b54708' : '#1769aa', marginTop: 1, display: 'inline-flex' }}>
-                {t.type === 'error' ? <XCircle size={21} /> : t.type === 'success' ? <CheckCircle2 size={21} /> : t.type === 'pending' ? <LoaderCircle size={21} style={{ animation: 'toast-spin 0.9s linear infinite' }} /> : <Info size={21} />}
-              </span>
-              <div style={{ flex: 1, minWidth: 0 }}><strong style={{ display: 'block', marginBottom: 2, fontSize: 14, color: '#172033' }}>{t.type === 'error' ? 'Action failed' : t.type === 'success' ? 'Action completed' : t.type === 'pending' ? 'Please wait' : t.type === 'warn' ? 'Attention' : 'Information'}</strong><span style={{ color: '#5b6678' }}>{t.message}</span></div>
-              {t.type !== 'pending' && <button type="button" onClick={() => dismiss(t.id)} aria-label="Dismiss notification" style={{ border: 0, background: 'transparent', color: '#8490a3', cursor: 'pointer', padding: 2, lineHeight: 1 }}><X size={16} /></button>}
+      <style>{`
+        @keyframes toast-enter { from { opacity: 0; transform: translate(-50%, -14px) scale(.96); } to { opacity: 1; transform: translate(-50%, 0) scale(1); } }
+        @keyframes toast-spin { to { transform: rotate(360deg); } }
+        @keyframes toast-progress { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+      `}</style>
+      <div style={{ position: 'fixed', top: 20, left: '50%', transform: 'translateX(-50%)', zIndex: 99999, width: 'min(calc(100vw - 32px), 460px)', pointerEvents: 'none' }}>
+        {toasts.map((t) => {
+          const accent = t.type === 'success' ? '#16a34a' : t.type === 'error' ? '#dc2626' : t.type === 'warn' ? '#f59e0b' : '#2563eb';
+          const Icon = t.type === 'success' ? CheckCircle2 : t.type === 'error' ? XCircle : t.type === 'pending' ? LoaderCircle : Info;
+          const title = t.type === 'success' ? 'Done' : t.type === 'error' ? 'Something went wrong' : t.type === 'pending' ? 'Please wait' : t.type === 'warn' ? 'Attention' : 'Information';
+          return (
+            <div key={t.id} role={t.type === 'error' ? 'alert' : 'status'} aria-live="polite" style={{ pointerEvents: 'auto', marginBottom: 10, overflow: 'hidden', borderRadius: 16, background: 'rgba(255,255,255,.98)', border: '1px solid rgba(15,23,42,.07)', boxShadow: '0 14px 38px rgba(15,23,42,.16), 0 3px 10px rgba(15,23,42,.08)', backdropFilter: 'blur(12px)', animation: 'toast-enter .22s cubic-bezier(.2,.8,.2,1)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 14px' }}>
+                <span style={{ width: 34, height: 34, flex: '0 0 34px', display: 'grid', placeItems: 'center', borderRadius: 11, background: `${accent}12`, color: accent }}>
+                  <Icon size={19} style={t.type === 'pending' ? { animation: 'toast-spin .75s linear infinite' } : undefined} />
+                </span>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, lineHeight: 1.25, color: '#101828' }}>{title}</div>
+                  <div style={{ marginTop: 3, fontSize: 12.5, lineHeight: 1.4, color: '#667085' }}>{t.message}</div>
+                </div>
+                {t.type !== 'pending' && <button type="button" onClick={() => dismiss(t.id)} aria-label="Dismiss notification" style={{ width: 28, height: 28, display: 'grid', placeItems: 'center', border: 0, borderRadius: 9, background: 'transparent', color: '#98a2b3', cursor: 'pointer' }}><X size={16} /></button>}
+              </div>
+              {t.type !== 'pending' && <div style={{ height: 3, background: `${accent}20` }}><div style={{ height: '100%', width: '100%', background: accent, transformOrigin: 'left', animation: 'toast-progress 3.6s linear forwards' }} /></div>}
             </div>
-            {t.type !== 'pending' && <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 3, borderRadius: '0 0 10px 10px', background: t.type === 'error' ? '#d92d20' : t.type === 'success' ? '#07883f' : '#1769aa' }} />}
-          </div>
-        ))}
+          );
+        })}
       </div>
     </ToastContext.Provider>
   );

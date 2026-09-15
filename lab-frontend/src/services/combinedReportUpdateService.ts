@@ -1,7 +1,6 @@
 import type { LabReport, TestParameter } from '../data/samples';
 import { request } from './api';
-import patientsService from './patientsService';
-import reportsService from './reportsService';
+import { mapFinalReport, mapOrderAsReport } from './reportsService';
 
 type EditableReport = Partial<LabReport> & {
   patientId?: string;
@@ -63,49 +62,30 @@ export async function getCombinedReportEditData(orderId: string) {
 export async function updateCombinedReport(report: EditableReport): Promise<LabReport> {
   const orderId = report.orderId || report.id;
   if (!orderId) throw new Error('Missing laboratory order ID.');
-
-  const testIds = [...new Set((report.testIds ?? []).filter((id): id is string => typeof id === 'string' && id.trim().length > 0))];
-  if (!testIds.length) throw new Error('This report does not contain any laboratory tests.');
-
-  if (report.patientId) {
-    await patientsService.updatePatient(report.patientId, {
-      name: report.patientName, age: report.age, gender: normalizeGender(report.gender),
-      mobile: report.phone, email: report.email || undefined,
-    });
-  }
-
-  // The order payload already contains each test's parameters. Reuse it instead
-  // of doing N sequential GET /tests/:id calls while saving a report.
-  const order = await request<ApiOrder>(`orders/${encodeURIComponent(orderId)}`);
+  const order = await request<ApiOrder & { revision?: number; patient?: unknown }>(`orders/${encodeURIComponent(orderId)}`);
   const itemByTestId = new Map((order.items ?? []).map((item) => [item.testId, item]));
   const results: Array<{ parameterId: string; value: string }> = [];
-
-  for (const testId of testIds) {
+  for (const testId of report.testIds ?? []) {
     const apiParameters = itemByTestId.get(testId)?.test?.parameters ?? [];
-    const parameters = report.parametersByTest?.[testId];
-    if (!parameters) continue;
+    const parameters = report.parametersByTest?.[testId] ?? [];
     const parameterByName = new Map(apiParameters.map((item) => [item.name?.trim().toLowerCase(), item]));
-
     for (const parameter of parameters) {
-      const value = String(parameter.value ?? '').trim();
-      if (!value) continue;
       const apiParameter = parameterByName.get(parameter.name?.trim().toLowerCase());
-      if (apiParameter) results.push({ parameterId: apiParameter.id, value });
+      if (apiParameter) results.push({ parameterId: apiParameter.id, value: String(parameter.value ?? '').trim() });
     }
   }
-
-  if (results.length) {
-    await request(`orders/${encodeURIComponent(orderId)}/results`, {
-      method: 'PATCH', body: JSON.stringify({ results }),
-    });
-  }
-
-  if (report.status === 'Completed' || report.status === 'Critical') {
-    await request(`orders/${encodeURIComponent(orderId)}/verify`, { method: 'POST' });
-    await request(`orders/${encodeURIComponent(orderId)}/finalize`, { method: 'POST' });
-  }
-
-  return reportsService.getReport(orderId);
+  const response = await request<any>(`orders/${encodeURIComponent(orderId)}/report`, {
+    method: 'PATCH',
+    body: JSON.stringify({
+      revision: order.revision,
+      patient: { name: report.patientName, age: report.age, gender: normalizeGender(report.gender), mobile: report.phone, email: report.email || undefined },
+      referredBy: report.referredBy,
+      clinicalNotes: report.interpretation,
+      status: report.status,
+      results,
+    }),
+  });
+  return response?.order?.tests ? mapFinalReport(response) : mapOrderAsReport(response);
 }
 
 function normalizeGender(gender?: string): 'MALE' | 'FEMALE' | 'OTHER' {

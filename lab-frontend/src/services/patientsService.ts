@@ -6,14 +6,18 @@ const listCache = new Map<string, { expiresAt: number; value: PatientRecord[] }>
 const inFlight = new Map<string, Promise<PatientRecord[]>>();
 const CACHE_TTL = 60_000;
 
-export function listPatients(search?: string) {
-  const key = (search ?? '').trim().toLowerCase();
+export function listPatients(search?: string, limit = 100) {
+  const normalizedLimit = Math.max(1, Math.min(100, Math.trunc(limit)));
+  const key = `${(search ?? '').trim().toLowerCase()}:${normalizedLimit}`;
   const cached = listCache.get(key);
   if (cached && cached.expiresAt > Date.now()) return Promise.resolve(cached.value);
   if (cached) listCache.delete(key);
   const pending = inFlight.get(key);
   if (pending) return pending;
-  const q = search ? `?search=${encodeURIComponent(search)}` : '';
+  const query = new URLSearchParams();
+  if (search) query.set('search', search);
+  query.set('limit', String(normalizedLimit));
+  const q = `?${query.toString()}`;
   const requestPromise = request<PatientRecord[]>(`patients${q}`).then((value) => {
     listCache.set(key, { value, expiresAt: Date.now() + CACHE_TTL });
     inFlight.delete(key);

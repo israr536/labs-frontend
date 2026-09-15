@@ -1,5 +1,4 @@
 import { DEFAULT_SETTINGS, type LabReport, type LabSettings, type TestParameter } from '../data/samples';
-import { generateReportPdf } from '../utils/pdfGenerator';
 import { request } from './api';
 import labsService from './labsService';
 import patientsService from './patientsService';
@@ -30,14 +29,14 @@ function toDateTimeLocal(value: any): string {
 export async function listReports(filters?: { status?: string; search?: string; patientId?: string; testId?: string; skip?: number; take?: number }): Promise<{ data: LabReport[]; pagination?: any }> {
   const params = new URLSearchParams();
   if (filters?.search) params.append('search', filters.search);
+  if (filters?.status && filters.status !== 'All') params.append('status', filters.status === 'Completed' || filters.status === 'Critical' ? 'FINAL' : filters.status === 'Pending' ? 'RESULT_ENTERED' : 'REGISTERED');
+  if (filters?.patientId) params.append('patientId', filters.patientId);
+  if (filters?.testId) params.append('testId', filters.testId);
   if (filters?.skip !== undefined) params.append('skip', String(filters.skip));
   if (filters?.take !== undefined) params.append('take', String(filters.take));
   const q = params.toString() ? `?${params.toString()}` : '';
   const orders = await request<ReportListApi | ApiReport[]>(`orders${q}`);
-  let data = (Array.isArray(orders) ? orders : orders.data).map(mapOrderAsReport);
-  if (filters?.status && filters.status !== 'All') data = data.filter((report) => report.status === filters.status);
-  if (filters?.patientId) data = data.filter((report) => (report as any).patientId === filters.patientId);
-  if (filters?.testId) data = data.filter((report) => (report as any).testIds?.includes(filters.testId));
+  const data = (Array.isArray(orders) ? orders : orders.data).map(mapOrderAsReport);
   return { data, pagination: Array.isArray(orders) ? undefined : orders.pagination };
 }
 
@@ -99,6 +98,7 @@ async function getPdfInputs(reportId: string) {
 
 async function generateLocalPdf(reportId: string, template: ReportTemplateId, fileName?: string) {
   const { report, settings } = await getPdfInputs(reportId);
+  const { generateReportPdf } = await import('../utils/pdfGenerator');
   const started = performance.now();
   const doc = generateReportPdf(report, settings, template);
   const blob = doc.output('blob');

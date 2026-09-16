@@ -1,17 +1,15 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AlertTriangle, ArrowRight, Clock, FileCheck, FileText, PlusCircle, Settings as SettingsIcon, ShieldCheck, Users } from 'lucide-react';
-import type { LabReport } from '../data/samples';
 import dashboardService, { type DashboardSummary } from '../services/dashboardService';
+import type { DashboardTab } from './Sidebar';
 import { useToast } from './Toast';
 
 interface DashboardOverviewProps {
-  reports: LabReport[];
-  setActiveTab: (tab: 'dashboard' | 'reports' | 'patients' | 'new-report' | 'settings') => void;
+  setActiveTab: (tab: DashboardTab) => void;
   setSelectedReportId: (id: string | null) => void;
-  pollIntervalMs?: number;
 }
 
-export default function DashboardOverview({ reports, setActiveTab, setSelectedReportId }: DashboardOverviewProps) {
+export default function DashboardOverview({ setActiveTab }: DashboardOverviewProps) {
   const toast = useToast();
   const queryClient = useQueryClient();
   const { data: summary, isFetching, refetch } = useQuery<DashboardSummary>({
@@ -31,12 +29,10 @@ export default function DashboardOverview({ reports, setActiveTab, setSelectedRe
     }
   };
 
-  const sourceReports = Array.isArray(reports) ? reports : [];
-  const criticalReports = sourceReports.filter((report) => report.status === 'Critical');
   const totalPatients = summary?.totalPatients ?? 0;
   const completedCount = summary?.completedReports ?? 0;
   const pendingCount = summary?.pendingReports ?? 0;
-  const criticalCount = summary?.criticalReports ?? criticalReports.length;
+  const criticalCount = summary?.criticalReports ?? 0;
 
   const statCards = [
     { title: 'Total Registered Patients', value: totalPatients, sub: 'Active database', icon: Users, color: 'var(--primary)', bg: 'var(--primary-light)' },
@@ -75,19 +71,19 @@ export default function DashboardOverview({ reports, setActiveTab, setSelectedRe
         <div className="glass-panel alert-section">
           <div className="card-header border-b">
             <div className="flex-align"><AlertTriangle size={20} className="text-danger" /><h3>Critical Alerts Panel</h3></div>
-            <span className="badge badge-critical">{criticalReports.length} Cases</span>
+            <span className="badge badge-critical">{criticalCount} Cases</span>
           </div>
           <div className="alerts-list">
-            {criticalReports.length > 0 ? criticalReports.map((report) => (
-              <div key={report.id} className="alert-item">
+            {criticalCount > 0 ? (
+              <div className="alert-item">
                 <div className="alert-body">
-                  <span className="alert-patient">{report.patientName} ({report.gender}, {report.age}y)</span>
-                  <span className="alert-test">{report.testType}</span>
-                  <p className="alert-note">{report.parameters.filter((p) => p.status === 'High' || p.status === 'Low' || p.status === 'Abnormal').map((p) => `${p.name}: ${p.value} ${p.unit} (${p.status})`).join(', ')}</p>
+                  <span className="alert-patient">{criticalCount} critical result{criticalCount === 1 ? '' : 's'} require review</span>
+                  <span className="alert-test">Live count from the dashboard service</span>
+                  <p className="alert-note">Open the critical-results workspace to review the latest cases. The dashboard no longer derives alerts from a stale report list.</p>
                 </div>
-                <button onClick={() => { setSelectedReportId(report.id); setActiveTab('reports'); }} className="alert-action-btn" aria-label={`Inspect critical report for ${report.patientName}`}><span>Inspect</span><ArrowRight size={14} /></button>
+                <button onClick={() => setActiveTab('critical-results')} className="alert-action-btn" aria-label="Open critical results"><span>Review</span><ArrowRight size={14} /></button>
               </div>
-            )) : (
+            ) : (
               <div className="empty-alerts"><ShieldCheck size={40} className="text-success" /><p>No critical alerts detected. Your report queue is stable.</p></div>
             )}
           </div>

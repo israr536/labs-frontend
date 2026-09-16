@@ -177,7 +177,7 @@ export default function App() {
     {activeTab === 'orders' && <OrdersWorkspace role={user?.role} />}
     {activeTab === 'patients' && <PatientsPage role={user?.role} />}
     {activeTab === 'critical-results' && <CriticalResultsPage role={user?.role} />}
-    {activeTab === 'reports' && <ReportList settings={currentSettings} onDeleteReport={handleDeleteReport} onEditReport={report => { setEditingReport(report); setActiveTab('new-report'); }} selectedReportId={selectedReportId} setSelectedReportId={setSelectedReportId} />}
+    {activeTab === 'reports' && <ReportList onDeleteReport={handleDeleteReport} onEditReport={report => { setEditingReport(report); setActiveTab('new-report'); }} selectedReportId={selectedReportId} setSelectedReportId={setSelectedReportId} />}
     {activeTab === 'new-report' && <DynamicReportEditor editingReport={editingReport} onSaveReport={handleSaveReport} onCancel={() => { setEditingReport(null); setActiveTab('reports'); }} />}
     {activeTab === 'tests' && user?.role === 'ADMIN' && <TestCatalogPage role={user.role} />}
     {activeTab === 'test-configuration' && <TestConfigurationPage />}

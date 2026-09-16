@@ -34,13 +34,16 @@ export default function ReportList({ onDeleteReport, onEditReport, selectedRepor
   const toast = useToast();
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setSearchTerm(searchInput.trim()), 300);
+    const timer = window.setTimeout(() => {
+      setSearchTerm(searchInput.trim());
+      setPage(1);
+    }, 300);
     return () => window.clearTimeout(timer);
   }, [searchInput]);
 
   useEffect(() => {
     setPage(1);
-  }, [searchTerm, statusFilter]);
+  }, [statusFilter]);
 
   const { data: reportResponse, isLoading, isFetching } = useQuery({
     queryKey: ['reports', { page, search: searchTerm, status: statusFilter }],

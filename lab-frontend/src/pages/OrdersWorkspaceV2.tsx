@@ -72,7 +72,7 @@ export default function OrdersWorkspaceV2({ role }: { role?: Role }) {
       if (!cancelled) setLoadingPatients(false);
     });
     return () => { cancelled = true; };
-  }, [showCreate, patients.length, loadingPatients]);
+  }, [showCreate, patients.length]);
   const rows = useMemo(() => { if (!selected) return []; return records(selected.items).flatMap((item) => { const test = item.test ?? {}; const itemResults = new Map(records(item.results).map((result) => [text(result.parameterId), result])); return records(test.parameters).map((parameter) => { const result = itemResults.get(text(parameter.id)); return { id: `${parameter.id}:${item.id}`, parameterId: text(parameter.id), orderItemId: text(item.id), testName: text(test.name) || 'Test', testCode: text(test.code), name: text(parameter.name), inputType: text(parameter.inputType) || 'TEXT', unit: text(parameter.unit), options: Array.isArray(parameter.options) ? parameter.options.map(text) : [], required: parameter.isRequired !== false, normalMin: parameter.normalMin, normalMax: parameter.normalMax, criticalLow: parameter.criticalLow, criticalHigh: parameter.criticalHigh, decimalPlaces: parameter.decimalPlaces, validation: parameter.validation ?? null, reference: result?.referenceRangeSnapshot ?? null, value: text(result?.value), sampleId: text(result?.sampleId) }; }); }); }, [selected]);
   const filteredOrders = orders;
   const groupedRows = useMemo(() => { const groups = new Map<string, { name: string; code: string; rows: Any[] }>(); rows.forEach((row) => { const key = row.orderItemId; if (!groups.has(key)) groups.set(key, { name: row.testName, code: row.testCode, rows: [] }); groups.get(key)!.rows.push(row); }); return [...groups.values()]; }, [rows]);

@@ -2,12 +2,11 @@ import { useEffect, useState } from 'react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { Search, Filter, Eye, Edit3, Trash2, Printer, Download, Calendar, X, User, Phone, Mail, Building, HeartPulse, ArrowUpRight, FileText, SlidersHorizontal } from 'lucide-react';
 import { useToast } from './Toast';
-import type { LabReport, LabSettings } from '../data/samples';
+import type { LabReport } from '../data/samples';
 import { downloadReportPdf, getReport, getSavedReportTemplate, listReports, openReportPdf, saveReportTemplate, type ReportTemplateId } from '../services/reportsService';
 import Pagination from './Pagination';
 
 interface ReportListProps {
-  settings: LabSettings;
   onDeleteReport: (id: string) => Promise<void>;
   onEditReport: (report: LabReport) => void;
   selectedReportId: string | null;
@@ -25,7 +24,7 @@ const REPORT_TEMPLATES: Array<{ id: ReportTemplateId; name: string }> = [
 
 const PAGE_SIZE = 20;
 
-export default function ReportList({ settings: _settings, onDeleteReport, onEditReport, selectedReportId, setSelectedReportId }: ReportListProps) {
+export default function ReportList({ onDeleteReport, onEditReport, selectedReportId, setSelectedReportId }: ReportListProps) {
   const [searchInput, setSearchInput] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
@@ -45,12 +44,7 @@ export default function ReportList({ settings: _settings, onDeleteReport, onEdit
 
   const { data: reportResponse, isLoading, isFetching } = useQuery({
     queryKey: ['reports', { page, search: searchTerm, status: statusFilter }],
-    queryFn: () => listReports({
-      search: searchTerm || undefined,
-      status: statusFilter,
-      skip: (page - 1) * PAGE_SIZE,
-      take: PAGE_SIZE,
-    }),
+    queryFn: () => listReports({ search: searchTerm || undefined, status: statusFilter, skip: (page - 1) * PAGE_SIZE, take: PAGE_SIZE }),
     placeholderData: keepPreviousData,
     staleTime: 30_000,
     refetchOnWindowFocus: false,

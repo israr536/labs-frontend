@@ -11,6 +11,7 @@ import './styles/production-overrides.css';
 import './styles/accessibility-saas.css';
 import './styles/theme-refinement.css';
 import App from './App.tsx';
+import SEO from './components/SEO.tsx';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,6 +31,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
+        <SEO />
         <App />
       </QueryClientProvider>
     </BrowserRouter>

@@ -80,9 +80,11 @@ export default function SEO() {
     upsertProperty('og:image:alt', 'PathMLT laboratory reporting software');
     upsertProperty('og:image:type', 'image/svg+xml');
 
-    upsertMeta('twitter:card', 'summary');
+    upsertMeta('twitter:card', 'summary_large_image');
     upsertMeta('twitter:title', config.title);
     upsertMeta('twitter:description', config.description);
+    upsertMeta('twitter:image', OG_IMAGE);
+    upsertMeta('twitter:image:alt', 'PathMLT laboratory reporting software');
 
     upsertCanonical(canonicalUrl);
 

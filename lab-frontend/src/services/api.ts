@@ -32,6 +32,11 @@ export function clearTokens() {
   localStorage.removeItem('lab_refresh_token');
 }
 
+function notifyAuthExpired() {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new CustomEvent('lab:auth-expired'));
+}
+
 // The loader tracks one logical request, not every internal fetch/retry.
 // This prevents token refreshes and retry attempts from making the loader flicker.
 let activeApiRequests = 0;
@@ -179,6 +184,7 @@ async function fetchWithAuth(path: string, options: RequestInit, timeout: number
 
     if (response.status === 401) {
       clearTokens();
+      notifyAuthExpired();
       throw new ApiError('Unauthorized. Please login again.', 401);
     }
   }

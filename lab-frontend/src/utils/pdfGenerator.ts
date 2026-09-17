@@ -10,7 +10,7 @@ const TOP = 7;
 const FOOTER_TOP = 265;
 const TOTAL_PAGES = '{total_pages_count_string}';
 
- type PdfTemplate = 'classic' | 'modern' | 'compact' | 'detailed' | 'premium' | 'minimal';
+type PdfTemplate = 'classic' | 'modern' | 'compact' | 'detailed' | 'premium' | 'minimal';
 type ReportParameter = TestParameter & { testName?: string; testCode?: string; category?: string; sampleType?: string; method?: string };
 type ReportSection = { name: string; code?: string; category?: string; sampleType?: string; method?: string; parameters: ReportParameter[] };
 
@@ -41,13 +41,12 @@ function reportNumber(report: LabReport): string {
   const value = clean((report as LabReport & { reportNumber?: string }).reportNumber, '');
   return value || (String(report.id).startsWith('REP-') ? String(report.id) : `LAB-${String(report.id).slice(0, 12).toUpperCase()}`);
 }
-
 function code39Patterns(value: string): string[] {
   const table: Record<string, string> = {
-    '0':'101001101101','1':'110100101011','2':'101100101011','3':'110110010101','4':'101001101011','5':'110100110101','6':'101100110101','7':'101001011011','8':'110100101101','9':'101100101101',
-    'A':'110101001011','B':'101101001011','C':'110110100101','D':'101011001011','E':'110101100101','F':'101101100101','G':'101010011011','H':'110101001101','I':'101101001101','J':'101011001101',
-    'K':'110101010011','L':'101101010011','M':'110110101001','N':'101011010011','O':'110101101001','P':'101101101001','Q':'101010110011','R':'110101011001','S':'101101011001','T':'101011011001',
-    'U':'110010101011','V':'100110101011','W':'110011010101','X':'100101101011','Y':'110010110101','Z':'100110110101','-':'100101011011','.':'110010101101',' ':'100110101101','$':'100100100101','/':'100100101001','+':'100101001001','%':'101001001001','*':'100101101101'
+    '0': '101001101101', '1': '110100101011', '2': '101100101011', '3': '110110010101', '4': '101001101011', '5': '110100110101', '6': '101100110101', '7': '101001011011', '8': '110100101101', '9': '101100101101',
+    'A': '110101001011', 'B': '101101001011', 'C': '110110100101', 'D': '101011001011', 'E': '110101100101', 'F': '101101100101', 'G': '101010011011', 'H': '110101001101', 'I': '101101001101', 'J': '101011001101',
+    'K': '110101010011', 'L': '101101010011', 'M': '110110101001', 'N': '101011010011', 'O': '110101101001', 'P': '101101101001', 'Q': '101010110011', 'R': '110101011001', 'S': '101101011001', 'T': '101011011001',
+    'U': '110010101011', 'V': '100110101011', 'W': '110011010101', 'X': '100101101011', 'Y': '110010110101', 'Z': '100110110101', '-': '100101011011', '.': '110010101101', ' ': '100110101101', '$': '100100100101', '/': '100100101001', '+': '100101001001', '%': '101001001001', '*': '100101101101'
   };
   const safe = value.toUpperCase().replace(/[^0-9A-Z\-. $/+%]/g, '-');
   return [table['*'], ...Array.from(safe).map((char) => table[char] || table['-']), table['*']];
@@ -121,7 +120,7 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings, _tem
     row('Patient Name', `Mrs. ${upper(report.patientName)}`, colA, y + 7, true); row('Registration', dateText(report.dateCollected), colB, y + 7);
     row('Age/Gender', `${clean(report.age)} Year /${clean(report.gender)}`, colA, y + 13); row('Collected Date', dateText(report.dateCollected), colB, y + 13);
     row('Ref Doctor', upper(report.referredBy), colA, y + 19); row('Reported Date', dateText(report.dateReported), colB, y + 19);
-    row('Lab ID', accession, colA, y + 25); row('Barcode No', accession.slice(-12), colB, y + 25);
+    row('Lab ID', accession.slice(0, 12), colA, y + 25); row('Barcode No', accession.slice(-12), colB, y + 25);
     row('Client Name/Code', upper(settings.labName), colA, y + 31); row('Report Status', upper(report.status), colB, y + 31);
     drawBarcode(doc, accession, PAGE_WIDTH - RIGHT - 30, y + 19, 28, 8);
   };
@@ -139,21 +138,95 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings, _tem
     line(cursorY + 7, 0.3); cursorY += 9;
   };
 
+  // const footer = () => {
+  //   drawQrPlaceholder(doc, LEFT + 6, 274, 17);
+  //   text(5.2); doc.text('This report is not valid for medico legal purposes.', LEFT + 1, 294 - 8); doc.text('Please correlate with clinical conditions.', LEFT + 1, 294 - 5);
+  //   const doctors = settings.doctors ?? [];
+  //   const doctor = (item: { name?: string; qualification?: string; designation?: string; signatureUrl?: string } | undefined, x: number) => { if (!item) return; text(7, 'italic'); doc.text('Authorized signature', x, 276, { align: 'center' }); text(7, 'bold'); doc.text(clean(item.name), x, 285, { align: 'center' }); text(6); doc.text(clean(item.qualification, ''), x, 289, { align: 'center' }); doc.text(clean(item.designation, ''), x, 292, { align: 'center' }); };
+  //   doctor(doctors[0], 83); doctor(doctors[1], 158);
+  //   text(6); doc.text(`${doc.getNumberOfPages()} / ${TOTAL_PAGES}`, PAGE_WIDTH - RIGHT, 294, { align: 'right' });
+  // };
   const footer = () => {
-    drawQrPlaceholder(doc, LEFT + 6, 274, 17);
-    text(5.2); doc.text('This report is not valid for medico legal purposes.', LEFT + 1, 294 - 8); doc.text('Please correlate with clinical conditions.', LEFT + 1, 294 - 5);
-    const doctors = settings.doctors ?? [];
-    const doctor = (item: { name?: string; qualification?: string; designation?: string; signatureUrl?: string } | undefined, x: number) => { if (!item) return; text(7, 'italic'); doc.text('Authorized signature', x, 276, { align: 'center' }); text(7, 'bold'); doc.text(clean(item.name), x, 285, { align: 'center' }); text(6); doc.text(clean(item.qualification, ''), x, 289, { align: 'center' }); doc.text(clean(item.designation, ''), x, 292, { align: 'center' }); };
-    doctor(doctors[0], 83); doctor(doctors[1], 158);
-    text(6); doc.text(`${doc.getNumberOfPages()} / ${TOTAL_PAGES}`, PAGE_WIDTH - RIGHT, 294, { align: 'right' });
-  };
+    // QR code — left side
+    drawQrPlaceholder(doc, LEFT + 3, 273, 15);
 
+    // Disclaimer — below QR
+    text(5.2);
+    doc.text(
+      'This report is not valid for medico legal purposes.',
+      LEFT + 22,
+      282
+    );
+    doc.text(
+      'Please correlate with clinical conditions.',
+      LEFT + 22,
+      287
+    );
+
+    const doctors = settings.doctors ?? [];
+
+    const doctor = (
+      item: {
+        name?: string;
+        qualification?: string;
+        designation?: string;
+        signatureUrl?: string;
+      } | undefined,
+      x: number
+    ) => {
+      if (!item) return;
+
+      text(7, 'italic');
+      doc.text('Authorized signature', x, 276, {
+        align: 'center',
+      });
+
+      text(7, 'bold');
+      doc.text(clean(item.name), x, 284, {
+        align: 'center',
+      });
+
+      text(6);
+      doc.text(clean(item.qualification, ''), x, 288, {
+        align: 'center',
+      });
+
+      doc.text(clean(item.designation, ''), x, 292, {
+        align: 'center',
+      });
+    };
+
+    // Doctors — centered/right, away from QR
+    doctor(doctors[0], 105);
+    doctor(doctors[1], 160);
+
+    // Page number
+    text(6);
+    doc.text(
+      `${doc.getNumberOfPages()} / ${TOTAL_PAGES}`,
+      PAGE_WIDTH - RIGHT,
+      294,
+      { align: 'right' }
+    );
+  };
   const newPage = () => { footer(); doc.addPage(); drawPageFrame(true); };
   const ensure = (height: number) => { if (cursorY + height > FOOTER_TOP) newPage(); };
 
   const drawSection = (section: ReportSection) => {
-    ensure(30); text(8, 'bold'); doc.text(upper(section.category || 'HEMATOLOGY'), PAGE_WIDTH / 2, cursorY + 5, { align: 'center' });
-    text(8, 'bold'); doc.text(upper(section.name), PAGE_WIDTH / 2, cursorY + 10, { align: 'center' });
+    // ensure(30); text(8, 'bold'); doc.text(upper(section.category || 'HEMATOLOGY'), PAGE_WIDTH / 2, cursorY + 5, { align: 'center' });
+    // text(8, 'bold'); doc.text(upper(section.name), PAGE_WIDTH / 2, cursorY + 10, { align: 'center' });
+    ensure(30);
+    extraBoldText(8);
+    doc.text(upper(section.category || 'HEMATOLOGY'), PAGE_WIDTH / 2, cursorY + 5, {
+      align: 'center',
+      ...extraBoldOptions,
+    });
+
+    extraBoldText(8);
+    doc.text(upper(section.name), PAGE_WIDTH / 2, cursorY + 10, {
+      align: 'center',
+      ...extraBoldOptions,
+    });
     const sample = section.sampleType ? `Sample Type: ${section.sampleType}` : '';
     if (sample) { text(5.5); doc.text(sample, LEFT, cursorY + 15); }
     cursorY += sample ? 19 : 14; drawTableHeader();
@@ -164,7 +237,8 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings, _tem
       const resultLines = doc.splitTextToSize(clean(parameter.value), 28); const refLines = doc.splitTextToSize(referenceRange(parameter), 39); const unitLines = doc.splitTextToSize(clean(parameter.unit), 18);
       const height = Math.max(7, nameLines.length * 3.4 + methodLines.length * 2.5 + 1.5, resultLines.length * 3.4 + 1.5, refLines.length * 3.4 + 1.5, unitLines.length * 3.4 + 1.5);
       if (cursorY + height + 2 > FOOTER_TOP) { newPage(); drawTableHeader(); }
-      extraBoldText(7.2); doc.text(nameLines, LEFT, cursorY + 3.2, { lineHeightFactor: 1, ...extraBoldOptions });
+      // extraBoldText(7.2); doc.text(nameLines, LEFT, cursorY + 3.2, { lineHeightFactor: 1, ...extraBoldOptions });
+      text(7.2, 'bold'); doc.text(nameLines, LEFT, cursorY + 3.2, { lineHeightFactor: 1 });
       if (methodLines.length) { text(4.8); doc.text(methodLines, LEFT + 5, cursorY + 6.2, { lineHeightFactor: 1 }); }
       text(7, abnormal ? 'bold' : 'normal'); if (abnormal) doc.setTextColor(flag.toLowerCase() === 'high' ? 160 : 30, 0, flag.toLowerCase() === 'high' ? 0 : 60); doc.text(resultLines, LEFT + 78, cursorY + 3.2, { lineHeightFactor: 1 });
       text(7, 'bold'); doc.text(flagLabel, LEFT + 119, cursorY + 3.2);

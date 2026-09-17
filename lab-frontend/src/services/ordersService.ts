@@ -4,7 +4,7 @@ export type OrderStatus = (typeof ORDER_STATUSES)[number];
 type AnyRecord = Record<string, any>;
 export interface CreateOrderInput { patientId: string; testIds: string[]; referredBy?: string; clinicalNotes?: string; }
 export interface ListOrdersParams { page?: number; limit?: number; search?: string; status?: OrderStatus | string; includeTotal?: boolean; }
-export interface OrderListResponse<T = AnyRecord> { data: T[]; pagination: { total?: number; skip: number; take: number; page: number; pages?: number; }; }
+export interface OrderListResponse<T = AnyRecord> { data: T[]; pagination: { total?: number; skip: number; take: number; page: number; pages?: number; hasMore?: boolean; }; }
 const listCache = new Map<string, { expiresAt: number; value: OrderListResponse }>();
 const detailCache = new Map<string, { expiresAt: number; value: AnyRecord }>();
 const detailInFlight = new Map<string, Promise<AnyRecord>>();

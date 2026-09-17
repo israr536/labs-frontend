@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">PathMLT Laboratory Reporting Software</title>
+  <desc id="desc">Laboratory reporting software for diagnostic labs.</desc>
+  <rect width="1200" height="630" fill="#f7fafc"/>
+  <rect x="72" y="72" width="486" height="486" rx="42" fill="#ffffff" stroke="#dbe4ee" stroke-width="2"/>
+  <rect x="116" y="116" width="92" height="92" rx="24" fill="#0f766e"/>
+  <path d="M138 178V142h18l14 20 14-20h18v36h-13v-20l-19 24-19-24v20z" fill="#ffffff"/>
+  <text x="116" y="270" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="700" fill="#102a43">PathMLT</text>
+  <text x="116" y="322" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#52606d">Laboratory reporting software</text>
+  <text x="116" y="378" font-family="Arial, Helvetica, sans-serif" font-size="22" fill="#334e68">Patients • Tests • Results • Reports</text>
+  <line x1="116" y1="424" x2="486" y2="424" stroke="#dbe4ee" stroke-width="2"/>
+  <text x="116" y="466" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#627d98">Built for diagnostic laboratory workflows</text>
+  <text x="650" y="235" font-family="Arial, Helvetica, sans-serif" font-size="56" font-weight="700" fill="#102a43">Run your lab</text>
+  <text x="650" y="302" font-family="Arial, Helvetica, sans-serif" font-size="56" font-weight="700" fill="#0f766e">with clarity.</text>
+  <text x="650" y="365" font-family="Arial, Helvetica, sans-serif" font-size="25" fill="#52606d">Manage patients, tests, results and</text>
+  <text x="650" y="402" font-family="Arial, Helvetica, sans-serif" font-size="25" fill="#52606d">professional reports in one workspace.</text>
+  <text x="650" y="490" font-family="Arial, Helvetica, sans-serif" font-size="19" fill="#829ab1">www.pathmlt.com</text>
+</svg>

@@ -20,6 +20,7 @@ import { DEFAULT_SETTINGS, type LabReport, type LabSettings } from './data/sampl
 import reportsService from './services/reportsService';
 import labsService from './services/labsService';
 import authService from './services/authService';
+import { clearTokens } from './services/api';
 import subscriptionService, { type SubscriptionStatus } from './services/subscriptionService';
 
 const TeamPage = lazy(() => import('./pages/TeamPage'));
@@ -74,6 +75,22 @@ export default function App() {
     queryClient.clear();
     navigate('/', { replace: true });
   };
+
+  useEffect(() => {
+    const handleAuthExpired = () => {
+      clearTokens();
+      setUser(null);
+      setIsAuthenticated(false);
+      setAuthView('landing');
+      setSelectedReportId(null);
+      setEditingReport(null);
+      queryClient.clear();
+      navigate('/', { replace: true });
+    };
+
+    window.addEventListener('lab:auth-expired', handleAuthExpired);
+    return () => window.removeEventListener('lab:auth-expired', handleAuthExpired);
+  }, [navigate, queryClient]);
 
   useEffect(() => {
     let mounted = true;
@@ -210,7 +227,7 @@ export default function App() {
             <Route path="/forgot-password" element={<Modal onClose={closeAuthModal} title="Reset password" description="Recover access to your laboratory workspace securely."><ForgotPassword onBackToLogin={showForgotPassword} /></Modal>} />
             <Route path="/signup" element={<Modal onClose={closeAuthModal} title="Create your account" description="Start your laboratory workspace in a few minutes."><Signup onSignupSuccess={() => { setAuthView('login'); navigate('/login'); }} onCancel={closeAuthModal} /></Modal>} />
             <Route path="/dashboard" element={dashboardPage} />
-            <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : authView === 'login' ? <Modal onClose={closeAuthModal} title="Sign in"><Login onLoginSuccess={handleLoginSuccess} onForgotPassword={showForgotPassword} /></Modal> : authView === 'signup' ? <Modal onClose={closeAuthModal} title="Create your account"><Signup onSignupSuccess={() => { setAuthView('login'); navigate('/login'); }} onCancel={closeAuthModal} /></Modal> : authView === 'forgot-password' ? <Modal onClose={closeAuthModal} title="Reset password"><ForgotPassword onBackToLogin={showForgotPassword} /></Modal> : <Landing onLoginClick={showLogin} onSignupClick={showSignup} />} />
+            <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : authView === 'login' ? <Modal onClose={closeAuthModal} title="Sign in"><Login onLoginSuccess={handleLoginSuccess} onForgotPassword={showForgotPassword} /></Modal> : authView === 'signup' ? <Modal onClose={closeAuthModal} title="Create your account"><Signup onSignupSuccess={() => { setAuthView('login'); navigate('/login'); }} onCancel={closeAuthModal} /> </Modal> : authView === 'forgot-password' ? <Modal onClose={closeAuthModal} title="Reset password"><ForgotPassword onBackToLogin={showForgotPassword} /></Modal> : <Landing onLoginClick={showLogin} onSignupClick={showSignup} />} />
             <Route path="*" element={<Navigate to={isAuthenticated ? '/dashboard' : '/'} replace />} />
           </Routes>
         </Suspense>

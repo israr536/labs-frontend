@@ -54,14 +54,14 @@ const testGroups = [
 	];
 
 	const faqs = [
-		{ q: 'How quickly can we start using ApexLab?', a: 'Most laboratories can begin after their workspace identity, core test catalog, users, and report standards are configured. The exact timeline depends on your operating model and whether you need custom templates or implementation support.' },
+		{ q: 'How quickly can we start using PathMLT?', a: 'Most laboratories can begin after their workspace identity, core test catalog, users, and report standards are configured. The exact timeline depends on your operating model and whether you need custom templates or implementation support.' },
 		{ q: 'What should we configure first?', a: 'Start with laboratory identity and report standards, activate the panels you run most often, establish reference ranges, invite the operational team, and complete a representative test order.' },
-		{ q: 'Can ApexLab fit our existing workflow?', a: 'ApexLab is designed to be configured around your tests, specimen types, methods, reference ranges, report identity, role boundaries, and team responsibilities.' },
+		{ q: 'Can PathMLT fit our existing workflow?', a: 'PathMLT is designed to be configured around your tests, specimen types, methods, reference ranges, report identity, role boundaries, and team responsibilities.' },
 		{ q: 'Does the platform support multi-test reports?', a: 'Yes. Combined panels and multi-test orders can be managed in one workflow, with each parameter presented clearly for verification and final report generation.' },
 		{ q: 'Can we print and download PDF reports?', a: 'Yes. Reports can be previewed, printed, and downloaded as clean A4 PDF documents. Templates can be configured to reflect your laboratory identity and presentation standards.' },
-		{ q: 'Can I customize report templates?', a: 'Yes. ApexLab supports configurable report layouts and presentation styles so your final documents can align with your laboratory brand and clinical communication standards.' },
-		{ q: 'How does ApexLab support accountable access?', a: 'Workspace access is organized around authenticated team members and role boundaries. Laboratories remain responsible for assigning appropriate access and reviewing their operational policies.' },
-		{ q: 'Does ApexLab maintain an audit trail?', a: 'ApexLab records workflow events and relevant user actions so administrators can review activity around reports, orders, patients, settings, and approvals.' },
+		{ q: 'Can I customize report templates?', a: 'Yes. PathMLT supports configurable report layouts and presentation styles so your final documents can align with your laboratory brand and clinical communication standards.' },
+		{ q: 'How does PathMLT support accountable access?', a: 'Workspace access is organized around authenticated team members and role boundaries. Laboratories remain responsible for assigning appropriate access and reviewing their operational policies.' },
+		{ q: 'Does PathMLT maintain an audit trail?', a: 'PathMLT records workflow events and relevant user actions so administrators can review activity around reports, orders, patients, settings, and approvals.' },
 		{ q: 'Who is responsible for patient data policies?', a: 'Your laboratory remains responsible for the information entered into the workspace, including accuracy, lawful use, retention, permissions, and applicable privacy or healthcare requirements.' },
 		{ q: 'Can I book a live demo?', a: 'Yes — use the Book demo on WhatsApp button or contact form to schedule a walkthrough tailored to your lab.' }
 	];
@@ -102,14 +102,14 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 						Run your lab with <em>clarity, speed and control.</em>
 					</h1>
 						<p className="landing-lead">
-							ApexLab is the operating workspace for diagnostic laboratories: register patients, move samples, verify results, and deliver consistent reports without losing the thread.
+							PathMLT is the operating workspace for diagnostic laboratories: register patients, move samples, verify results, and deliver consistent reports without losing the thread.
 						</p>
 					<div className="landing-actions">
 						<button className="landing-primary" onClick={onSignupClick}>
 							Start your workspace <ArrowRight size={17} />
 						</button>
 						<button className="landing-secondary" onClick={onLoginClick}>
-							Sign in to ApexLab
+							Sign in to PathMLT
 						</button>
 						<a
 							className="landing-whatsapp"
@@ -125,7 +125,7 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 					<div className="landing-product-card">
 						<div className="product-window-top">
 						<span className="product-brand">
-							<span className="product-brand-mark">A</span> ApexLab
+							<span className="product-brand-mark">A</span> PathMLT
 						</span>
 							<span className="live-chip">
 								<i /> Live workspace
@@ -199,13 +199,13 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 					</div>
 				</section>
 
-					<section className="landing-trust-grid" aria-label="ApexLab product assurances">
+					<section className="landing-trust-grid" aria-label="PathMLT product assurances">
 						<div><ShieldCheck size={18} /><span><strong>Role-based access</strong><small>Give each team member a focused workspace.</small></span></div>
 						<div><FileCheck2 size={18} /><span><strong>Audit-ready history</strong><small>Keep approvals and workflow events traceable.</small></span></div>
 						<div><Zap size={18} /><span><strong>Fast implementation</strong><small>Start with your core panels and grow from there.</small></span></div>
 						<div><Users2 size={18} /><span><strong>Built for teams</strong><small>Reception, technicians and administrators stay aligned.</small></span></div>
 					</section>
-					<section className="landing-decision-bar" aria-label="ApexLab next steps">
+					<section className="landing-decision-bar" aria-label="PathMLT next steps">
 						<div><strong>Evaluating laboratory software?</strong><span>See the answers buyers ask before implementation.</span></div>
 						<div><a href="/faqs">Explore FAQs <ArrowRight size={14} /></a><a className="landing-decision-demo" href="https://wa.me/916388334513?text=Hello%20PathMLT%2C%20I%20want%20to%20book%20a%20demo." target="_blank" rel="noreferrer">Book a demo on WhatsApp <ArrowRight size={14} /></a></div>
 					</section>
@@ -301,8 +301,8 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 							<article className={`screenshot-card screenshot-${shot.kind}`} key={shot.kind}>
 								<div className="screenshot-copy"><span className="screenshot-label">{shot.label}</span><h3>{shot.title}</h3><p>{shot.text}</p><a href="#workflow">Learn this step <ArrowRight size={14} /></a></div>
 								<div className="screenshot-frame" aria-label={`${shot.label} screenshot preview`}>
-									<div className="mock-browser-bar"><i /><i /><i /><span>ApexLab / {shot.label}</span></div>
-									{index === 0 && <div className="mock-report"><div className="mock-report-brand"><b>A</b><span><strong>APEXLAB DIAGNOSTICS</strong><small>Trusted laboratory reporting</small></span><em>FINAL REPORT</em></div><div className="mock-patient"><span><small>Patient</small><strong>Nashrin Ahmed</strong></span><span><small>Report ID</small><strong>LAB-10482</strong></span><span><small>Collected</small><strong>12 Sep 2026</strong></span></div><div className="mock-result-head"><span>Test parameter</span><span>Result</span><span>Reference range</span><span>Status</span></div>{[['Hemoglobin','12.8 g/dL','12.0 – 16.0','Normal'],['WBC count','7.4 ×10⁹/L','4.0 – 11.0','Normal'],['Platelets','248 ×10⁹/L','150 – 450','Normal']].map(row => <div className="mock-result-row" key={row[0]}><span>{row[0]}</span><b>{row[1]}</b><span>{row[2]}</span><i><Check size={10} />{row[3]}</i></div>)}<div className="mock-signature"><span><Check size={12} /> Verified by technician</span><b>Ready to share</b></div></div>}
+									<div className="mock-browser-bar"><i /><i /><i /><span>PathMLT / {shot.label}</span></div>
+									{index === 0 && <div className="mock-report"><div className="mock-report-brand"><b>A</b><span><strong>PathMLT DIAGNOSTICS</strong><small>Trusted laboratory reporting</small></span><em>FINAL REPORT</em></div><div className="mock-patient"><span><small>Patient</small><strong>Nashrin Ahmed</strong></span><span><small>Report ID</small><strong>LAB-10482</strong></span><span><small>Collected</small><strong>12 Sep 2026</strong></span></div><div className="mock-result-head"><span>Test parameter</span><span>Result</span><span>Reference range</span><span>Status</span></div>{[['Hemoglobin','12.8 g/dL','12.0 – 16.0','Normal'],['WBC count','7.4 ×10⁹/L','4.0 – 11.0','Normal'],['Platelets','248 ×10⁹/L','150 – 450','Normal']].map(row => <div className="mock-result-row" key={row[0]}><span>{row[0]}</span><b>{row[1]}</b><span>{row[2]}</span><i><Check size={10} />{row[3]}</i></div>)}<div className="mock-signature"><span><Check size={12} /> Verified by technician</span><b>Ready to share</b></div></div>}
 									{index === 1 && <div className="mock-queue"><div className="mock-queue-title"><strong>Reports</strong><span>186 total <Download size={12} /></span></div><div className="mock-search">⌕&nbsp; Search patient or report number</div>{[['LAB-10482','Nashrin Ahmed','CBC','Completed'],['LAB-10481','Arjun Mehta','Lipid Profile','Pending'],['LAB-10480','Maya Shah','Thyroid Panel','Draft']].map(row => <div className="mock-queue-row" key={row[0]}><b>{row[0]}</b><span>{row[1]}</span><span>{row[2]}</span><i className={row[3].toLowerCase()}>{row[3]}</i><Eye size={13} /></div>)}</div>}
 									{index === 2 && <div className="mock-entry"><div className="mock-entry-head"><div><small>New report</small><strong>Nashrin Ahmed</strong></div><span>Complete Blood Count (CBC)⌄</span></div><div className="mock-entry-fields"><div><small>Hemoglobin</small><b>12.8 <em>g/dL</em></b></div><div><small>WBC count</small><b>7.4 <em>×10⁹/L</em></b></div><div><small>Platelets</small><b>248 <em>×10⁹/L</em></b></div><div><small>Report status</small><b className="entry-complete">● Completed</b></div></div><div className="mock-entry-note"><ClipboardList size={13} /><span>Interpretation is ready for clinical review.</span></div></div>}
 								</div>

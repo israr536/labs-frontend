@@ -22,7 +22,7 @@ jobs:
       - run: npm install --no-save --no-audit --no-fund @playwright/test
       - run: npx playwright install --with-deps chromium
       - run: npm run build
-      - run: npm run preview -- --host 127.0.0.1 > /tmp/apexlab-vite.log 2>&1 &
+      - run: npm run preview -- --host 127.0.0.1 > /tmp/PathMLT-vite.log 2>&1 &
       - run: npx playwright test e2e/reporting-ui.spec.ts --reporter=line
       - name: Upload Playwright artifacts
         if: always()
@@ -32,5 +32,5 @@ jobs:
           path: |
             lab-frontend/playwright-report
             lab-frontend/test-results
-            /tmp/apexlab-vite.log
+            /tmp/PathMLT-vite.log
           if-no-files-found: ignore

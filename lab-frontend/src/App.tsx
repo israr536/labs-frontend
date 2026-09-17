@@ -43,7 +43,7 @@ import WhatsAppButton from './components/WhatsAppButton';
 interface SessionUser { id: string; username?: string; email?: string; role?: string; isActive?: boolean; }
 
 function LoadingScreen() {
-  return <div className="app-loading"><div className="loading-mark"><span /></div><strong>Loading your workspace</strong><small>Securely connecting to ApexLab…</small></div>;
+  return <div className="app-loading"><div className="loading-mark"><span /></div><strong>Loading your workspace</strong><small>Securely connecting to PathMLT…</small></div>;
 }
 
 export default function App() {

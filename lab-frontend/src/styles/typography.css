@@ -1,4 +1,4 @@
-/* ApexLab global typography system — readable SaaS UI across public and authenticated screens */
+/* PathMLT global typography system — readable SaaS UI across public and authenticated screens */
 :root {
   /* Desktop text tokens: nothing intended for visible UI text is below 16px. */
   --saas-font-xs: 1rem;

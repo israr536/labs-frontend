@@ -10,7 +10,7 @@ const TOP = 7;
 const FOOTER_TOP = 265;
 const TOTAL_PAGES = '{total_pages_count_string}';
 
-type PdfTemplate = 'classic' | 'modern' | 'compact' | 'detailed' | 'premium' | 'minimal';
+ type PdfTemplate = 'classic' | 'modern' | 'compact' | 'detailed' | 'premium' | 'minimal';
 type ReportParameter = TestParameter & { testName?: string; testCode?: string; category?: string; sampleType?: string; method?: string };
 type ReportSection = { name: string; code?: string; category?: string; sampleType?: string; method?: string; parameters: ReportParameter[] };
 
@@ -63,11 +63,9 @@ function drawBarcode(doc: jsPDF, value: string, x: number, y: number, width: num
     for (let i = 0; i < pattern.length; i += 1) { if (pattern[i] === '1') doc.rect(cursor, y, module, height, 'F'); cursor += module; }
     if (pIndex < patterns.length - 1) cursor += module;
   });
-  // Keep the barcode clean; the long accession is already shown in the patient metadata.
 }
 
 function drawQrPlaceholder(doc: jsPDF, x: number, y: number, size: number) {
-  // Deliberately quiet QR-style mark when a laboratory QR asset is not configured.
   const cells = 13; const cell = size / cells;
   doc.setFillColor(0, 0, 0);
   const finder = (ox: number, oy: number) => { doc.rect(x + ox * cell, y + oy * cell, 7 * cell, 7 * cell, 'F'); doc.setFillColor(255, 255, 255); doc.rect(x + (ox + 1) * cell, y + (oy + 1) * cell, 5 * cell, 5 * cell, 'F'); doc.setFillColor(0, 0, 0); doc.rect(x + (ox + 2) * cell, y + (oy + 2) * cell, 3 * cell, 3 * cell, 'F'); };
@@ -89,6 +87,14 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings, _tem
   doc.setLineHeightFactor(1.08);
 
   const text = (size: number, style: 'normal' | 'bold' | 'italic' = 'normal') => { doc.setFont('Inter', style); doc.setFontSize(size); doc.setTextColor(0, 0, 0); };
+  // jsPDF is currently using the embedded Inter TTF for normal/bold aliases. The PDF
+  // generator has no usable 800-weight font file yet, so use a very small stroke on
+  // the selected headings to visually match Inter ExtraBold without changing layout.
+  const extraBoldText = (size: number) => {
+    text(size, 'bold');
+    doc.setLineWidth(0.12);
+  };
+  const extraBoldOptions = { renderingMode: 'fillThenStroke' as const };
   const line = (y: number, width = 0.25) => { doc.setDrawColor(0, 0, 0); doc.setLineWidth(width); doc.line(LEFT, y, PAGE_WIDTH - RIGHT, y); };
 
   const drawTopHeader = () => {
@@ -101,8 +107,8 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings, _tem
         // Keep the report usable when a stored logo is invalid or unsupported.
       }
     }
-    text(7, 'bold'); doc.text(upper(settings.labName, 'DIAGNOSTIC LABORATORY'), PAGE_WIDTH - RIGHT, TOP + 1, { align: 'right' });
-    text(5.6); const address = clean(settings.address, ''); if (address) doc.text(doc.splitTextToSize(address, 74), PAGE_WIDTH - RIGHT, TOP + 5, { align: 'right' });
+    extraBoldText(7); doc.text(upper(settings.labName, 'DIAGNOSTIC LABORATORY'), PAGE_WIDTH - RIGHT, TOP + 1, { align: 'right', ...extraBoldOptions });
+    extraBoldText(5.6); const address = clean(settings.address, ''); if (address) doc.text(doc.splitTextToSize(address, 74), PAGE_WIDTH - RIGHT, TOP + 5, { align: 'right', ...extraBoldOptions });
     const phoneEmail = [settings.phone ? `Mob: ${settings.phone}` : '', settings.email ? `E-mail: ${settings.email}` : ''].filter(Boolean);
     doc.text(phoneEmail, PAGE_WIDTH - RIGHT, TOP + 11, { align: 'right' });
   };
@@ -158,7 +164,7 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings, _tem
       const resultLines = doc.splitTextToSize(clean(parameter.value), 28); const refLines = doc.splitTextToSize(referenceRange(parameter), 39); const unitLines = doc.splitTextToSize(clean(parameter.unit), 18);
       const height = Math.max(7, nameLines.length * 3.4 + methodLines.length * 2.5 + 1.5, resultLines.length * 3.4 + 1.5, refLines.length * 3.4 + 1.5, unitLines.length * 3.4 + 1.5);
       if (cursorY + height + 2 > FOOTER_TOP) { newPage(); drawTableHeader(); }
-      text(7.2, 'bold'); doc.text(nameLines, LEFT, cursorY + 3.2, { lineHeightFactor: 1 });
+      extraBoldText(7.2); doc.text(nameLines, LEFT, cursorY + 3.2, { lineHeightFactor: 1, ...extraBoldOptions });
       if (methodLines.length) { text(4.8); doc.text(methodLines, LEFT + 5, cursorY + 6.2, { lineHeightFactor: 1 }); }
       text(7, abnormal ? 'bold' : 'normal'); if (abnormal) doc.setTextColor(flag.toLowerCase() === 'high' ? 160 : 30, 0, flag.toLowerCase() === 'high' ? 0 : 60); doc.text(resultLines, LEFT + 78, cursorY + 3.2, { lineHeightFactor: 1 });
       text(7, 'bold'); doc.text(flagLabel, LEFT + 119, cursorY + 3.2);

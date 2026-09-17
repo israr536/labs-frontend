@@ -14,7 +14,7 @@ export interface CreateTestInput { code:string; shortName?:string; name:string; 
 export interface StarterProvisionResult { tests:Array<{code:string;status:'created'|'already-enabled'}>; }
 
 const testCatalogService = {
-  list: (params:{search?:string;category?:string;department?:string}={}) => { const query=new URLSearchParams(); if(params.search)query.set('search',params.search); if(params.category)query.set('category',params.category); if(params.department)query.set('department',params.department); return request<TestCatalogDefinition[]>(`test-catalog${query.toString()?`?${query}`:''}`); },
+  list: (params:{search?:string;category?:string;department?:string;skip?:number;take?:number}={}) => { const query=new URLSearchParams(); if(params.search)query.set('search',params.search); if(params.category)query.set('category',params.category); if(params.department)query.set('department',params.department); query.set('skip',String(params.skip ?? 0)); query.set('take',String(params.take ?? 100)); return request<TestCatalogDefinition[] | {data:TestCatalogDefinition[];pagination:{total:number;skip:number;take:number;pages:number}}>(`test-catalog?${query}`); },
   categories: () => request<Array<{category:string;department:string}>>('test-catalog/categories'),
   get: (id:string) => request<TestCatalogDefinition>(`test-catalog/${id}`),
   enable: (id:string,overrides:Partial<LabTest>={}) => request<LabTest>(`test-catalog/${id}/enable`,{method:'POST',body:JSON.stringify(overrides)}),

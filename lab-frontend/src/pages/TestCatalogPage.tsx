@@ -17,11 +17,14 @@ export default function TestCatalogPage({ role }: Props) {
   const queryClient = useQueryClient();
   const toast = useToast();
 
-  const { data: catalog = [], isLoading, isError } = useQuery({
-    queryKey: ['test-catalog', search, department, category],
-    queryFn: () => testCatalogService.list({ search: search || undefined, department: department || undefined, category: category || undefined }),
+  const { data: catalogResponse, isLoading, isError } = useQuery({
+    queryKey: ['test-catalog', search, department, category, page],
+    queryFn: () => testCatalogService.list({ search: search || undefined, department: department || undefined, category: category || undefined, skip: (page - 1) * 12, take: 12 }),
     staleTime: 5 * 60_000,
   });
+
+  const catalog = useMemo(() => Array.isArray(catalogResponse) ? catalogResponse : catalogResponse?.data ?? [], [catalogResponse]);
+  const catalogTotal = Array.isArray(catalogResponse) ? catalog.length : catalogResponse?.pagination.total ?? 0;
 
   const { data: myTests = [] } = useQuery({
     queryKey: ['tests'],
@@ -64,7 +67,7 @@ export default function TestCatalogPage({ role }: Props) {
   const categories = useMemo(() => [...new Set(catalog.map((item) => item.category))].sort(), [catalog]);
   const parameterCount = useMemo(() => catalog.reduce((total, test) => total + test.parameters.length, 0), [catalog]);
   const pageSize = 12;
-  const paginatedCatalog = catalog.slice((page - 1) * pageSize, page * pageSize);
+  const paginatedCatalog = catalog;
 
   return (
     <section className="catalog-page">
@@ -154,7 +157,7 @@ export default function TestCatalogPage({ role }: Props) {
               );
             })}
           </div>
-          <Pagination page={page} pageSize={pageSize} total={catalog.length} onPageChange={setPage} label="catalog tests" />
+          <Pagination page={page} pageSize={pageSize} total={catalogTotal} onPageChange={setPage} label="catalog tests" />
         </>
       )}
     </section>

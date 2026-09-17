@@ -20,7 +20,7 @@ export default function PublicPage({ page }: Props) {
   return (
     <div className="public-page">
       <h2>About Us</h2>
-      <p>ApexLab — modern lab reporting built for clinicians. Designed for speed and compliance.</p>
+      <p>PathMLT — modern lab reporting built for clinicians. Designed for speed and compliance.</p>
     </div>
   );
 }

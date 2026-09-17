@@ -1,17 +1,16 @@
 import { DEFAULT_SETTINGS, type LabReport, type LabSettings, type TestParameter } from '../data/samples';
-import { generateReportPdf } from '../utils/pdfGenerator';
 import { request } from './api';
 import labsService from './labsService';
-import patientsService from './patientsService';
-import testsService from './testsService';
 
 type ApiReport = Record<string, any>;
 type ReportListApi = { data: ApiReport[]; pagination?: any };
 export type ReportTemplateId = 'classic' | 'modern' | 'compact' | 'detailed' | 'premium' | 'minimal';
 export type ReportTemplate = { id: ReportTemplateId; name: string; description: string };
 type CombinedReportBody = Partial<LabReport> & { testIds?: string[]; parametersByTest?: Record<string, TestParameter[]> };
-
 type ReportParameter = TestParameter & { testName?: string; testCode?: string; category?: string; sampleType?: string; method?: string };
+
+let reportPdfCache = new Map<string, { report: LabReport; settings: LabSettings; expiresAt: number }>();
+const REPORT_PDF_CACHE_TTL = 30_000;
 
 export async function listReportTemplates(): Promise<ReportTemplate[]> { return request<ReportTemplate[]>('reports/templates'); }
 export function getSavedReportTemplate(): ReportTemplateId { try { const value = localStorage.getItem('lab_report_template'); return ['classic', 'modern', 'compact', 'detailed', 'premium', 'minimal'].includes(value || '') ? value as ReportTemplateId : 'premium'; } catch { return 'premium'; } }
@@ -28,101 +27,84 @@ function toDateTimeLocal(value: any): string {
 export async function listReports(filters?: { status?: string; search?: string; patientId?: string; testId?: string; skip?: number; take?: number }): Promise<{ data: LabReport[]; pagination?: any }> {
   const params = new URLSearchParams();
   if (filters?.search) params.append('search', filters.search);
+  if (filters?.status && filters.status !== 'All') params.append('status', filters.status === 'Completed' || filters.status === 'Critical' ? 'FINAL' : filters.status === 'Pending' ? 'RESULT_ENTERED' : 'REGISTERED');
+  if (filters?.patientId) params.append('patientId', filters.patientId);
+  if (filters?.testId) params.append('testId', filters.testId);
   if (filters?.skip !== undefined) params.append('skip', String(filters.skip));
   if (filters?.take !== undefined) params.append('take', String(filters.take));
   const q = params.toString() ? `?${params.toString()}` : '';
   const orders = await request<ReportListApi | ApiReport[]>(`orders${q}`);
-  const orderRows = Array.isArray(orders) ? orders : orders.data;
-  const details = await Promise.all(orderRows.map((order) => request<ApiReport>(`orders/${order.id}`)));
-  let data = details.map(mapOrderAsReport);
-  if (filters?.status && filters.status !== 'All') data = data.filter((report) => report.status === filters.status);
-  if (filters?.patientId) data = data.filter((report) => (report as any).patientId === filters.patientId);
-  if (filters?.testId) data = data.filter((report) => (report as any).testIds?.includes(filters.testId));
+  const data = (Array.isArray(orders) ? orders : orders.data).map(mapOrderAsReport);
   return { data, pagination: Array.isArray(orders) ? undefined : orders.pagination };
 }
 
 export async function getReport(id: string): Promise<LabReport> { return mapOrderAsReport(await request<ApiReport>(`orders/${id}`)); }
 
 export async function createCombinedReport(body: CombinedReportBody): Promise<LabReport> {
-  const patient = await ensurePatient(body);
   const testIds = [...new Set((body.testIds ?? []).map((id) => id.trim()).filter(Boolean))];
   if (!testIds.length) throw new Error('Please select at least one configured laboratory test.');
-  const order = await request<ApiReport>('orders', { method: 'POST', body: JSON.stringify({ patientId: patient.id, testIds, referredBy: body.referredBy, clinicalNotes: body.interpretation }) });
-  const samples = await request<ApiReport[]>(`samples/orders/${order.id}`, { method: 'POST', body: JSON.stringify({}) });
-  for (const sample of samples) {
-    for (const status of ['COLLECTED', 'RECEIVED', 'PROCESSING', 'COMPLETED']) await request<ApiReport>(`samples/${sample.id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) });
-  }
-  const allResults = testIds.flatMap((testId) => (body.parametersByTest?.[testId] ?? []).map((parameter) => ({ parameter, testId })));
-  const testCache = new Map<string, any>();
-  for (const testId of testIds) testCache.set(testId, await testsService.getTest(testId));
-  const results = allResults.map(({ testId, parameter }) => {
-    const test = testCache.get(testId);
-    const apiParameter = test?.parameters?.find((item: any) => item.name?.toLowerCase() === parameter.name.toLowerCase());
-    return apiParameter && String(parameter.value ?? '').trim() ? { parameterId: apiParameter.id, value: String(parameter.value).trim() } : null;
-  }).filter(Boolean);
-  if (results.length) await request<ApiReport>(`orders/${order.id}/results`, { method: 'PATCH', body: JSON.stringify({ results }) });
-  if (body.status === 'Completed' || body.status === 'Critical') {
-    await request<ApiReport>(`orders/${order.id}/verify`, { method: 'POST' });
-    await request<ApiReport>(`orders/${order.id}/finalize`, { method: 'POST' });
-    return mapFinalReport(await request<ApiReport>(`orders/${order.id}/report`));
-  }
-  return mapOrderAsReport(await request<ApiReport>(`orders/${order.id}`));
+  const idempotencyKey = typeof crypto?.randomUUID === 'function' ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const response = await request<ApiReport>('orders/complete', { method: 'POST', timeout: 90000, headers: { 'Idempotency-Key': idempotencyKey }, body: JSON.stringify({ patientId: (body as any).patientId, patient: { name: body.patientName, age: body.age, gender: mapGenderToApi(body.gender), mobile: body.phone, email: body.email || undefined }, testIds, parametersByTest: body.parametersByTest ?? {}, referredBy: body.referredBy, clinicalNotes: body.interpretation, status: body.status }) });
+  if (response?.finalReport) return mapFinalReport(response.finalReport);
+  if (response?.order?.tests) return mapFinalReport(response);
+  return mapOrderAsReport(response);
 }
 
 export async function createReport(body: Partial<LabReport>): Promise<LabReport> { return createCombinedReport(body); }
 export async function updateReport(id: string, body: Partial<LabReport>): Promise<LabReport> {
-  const patientId = (body as any).patientId;
-  if (patientId) await patientsService.updatePatient(patientId, toPatientPayload(body));
+  const orderId = (body as any).orderId || id;
+  const order = await request<ApiReport>(`orders/${encodeURIComponent(orderId)}`);
   const testId = requireTestId(body);
-  const test = await testsService.getTest(testId);
-  const resultsPayload = { referredBy: body.referredBy, sampleCollectedAt: toIso(body.dateCollected), doctorNotes: body.interpretation, remarks: body.status === 'Critical' ? 'Critical result review required' : undefined, results: toApiResults(body.parameters ?? [], test.parameters ?? []) };
-  try {
-    const updated = await request<ApiReport>(`reports/${id}`, { method: 'PATCH', body: JSON.stringify(resultsPayload) });
-    if (body.status === 'Completed' || body.status === 'Critical') return finalizeReport(id);
-    return mapApiReport(updated);
-  } catch (err: any) {
-    const statusCode = err instanceof Error && 'status' in err ? (err as any).status : err?.statusCode ?? err?.status;
-    if (statusCode !== 404) throw err;
-    const orderId = (body as any).orderId || id;
-    await request<ApiReport>(`orders/${orderId}/results`, { method: 'PATCH', body: JSON.stringify({ results: toApiResults(body.parameters ?? [], test.parameters ?? []) }) });
-    if (body.status === 'Completed' || body.status === 'Critical') {
-      await request<ApiReport>(`orders/${orderId}/verify`, { method: 'POST' });
-      await request<ApiReport>(`orders/${orderId}/finalize`, { method: 'POST' });
-      return mapFinalReport(await request<ApiReport>(`orders/${orderId}/report`));
-    }
-    return mapOrderAsReport(await request<ApiReport>(`orders/${orderId}`));
-  }
+  const item = (order.items ?? []).find((candidate: any) => candidate.testId === testId) ?? order.items?.[0];
+  const results = toApiResults(body.parameters ?? [], item?.test?.parameters ?? []);
+  const response = await request<ApiReport>(`orders/${encodeURIComponent(orderId)}/report`, {
+    method: 'PATCH',
+    body: JSON.stringify({ revision: order.revision, patient: toPatientPayload(body), referredBy: body.referredBy, clinicalNotes: body.interpretation, status: body.status, results }),
+  });
+  return response?.order?.tests ? mapFinalReport(response) : mapOrderAsReport(response);
 }
 export function deleteReport(id: string) { return request<ApiReport>(`reports/${id}`, { method: 'DELETE' }); }
 export async function generateReport(id: string): Promise<LabReport> { return mapGeneratedReport(await request<ApiReport>(`reports/${id}/generate`)); }
 export async function finalizeReport(id: string): Promise<LabReport> { return mapApiReport(await request<ApiReport>(`reports/${id}/finalize`, { method: 'POST' })); }
 
+async function getPdfInputs(reportId: string) {
+  const now = Date.now();
+  const cached = reportPdfCache.get(reportId);
+  if (cached && cached.expiresAt > now) return cached;
+
+  // Finalized reports have an immutable snapshot specifically designed for reads/printing.
+  // Avoid GET /orders/:id here because that endpoint materializes catalog parameters and
+  // reloads the complete order graph. Draft reports still use the order endpoint.
+  const [finalizedResult, settings] = await Promise.all([
+    request<ApiReport>(`orders/${reportId}/report`).catch(() => null),
+    labsService.getSettings().catch(() => DEFAULT_SETTINGS as LabSettings),
+  ]);
+  const report = finalizedResult ? mapFinalReport(finalizedResult) : await getReport(reportId);
+  const entry = { report, settings, expiresAt: now + REPORT_PDF_CACHE_TTL };
+  reportPdfCache.set(reportId, entry);
+  return entry;
+}
+
 async function generateLocalPdf(reportId: string, template: ReportTemplateId, fileName?: string) {
-  const report = await getReport(reportId);
-  const settings = await labsService.getSettings().catch(() => DEFAULT_SETTINGS as LabSettings);
+  const { report, settings } = await getPdfInputs(reportId);
+  const { generateReportPdf } = await import('../utils/pdfGenerator');
+  const started = performance.now();
   const doc = generateReportPdf(report, settings, template);
   const blob = doc.output('blob');
+  console.info(`[PDF] generated ${reportId} in ${Math.round(performance.now() - started)}ms`);
   const url = window.URL.createObjectURL(blob);
   return { url, fileName: fileName || `report-${reportId}.pdf` };
 }
 
 export async function downloadReportPdf(id: string, fileName?: string, template: ReportTemplateId = getSavedReportTemplate()) {
-  try {
-    const { url, fileName: finalName } = await generateLocalPdf(id, template, fileName);
-    const a = document.createElement('a'); a.href = url; a.download = finalName; document.body.appendChild(a); a.click(); a.remove(); window.URL.revokeObjectURL(url); return;
-  } catch {}
-  const base = (await import('./api')).default.API_BASE;
-  const response = await fetch(`${base}/orders/${encodeURIComponent(id)}/report/pdf`, { headers: { Authorization: `Bearer ${localStorage.getItem('lab_access_token')}` } });
-  if (!response.ok) throw new Error(`Failed to download PDF (${response.status})`);
-  const blob = await response.blob(); const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = fileName || `report-${id}.pdf`; document.body.appendChild(a); a.click(); a.remove(); window.URL.revokeObjectURL(url);
+  const { url, fileName: finalName } = await generateLocalPdf(id, template, fileName);
+  const a = document.createElement('a'); a.href = url; a.download = finalName; document.body.appendChild(a); a.click(); a.remove(); window.URL.revokeObjectURL(url);
 }
 
 export async function openReportPdf(id: string, template: ReportTemplateId = getSavedReportTemplate()) {
-  try { const { url } = await generateLocalPdf(id, template); window.open(url, '_blank', 'noopener,noreferrer'); setTimeout(() => window.URL.revokeObjectURL(url), 60000); return; } catch {}
-  const base = (await import('./api')).default.API_BASE;
-  const response = await fetch(`${base}/orders/${encodeURIComponent(id)}/report/pdf`, { headers: { Authorization: `Bearer ${localStorage.getItem('lab_access_token')}` } });
-  if (!response.ok) throw new Error(`Failed to generate PDF (${response.status})`);
-  const blob = await response.blob(); const url = window.URL.createObjectURL(blob); window.open(url, '_blank', 'noopener,noreferrer'); setTimeout(() => window.URL.revokeObjectURL(url), 60000);
+  const { url } = await generateLocalPdf(id, template);
+  window.open(url, '_blank', 'noopener,noreferrer');
+  setTimeout(() => window.URL.revokeObjectURL(url), 60000);
 }
 
 function mapApiReport(report: ApiReport): LabReport {
@@ -137,20 +119,20 @@ function mapGeneratedReport(data: ApiReport): LabReport {
   return { id: data.report?.id, patientName: data.patient?.name ?? 'Unknown patient', age: data.patient?.age ?? 0, gender: mapGenderFromApi(data.patient?.gender), phone: data.patient?.mobile ?? '', email: data.patient?.email ?? '', referredBy: data.report?.referredBy ?? 'Dr. Self / Walk-in', dateCollected: toDateTimeLocal(data.report?.sampleCollectedAt ?? data.report?.createdAt), dateReported: toDateTimeLocal(data.report?.reportedAt ?? data.report?.createdAt), testType: data.test?.name ?? 'Diagnostic Test', status: mapReportStatus(data.report?.status, parameters), parameters, interpretation: data.report?.doctorNotes ?? data.report?.remarks ?? '', reportNumber: data.report?.reportNumber, patientId: data.patient?.id, testId: data.test?.id } as LabReport;
 }
 
-function mapFinalReport(data: ApiReport): LabReport {
+export function mapFinalReport(data: ApiReport): LabReport {
   const tests = data.order?.tests ?? [];
   const parameters: ReportParameter[] = tests.flatMap((item: any) => (item.parameters ?? []).map((parameter: any) => ({ name: parameter.name ?? 'Parameter', value: parameter.value ?? '', unit: parameter.unit ?? '', refRange: formatRange(parameter), minRef: parameter.normalMin ?? undefined, maxRef: parameter.normalMax ?? undefined, status: mapFlag(parameter.flag, parameter.value, parameter.normalMin, parameter.normalMax), testName: item.test?.name ?? 'Test', testCode: item.test?.code, category: item.test?.category, sampleType: item.test?.sampleType, method: item.test?.method })));
   return { id: data.order?.id, patientName: data.order?.patient?.name ?? 'Unknown patient', age: data.order?.patient?.age ?? 0, gender: mapGenderFromApi(data.order?.patient?.gender), phone: data.order?.patient?.mobile ?? '', email: data.order?.patient?.email ?? '', referredBy: data.order?.referredBy ?? 'Dr. Self / Walk-in', dateCollected: toDateTimeLocal(data.order?.samples?.[0]?.collectedAt ?? data.order?.orderedAt), dateReported: toDateTimeLocal(data.finalizedAt ?? data.order?.orderedAt), testType: tests.map((item: any) => item.test?.name).filter(Boolean).join(' + ') || 'Diagnostic Test', status: mapFinalStatus(tests), parameters, interpretation: data.order?.clinicalNotes ?? '', reportNumber: data.reportNumber, patientId: data.order?.patient?.id, orderId: data.order?.id } as LabReport & { orderId: string };
 }
 
-function mapOrderAsReport(order: ApiReport): LabReport {
+export function mapOrderAsReport(order: ApiReport): LabReport {
   const items = order.items ?? [];
   const parameters: ReportParameter[] = items.flatMap((item: any) => {
     const resultByParameterId = new Map((item.results ?? []).map((result: any) => [result.parameterId, result]));
     return (item.test?.parameters ?? []).map((parameter: any) => mapParameter(parameter, resultByParameterId.get(parameter.id), item.test));
   });
   const testNames = items.map((item: any) => item.test?.name).filter(Boolean);
-  return { id: order.id, patientName: order.patient?.name ?? 'Unknown patient', age: order.patient?.age ?? 0, gender: mapGenderFromApi(order.patient?.gender), phone: order.patient?.mobile ?? '', email: order.patient?.email ?? '', referredBy: order.referredBy ?? 'Dr. Self / Walk-in', dateCollected: toDateTimeLocal(order.samples?.[0]?.collectedAt ?? order.createdAt), dateReported: toDateTimeLocal(order.updatedAt ?? order.createdAt), testType: testNames.join(' + ') || 'Diagnostic Test', status: mapOrderStatus(order.status, parameters), parameters, interpretation: order.clinicalNotes ?? '', reportNumber: order.orderNumber, patientId: order.patient?.id, orderId: order.id, testIds: items.map((item: any) => item.testId) } as LabReport & { orderId: string; testIds: string[] };
+  return { id: order.id, patientName: order.patient?.name ?? 'Unknown patient', age: order.patient?.age ?? 0, gender: mapGenderFromApi(order.patient?.gender), phone: order.patient?.mobile ?? '', email: order.patient?.email ?? '', referredBy: order.referredBy ?? 'Dr. Self / Walk-in', dateCollected: toDateTimeLocal(order.samples?.[0]?.collectedAt ?? order.createdAt), dateReported: toDateTimeLocal(order.updatedAt ?? order.createdAt), testType: testNames.join(' + ') || 'Diagnostic Test', status: mapOrderStatus(order.status, parameters), interpretation: order.clinicalNotes ?? '', reportNumber: order.orderNumber, patientId: order.patient?.id, orderId: order.id, testIds: items.map((item: any) => item.testId) } as unknown as LabReport & { orderId: string; testIds: string[] };
 }
 
 function mapParameter(parameter: any, result: any, test?: any): ReportParameter {
@@ -175,10 +157,8 @@ function formatRange(parameter: any): string { if (parameter?.referenceRange) re
 function mapGenderFromApi(value: any): LabReport['gender'] { return value === 'MALE' ? 'Male' : value === 'FEMALE' ? 'Female' : 'Other'; }
 function mapGenderToApi(value: any): 'MALE' | 'FEMALE' | 'OTHER' { return value === 'Male' ? 'MALE' : value === 'Female' ? 'FEMALE' : 'OTHER'; }
 function toPatientPayload(report: Partial<LabReport>) { return { name: report.patientName, age: report.age, gender: mapGenderToApi(report.gender), mobile: report.phone, email: report.email || undefined }; }
-function ensurePatient(report: Partial<LabReport>) { const patientId = (report as any).patientId; if (patientId) return patientsService.updatePatient(patientId, toPatientPayload(report)); const search = report.phone || report.patientName || ''; return (search ? patientsService.listPatients(search).catch(() => []) : Promise.resolve([])).then((existing: any[]) => { const match = Array.isArray(existing) ? existing.find((patient) => patient.mobile === report.phone && patient.name?.toLowerCase() === report.patientName?.toLowerCase()) : null; return match ? patientsService.updatePatient(match.id, toPatientPayload(report)) : patientsService.createPatient(toPatientPayload(report)); }); }
 function requireTestId(report: Partial<LabReport>): string { const testId = (report as LabReport & { testId?: string }).testId; if (!testId?.trim()) throw new Error('Please select a configured laboratory test from the Test Catalog.'); return testId; }
 function toApiResults(parameters: TestParameter[], apiParameters: any[]) { return parameters.map((parameter) => { const apiParameter = apiParameters.find((item: any) => item.name?.toLowerCase() === parameter.name.toLowerCase()); return apiParameter && parameter.value?.trim() ? { parameterId: apiParameter.id, value: parameter.value.trim() } : null; }).filter(Boolean); }
-function toIso(value: any): string | undefined { if (!value) return undefined; const date = new Date(value); return Number.isNaN(date.getTime()) ? undefined : date.toISOString(); }
 
 const reportsService = { listReportTemplates, getSavedReportTemplate, saveReportTemplate, listReports, getReport, createCombinedReport, createReport, updateReport, deleteReport, generateReport, finalizeReport, downloadReportPdf, openReportPdf };
 export default reportsService;

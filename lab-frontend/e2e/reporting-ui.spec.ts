@@ -63,7 +63,7 @@ async function mockApi(page: import('@playwright/test').Page) {
   });
 }
 
-test.describe('ApexLab browser reporting flow', () => {
+test.describe('PathMLT browser reporting flow', () => {
   test('login, select multiple tests, enter results, save, PDF and logout', async ({ page }) => {
     await mockApi(page);
     await page.goto('/');

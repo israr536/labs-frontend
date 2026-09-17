@@ -1,11 +1,10 @@
 import { request } from './api';
-import { getOrder } from './ordersService';
 
 export function createSamples(orderId: string, body?: { specimenType?: string; container?: string }) {
   return request(`samples/orders/${encodeURIComponent(orderId)}`, {
     method: 'POST',
     body: body ? JSON.stringify(body) : undefined,
-  }).then(() => getOrder(orderId));
+  });
 }
 
 export function listSamples(params?: { orderId?: string }) {

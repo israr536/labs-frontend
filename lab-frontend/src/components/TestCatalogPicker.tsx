@@ -35,8 +35,8 @@ export default function TestCatalogPicker({ selectedIds, onChange, disabled = fa
   const [showDisabled, setShowDisabled] = useState(true);
 
   const { data: catalogData, isLoading: catalogLoading, isError: catalogError } = useQuery({
-    queryKey: ['test-catalog', 'order-picker'],
-    queryFn: () => testCatalogService.list(),
+    queryKey: ['test-catalog', 'order-picker', search, department, category],
+    queryFn: () => testCatalogService.list({ search: search.trim() || undefined, department: department || undefined, category: category || undefined }),
     staleTime: 5 * 60_000,
   });
 
@@ -63,8 +63,6 @@ export default function TestCatalogPicker({ selectedIds, onChange, disabled = fa
   const filtered = useMemo(() => {
     const needle = normalize(search);
     return catalog
-      .filter((test) => !department || test.department === department)
-      .filter((test) => !category || test.category === category)
       .filter((test) => !needle || searchableText(test).includes(needle))
       .filter((test) => showDisabled || enabledByCode.has(normalize(test.code)))
       .sort((a, b) => {

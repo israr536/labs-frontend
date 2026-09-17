@@ -14,29 +14,13 @@ export interface CreateTestInput { code:string; shortName?:string; name:string; 
 export interface StarterProvisionResult { tests:Array<{code:string;status:'created'|'already-enabled'}>; }
 
 const testCatalogService = {
-  list: (params:{search?:string;category?:string;department?:string}={}) => { const query=new URLSearchParams(); if(params.search)query.set('search',params.search); if(params.category)query.set('category',params.category); if(params.department)query.set('department',params.department); return request<TestCatalogDefinition[]>(`test-catalog${query.toString()?`?${query}`:''}`); },
+  list: (params:{search?:string;category?:string;department?:string;skip?:number;take?:number}={}) => { const query=new URLSearchParams(); if(params.search)query.set('search',params.search); if(params.category)query.set('category',params.category); if(params.department)query.set('department',params.department); query.set('skip',String(params.skip ?? 0)); query.set('take',String(params.take ?? 100)); return request<TestCatalogDefinition[] | {data:TestCatalogDefinition[];pagination:{total:number;skip:number;take:number;pages:number}}>(`test-catalog?${query}`); },
   categories: () => request<Array<{category:string;department:string}>>('test-catalog/categories'),
   get: (id:string) => request<TestCatalogDefinition>(`test-catalog/${id}`),
   enable: (id:string,overrides:Partial<LabTest>={}) => request<LabTest>(`test-catalog/${id}/enable`,{method:'POST',body:JSON.stringify(overrides)}),
   provisionDefaults: () => request<StarterProvisionResult>('test-catalog/provision-defaults',{method:'POST',body:JSON.stringify({})}),
   myTests: async (includeInactive=false) => {
-    const tests=await request<LabTest[]>(`tests${includeInactive?'?includeInactive=true':''}`);
-
-    // Always use the complete catalog parameter definition for report entry.
-    // Some older lab tests were created with only a subset of their catalog
-    // parameters. Resolve the catalog by catalogId first and by test code as a
-    // fallback so every configured test gets the full parameter set.
-    const catalogs=await request<TestCatalogDefinition[]>('test-catalog');
-    const catalogById=new Map(catalogs.map((catalog)=>[catalog.id,catalog]));
-    const catalogByCode=new Map(catalogs.map((catalog)=>[catalog.code.toLowerCase(),catalog]));
-
-    return tests.map((test)=>{
-      const catalog=(test.catalogId ? catalogById.get(test.catalogId) : undefined) ?? catalogByCode.get(test.code.toLowerCase());
-      if(catalog && catalog.parameters.length>test.parameters.length){
-        return {...test,parameters:catalog.parameters};
-      }
-      return test;
-    });
+    return request<LabTest[]>(`tests/report-entry${includeInactive?'?includeInactive=true':''}`);
   },
   createTest: (body:CreateTestInput) => request<LabTest>('tests',{method:'POST',body:JSON.stringify(body)}),
   updateTest: (id:string,body:LabTestUpdate) => request<LabTest>(`tests/${id}`,{method:'PATCH',body:JSON.stringify(body)}),

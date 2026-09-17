@@ -1,4 +1,4 @@
-/* ApexLab global typography system — readable SaaS UI across public and authenticated screens */
+/* PathMLT global typography system — readable SaaS UI across public and authenticated screens */
 :root {
   /* Desktop text tokens: nothing intended for visible UI text is below 16px. */
   --saas-font-xs: 1rem;
@@ -13,7 +13,10 @@
   --saas-heading-line: 1.18;
 }
 
-html { font-size: 16px; }
+html {
+  font-size: 16px;
+}
+
 body {
   font-size: 1rem;
   line-height: var(--saas-body-line);
@@ -21,56 +24,273 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-button,input,select,textarea { font-size: 1rem; }
-h1,h2,h3,h4,h5,h6 { line-height: var(--saas-heading-line); }
+button,
+input,
+select,
+textarea {
+  font-size: 1rem;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  line-height: var(--saas-heading-line);
+}
 
 /* Desktop readability floor: visible text must be at least 16px. */
-.brand-title { font-size: 1.125rem !important; }
-.brand-sub { font-size: 1rem !important; }
-.nav-link,.nav-links a,.header-link { font-size: 1rem !important; }
-.btn-ghost,.btn-primary { font-size: 1rem !important; }
-.user-name { font-size: 1rem !important; }
-.saas-page-header h1,.saas-dashboard-heading h1 { font-size: var(--saas-font-display) !important; line-height: 1.1; }
-.saas-page-header p,.saas-dashboard-heading p { font-size: 1rem !important; line-height: 1.65; }
-.saas-eyebrow { font-size: 1rem !important; }
-.workspace-badge { font-size: 1rem !important; }
-.saas-stat-label { font-size: 1rem !important; }
-.saas-stat-value { font-size: 1.875rem !important; }
-.saas-stat-meta { font-size: 1rem !important; }
-.saas-btn,.saas-primary-btn,.saas-secondary-btn,.saas-btn-primary,.saas-btn-secondary,.saas-btn-danger { font-size: 1rem !important; }
-.form-label,.saas-field label { font-size: 1rem !important; }
-.form-input,.form-select,.form-textarea,.saas-control { font-size: 1rem !important; }
-.custom-table th,.saas-table th { font-size: 1rem !important; letter-spacing: 0.055em; }
-.custom-table td,.saas-table td { font-size: 1rem !important; }
-.badge,.saas-badge,.role-pill,.status-pill { font-size: 1rem !important; }
-.page-hero h1 { font-size: clamp(2.25rem, 5vw, 4rem) !important; line-height: 1.06; }
-.page-hero p { font-size: 1.0625rem !important; line-height: 1.7; }
-.feature-card,.policy-card,.pricing-card,.contact-card { font-size: 1rem; }
-.feature-card h3,.policy-card h3,.pricing-card h3,.contact-card h2 { font-size: 1.25rem !important; }
-.feature-card p,.policy-card p,.pricing-card p,.pricing-card li,.policy-list li { font-size: 1rem !important; line-height: 1.65; }
-.section-item { font-size: 1rem; }
-.section-item h4 { font-size: 1.0625rem !important; }
-.saas-nav-item { font-size: 1rem !important; }
-.auth-form-card { font-size: 1rem; }
-.auth-intro { font-size: 1rem !important; line-height: 1.6; }
-.policy-page,.legal-page { font-size: 1rem; }
-.policy-page p,.policy-page li,.legal-page p,.legal-page li { font-size: 1rem; line-height: 1.75; }
-.policy-page h2,.legal-page h2 { font-size: 1.625rem; }
-.policy-page h3,.legal-page h3 { font-size: 1.1875rem; }
-.site-footer { font-size: 1rem; }
+.brand-title {
+  font-size: 1.125rem;
+}
+
+.brand-sub {
+  font-size: 1rem;
+}
+
+.nav-link,
+.nav-links a,
+.header-link {
+  font-size: 1rem;
+}
+
+.btn-ghost,
+.btn-primary {
+  font-size: 1rem;
+}
+
+.user-name {
+  font-size: 1rem;
+}
+
+.saas-page-header h1,
+.saas-dashboard-heading h1 {
+  font-size: var(--saas-font-display);
+  line-height: 1.1;
+}
+
+.saas-page-header p,
+.saas-dashboard-heading p {
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.saas-eyebrow {
+  font-size: 1rem;
+}
+
+.workspace-badge {
+  font-size: 1rem;
+}
+
+.saas-stat-label {
+  font-size: 1rem;
+}
+
+.saas-stat-value {
+  font-size: 1.875rem;
+}
+
+.saas-stat-meta {
+  font-size: 1rem;
+}
+
+.saas-btn,
+.saas-primary-btn,
+.saas-secondary-btn,
+.saas-btn-primary,
+.saas-btn-secondary,
+.saas-btn-danger {
+  font-size: 1rem;
+}
+
+.form-label,
+.saas-field label {
+  font-size: 1rem;
+}
+
+.form-input,
+.form-select,
+.form-textarea,
+.saas-control {
+  font-size: 1rem;
+}
+
+.custom-table th,
+.saas-table th {
+  font-size: 1rem;
+  letter-spacing: 0.055em;
+}
+
+.custom-table td,
+.saas-table td {
+  font-size: 1rem;
+}
+
+.badge,
+.saas-badge,
+.role-pill,
+.status-pill {
+  font-size: 1rem;
+}
+
+.page-hero h1 {
+  font-size: clamp(2.25rem, 5vw, 4rem);
+  line-height: 1.06;
+}
+
+.page-hero p {
+  font-size: 1.0625rem;
+  line-height: 1.7;
+}
+
+.feature-card,
+.policy-card,
+.pricing-card,
+.contact-card {
+  font-size: 1rem;
+}
+
+.feature-card h3,
+.policy-card h3,
+.pricing-card h3,
+.contact-card h2 {
+  font-size: 1.25rem;
+}
+
+.feature-card p,
+.policy-card p,
+.pricing-card p,
+.pricing-card li,
+.policy-list li {
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.section-item {
+  font-size: 1rem;
+}
+
+.section-item h4 {
+  font-size: 1.0625rem;
+}
+
+.saas-nav-item {
+  font-size: 1rem;
+}
+
+.auth-form-card {
+  font-size: 1rem;
+}
+
+.auth-intro {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.policy-page,
+.legal-page {
+  font-size: 1rem;
+}
+
+.policy-page p,
+.policy-page li,
+.legal-page p,
+.legal-page li {
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.policy-page h2,
+.legal-page h2 {
+  font-size: 1.625rem;
+}
+
+.policy-page h3,
+.legal-page h3 {
+  font-size: 1.1875rem;
+}
+
+.site-footer {
+  font-size: 1rem;
+}
 
 /* Mobile: allow compact secondary UI text while keeping primary body text at 16px. */
-@media (max-width:700px) {
-  body { font-size: 1rem; }
-  .saas-page-header h1,.saas-dashboard-heading h1 { font-size: 2rem !important; }
-  .page-hero h1 { font-size: 2.25rem !important; }
-  .page-hero p,.saas-page-header p,.saas-dashboard-heading p { font-size: 1rem !important; }
-  .custom-table th,.saas-table th { font-size: 0.875rem !important; }
-  .custom-table td,.saas-table td { font-size: 0.875rem !important; }
-  .nav-link,.nav-links a,.header-link { font-size: 0.9375rem !important; }
-  .brand-sub,.saas-eyebrow,.saas-stat-meta,.badge,.saas-badge,.role-pill,.status-pill { font-size: 0.875rem !important; }
-  .btn-ghost,.btn-primary,.saas-btn,.saas-primary-btn,.saas-secondary-btn,.saas-btn-primary,.saas-btn-secondary,.saas-btn-danger { font-size: 1rem !important; }
-  .form-label,.saas-field label { font-size: 0.9375rem !important; }
-  .workspace-badge,.saas-stat-label,.saas-nav-item,.auth-intro,.site-footer { font-size: 0.9375rem !important; }
-  .policy-page p,.policy-page li,.legal-page p,.legal-page li { font-size: 1rem !important; }
+@media (max-width: 700px) {
+  body {
+    font-size: 1rem;
+  }
+
+  .saas-page-header h1,
+  .saas-dashboard-heading h1 {
+    font-size: 2rem;
+  }
+
+  .page-hero h1 {
+    font-size: 2.25rem;
+  }
+
+  .page-hero p,
+  .saas-page-header p,
+  .saas-dashboard-heading p {
+    font-size: 1rem;
+  }
+
+  .custom-table th,
+  .saas-table th {
+    font-size: 0.875rem;
+  }
+
+  .custom-table td,
+  .saas-table td {
+    font-size: 0.875rem;
+  }
+
+  .nav-link,
+  .nav-links a,
+  .header-link {
+    font-size: 0.9375rem;
+  }
+
+  .brand-sub,
+  .saas-eyebrow,
+  .saas-stat-meta,
+  .badge,
+  .saas-badge,
+  .role-pill,
+  .status-pill {
+    font-size: 0.875rem;
+  }
+
+  .btn-ghost,
+  .btn-primary,
+  .saas-btn,
+  .saas-primary-btn,
+  .saas-secondary-btn,
+  .saas-btn-primary,
+  .saas-btn-secondary,
+  .saas-btn-danger {
+    font-size: 1rem;
+  }
+
+  .form-label,
+  .saas-field label {
+    font-size: 0.9375rem;
+  }
+
+  .workspace-badge,
+  .saas-stat-label,
+  .saas-nav-item,
+  .auth-intro,
+  .site-footer {
+    font-size: 0.9375rem;
+  }
+
+  .policy-page p,
+  .policy-page li,
+  .legal-page p,
+  .legal-page li {
+    font-size: 1rem;
+  }
 }

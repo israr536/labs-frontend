@@ -1,4 +1,4 @@
-/* ApexLab SaaS design system — accessible, calm, clinical, responsive */
+/* PathMLT SaaS design system — accessible, calm, clinical, responsive */
 :root{--saas-bg:#f5f7fb;--saas-surface:#fff;--saas-surface-2:#f8fafc;--saas-text:#172033;--saas-muted:#667085;--saas-border:#e4e9f0;--saas-primary:#1769aa;--saas-primary-dark:#0f4f83;--saas-success:#147d64;--saas-warning:#a15c00;--saas-danger:#b42318;--saas-radius:16px;--saas-shadow:0 8px 30px rgba(16,24,40,.055);--saas-shadow-lg:0 22px 60px rgba(16,24,40,.1)}
 .dark-theme{--saas-bg:#0b1118;--saas-surface:#121a23;--saas-surface-2:#0f1720;--saas-text:#f4f7fa;--saas-muted:#a5b1bf;--saas-border:#263241;--saas-primary:#69b8ed;--saas-primary-dark:#8bcdf4;--saas-shadow:0 8px 30px rgba(0,0,0,.22);--saas-shadow-lg:0 22px 60px rgba(0,0,0,.34)}
 html,body,#root{min-height:100%;background:var(--saas-bg);color:var(--saas-text)}body{font-family:'Plus Jakarta Sans',system-ui,sans-serif}button,input,select,textarea{font-family:inherit}button,a{-webkit-tap-highlight-color:transparent}

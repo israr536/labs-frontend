@@ -11,10 +11,18 @@ import './styles/production-overrides.css';
 import './styles/accessibility-saas.css';
 import './styles/theme-refinement.css';
 import App from './App.tsx';
+import SEO from './components/SEO.tsx';
 
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: { retry: 1, refetchOnWindowFocus: false },
+    queries: {
+      retry: 1,
+      staleTime: 30 * 60 * 1000,
+      gcTime: 60 * 60 * 1000,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      refetchOnMount: false,
+    },
     mutations: { retry: 0 },
   },
 });
@@ -23,6 +31,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
+        <SEO />
         <App />
       </QueryClientProvider>
     </BrowserRouter>

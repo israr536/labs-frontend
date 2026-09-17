@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { LoaderCircle } from 'lucide-react';
 
-type Toast = { id: string; type: 'info' | 'success' | 'error' | 'warn'; message: string };
-
-const ToastContext = createContext<{ show: (t: Omit<Toast, 'id'>) => void } | null>(null);
+type Toast = { id: string; type: 'info' | 'success' | 'error' | 'warn' | 'pending'; message: string };
+type ToastApi = { show: (t: Omit<Toast, 'id'>) => string; update: (id: string, t: Partial<Omit<Toast, 'id'>>) => void; dismiss: (id: string) => void };
+const ToastContext = createContext<ToastApi | null>(null);
 
 export function useToast() {
   const ctx = useContext(ToastContext);
@@ -11,39 +12,70 @@ export function useToast() {
 }
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
-  const [toasts, setToasts] = useState<Toast[]>([]);
+  const [activeRequests, setActiveRequests] = useState(0);
+  const [visible, setVisible] = useState(false);
 
-  const show = useCallback((t: Omit<Toast, 'id'>) => {
-    const id = Math.random().toString(36).slice(2, 9);
-    setToasts((s) => [...s, { id, ...t }]);
+  useEffect(() => {
+    const onActivity = (event: Event) => {
+      const count = Number((event as CustomEvent<{ active?: number }>).detail?.active ?? 0);
+      setActiveRequests(Math.max(0, count));
+    };
+    window.addEventListener('lab:api-activity', onActivity);
+    return () => window.removeEventListener('lab:api-activity', onActivity);
   }, []);
 
   useEffect(() => {
-    if (!toasts.length) return;
-    const timers = toasts.map((t) =>
-      window.setTimeout(() => {
-        setToasts((s) => s.filter((x) => x.id !== t.id));
-      }, 4000),
-    );
-    return () => timers.forEach((id) => window.clearTimeout(id));
-  }, [toasts]);
+    if (activeRequests > 0) {
+      const timer = window.setTimeout(() => setVisible(true), 120);
+      return () => window.clearTimeout(timer);
+    }
+    setVisible(false);
+  }, [activeRequests]);
+
+  // Kept as a compatibility API so existing screens do not need functional changes.
+  // Notifications are intentionally no longer rendered.
+  const show = useCallback((_t: Omit<Toast, 'id'>) => '', []);
+  const update = useCallback((_id: string, _t: Partial<Omit<Toast, 'id'>>) => {}, []);
+  const dismiss = useCallback((_id: string) => {}, []);
 
   return (
-    <ToastContext.Provider value={{ show }}>
+    <ToastContext.Provider value={{ show, update, dismiss }}>
       {children}
-      <div style={{ position: 'fixed', right: 20, bottom: 20, zIndex: 9999 }}>
-        {toasts.map((t) => (
-          <div key={t.id} style={{
-            marginBottom: 8,
-            minWidth: 260,
-            padding: '10px 12px',
-            borderRadius: 8,
-            color: 'white',
-            background: t.type === 'error' ? 'rgba(220,38,38,0.95)' : t.type === 'success' ? 'rgba(16,185,129,0.95)' : 'rgba(45,55,72,0.95)',
-            boxShadow: '0 6px 20px rgba(2,6,23,0.2)'
-          }}>{t.message}</div>
-        ))}
-      </div>
+      {visible && (
+        <div
+          role="status"
+          aria-live="polite"
+          aria-label="Loading"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 99999,
+            display: 'grid',
+            placeItems: 'center',
+            pointerEvents: 'none',
+            background: 'rgba(255,255,255,.18)',
+            backdropFilter: 'blur(1.5px)',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 11,
+              minWidth: 92,
+              padding: '12px 16px',
+              border: '1px solid rgba(15,23,42,.08)',
+              borderRadius: 14,
+              background: 'rgba(255,255,255,.98)',
+              boxShadow: '0 8px 28px rgba(15,23,42,.14)',
+            }}
+          >
+            <LoaderCircle size={22} strokeWidth={2.4} style={{ animation: 'lab-global-loader-spin .75s linear infinite' }} />
+            <span style={{ fontSize: 13, fontWeight: 600, color: '#344054' }}>Loading…</span>
+          </div>
+          <style>{`@keyframes lab-global-loader-spin { to { transform: rotate(360deg); } }`}</style>
+        </div>
+      )}
     </ToastContext.Provider>
   );
 }

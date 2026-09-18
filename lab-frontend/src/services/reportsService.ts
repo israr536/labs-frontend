@@ -109,48 +109,62 @@ async function generateLocalPdf(reportId: string, template: ReportTemplateId, fi
 }
 
 async function getProductionPdfBlob(id: string): Promise<Blob> {
-  // Printing is an output action and is intentionally independent of workflow status.
-  // The backend renders FINAL orders from the immutable snapshot and all other
-  // orders from the current live order data.
+  // The UI keeps printing independent from workflow status. The existing
+  // production backend PDF endpoint is canonical for FINAL orders, while
+  // non-final orders are rendered from the live order response locally.
+  const order = await request<ApiReport>(`orders/${encodeURIComponent(id)}`);
+  if (order.status !== 'FINAL') {
+    throw new Error('ORDER_NOT_FINAL');
+  }
   return requestBlob(`orders/${encodeURIComponent(id)}/report/pdf`, { timeout: 60000 });
+}
+
+async function generatePdfForPrint(
+  id: string,
+  template: ReportTemplateId,
+  fileName?: string,
+) {
+  try {
+    const blob = await getProductionPdfBlob(id);
+    return {
+      url: window.URL.createObjectURL(blob),
+      fileName: fileName || `report-${id}.pdf`,
+    };
+  } catch {
+    // RESULT_ENTERED / VERIFIED / REGISTERED and legacy orders use the live
+    // order data. The lab owner does not need to finalize just to print.
+    return generateLocalPdf(id, template, fileName);
+  }
 }
 
 export async function downloadReportPdf(
   id: string,
   fileName?: string,
-  _template: ReportTemplateId = getSavedReportTemplate(),
+  template: ReportTemplateId = getSavedReportTemplate(),
 ) {
-  const blob = await getProductionPdfBlob(id);
-  const url = window.URL.createObjectURL(blob);
-  try {
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName || `report-${id}.pdf`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-  } finally {
-    setTimeout(() => window.URL.revokeObjectURL(url), 60_000);
-  }
+  const generated = await generatePdfForPrint(id, template, fileName);
+  const a = document.createElement('a');
+  a.href = generated.url;
+  a.download = generated.fileName;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => window.URL.revokeObjectURL(generated.url), 60_000);
 }
 
 export async function openReportPdf(
   id: string,
-  _template: ReportTemplateId = getSavedReportTemplate(),
+  template: ReportTemplateId = getSavedReportTemplate(),
 ) {
-  // Create the tab synchronously from the user click so popup blockers do not
-  // reject the PDF navigation after the API call completes.
   const popup = window.open('about:blank', '_blank');
 
   try {
-    const blob = await getProductionPdfBlob(id);
-    const url = window.URL.createObjectURL(blob);
-
+    const generated = await generatePdfForPrint(id, template);
     if (popup && !popup.closed) {
-      popup.location.href = url;
+      popup.location.href = generated.url;
     } else {
       const link = document.createElement('a');
-      link.href = url;
+      link.href = generated.url;
       link.target = '_blank';
       link.rel = 'noopener,noreferrer';
       document.body.appendChild(link);
@@ -158,7 +172,7 @@ export async function openReportPdf(
       link.remove();
     }
 
-    setTimeout(() => window.URL.revokeObjectURL(url), 60_000);
+    setTimeout(() => window.URL.revokeObjectURL(generated.url), 60_000);
   } catch (error) {
     if (popup && !popup.closed) popup.close();
     throw error;

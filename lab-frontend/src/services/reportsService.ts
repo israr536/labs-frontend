@@ -283,7 +283,12 @@ function mapFlag(flag: any, value?: unknown, minRef?: number, maxRef?: number): 
 }
 function formatRange(parameter: any): string { if (parameter?.referenceRange) return typeof parameter.referenceRange === 'string' ? parameter.referenceRange : JSON.stringify(parameter.referenceRange); if (parameter?.normalMin !== undefined && parameter?.normalMax !== undefined) return `${parameter.normalMin} - ${parameter.normalMax}`; if (parameter?.normalMin !== undefined) return `>= ${parameter.normalMin}`; if (parameter?.normalMax !== undefined) return `<= ${parameter.normalMax}`; return ''; }
 function mapGenderFromApi(value: any): LabReport['gender'] { return value === 'MALE' ? 'Male' : value === 'FEMALE' ? 'Female' : 'Other'; }
-function mapGenderToApi(value: any): 'MALE' | 'FEMALE' | 'OTHER' { return value === 'Male' ? 'MALE' : value === 'Female' ? 'FEMALE' : 'OTHER'; }
+function mapGenderToApi(value: any): 'MALE' | 'FEMALE' | 'OTHER' | undefined {
+  if (value === 'Male') return 'MALE';
+  if (value === 'Female') return 'FEMALE';
+  if (value === 'Other') return 'OTHER';
+  return undefined;
+}
 function toPatientPayload(report: Partial<LabReport>) { return { name: report.patientName, age: report.age, gender: mapGenderToApi(report.gender), mobile: report.phone, email: report.email || undefined }; }
 function requireTestId(report: Partial<LabReport>): string { const testId = (report as LabReport & { testId?: string }).testId; if (!testId?.trim()) throw new Error('Please select a configured laboratory test from the Test Catalog.'); return testId; }
 function toApiResults(parameters: TestParameter[], apiParameters: any[]) { return parameters.map((parameter) => { const apiParameter = apiParameters.find((item: any) => item.name?.toLowerCase() === parameter.name.toLowerCase()); return apiParameter && parameter.value?.trim() ? { parameterId: apiParameter.id, value: parameter.value.trim() } : null; }).filter(Boolean); }

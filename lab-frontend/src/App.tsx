@@ -39,6 +39,7 @@ const PatientsPage = lazy(() => import('./pages/PatientsPage'));
 const AuditLogPage = lazy(() => import('./pages/AuditLogPage'));
 const SolutionsPage = lazy(() => import('./pages/SolutionsPage'));
 const HelpCenterPage = lazy(() => import('./pages/HelpCenterPage'));
+const SeoLandingPage = lazy(() => import('./pages/SeoLandingPage'));
 import WhatsAppButton from './components/WhatsAppButton';
 
 interface SessionUser { id: string; username?: string; email?: string; role?: string; isActive?: boolean; }
@@ -215,6 +216,7 @@ export default function App() {
           <Routes>
             <Route path="/pricing" element={<PricingPage />} />
             <Route path="/solutions" element={<SolutionsPage />} />
+            {['laboratory-reporting-software','diagnostic-lab-software','pathology-lab-software','laboratory-management-software','lab-reporting-system','pathology-reporting-software','lims-software','lab-automation-software','patient-management','test-management','sample-management','result-entry','result-verification','lab-reporting','report-templates','reference-ranges','audit-trail','role-based-access','pdf-reports','pathology-labs','diagnostic-labs','hospital-labs','independent-labs'].map(path => <Route key={path} path={'/'+path} element={<SeoLandingPage pageKey={path as import('./pages/SeoLandingPage').SeoPageKey} />} />)}
             <Route path="/help" element={<HelpCenterPage />} />
             <Route path="/privacy" element={<PrivacyPolicyPage />} />
             <Route path="/terms" element={<TermsAndConditionsPage />} />

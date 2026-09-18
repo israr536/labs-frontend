@@ -106,10 +106,12 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings, _tem
         // Keep the report usable when a stored logo is invalid or unsupported.
       }
     }
-    extraBoldText(7); doc.text(upper(settings.labName, 'DIAGNOSTIC LABORATORY'), PAGE_WIDTH - RIGHT, TOP + 1, { align: 'right', ...extraBoldOptions });
-    extraBoldText(5.6); const address = clean(settings.address, ''); if (address) doc.text(doc.splitTextToSize(address, 74), PAGE_WIDTH - RIGHT, TOP + 5, { align: 'right', ...extraBoldOptions });
+    const headerX = hasLogo ? LEFT + 23 : LEFT;
+    const headerWidth = PAGE_WIDTH - RIGHT - headerX;
+    extraBoldText(10); doc.text(upper(settings.labName, 'DIAGNOSTIC LABORATORY'), headerX, TOP + 2, { align: 'left', maxWidth: headerWidth, lineHeightFactor: 1.15, ...extraBoldOptions });
+    extraBoldText(7.2); const address = clean(settings.address, ''); if (address) doc.text(doc.splitTextToSize(address, headerWidth), headerX, TOP + 9, { align: 'left', lineHeightFactor: 1.2, ...extraBoldOptions });
     const phoneEmail = [settings.phone ? `Mob: ${settings.phone}` : '', settings.email ? `E-mail: ${settings.email}` : ''].filter(Boolean);
-    doc.text(phoneEmail, PAGE_WIDTH - RIGHT, TOP + 11, { align: 'right' });
+    text(7.2, 'bold'); doc.text(phoneEmail, headerX, TOP + 17, { align: 'left', lineHeightFactor: 1.2, maxWidth: headerWidth });
   };
 
   const drawPatientBox = () => {

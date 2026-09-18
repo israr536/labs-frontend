@@ -140,11 +140,11 @@ export default function ReportList({ onDeleteReport, onEditReport, selectedRepor
                   <td><span className="report-date"><Calendar size={14} />{report?.dateReported ? new Date(report.dateReported).toLocaleDateString() : '—'}</span></td>
                   <td><span className={`report-status ${statusClass(report?.status ?? 'Draft')}`}><i />{report?.status ?? 'Draft'}</span></td>
                   <td><div className="report-row-actions" onClick={(e) => e.stopPropagation()}>
-                    <button onClick={() => selectReport(report.id)} aria-label={`Review ${report?.patientName ?? 'report'}`} title="Review"><Eye size={15} /></button>
-                    <button onClick={() => onEditReport(report)} disabled={!canEdit(report)} aria-label={`Edit ${report?.patientName ?? 'report'}`} title="Edit"><Edit3 size={15} /></button>
-                    <button onClick={() => handlePrint(report)} disabled={busyId !== null} aria-label={`Print ${report?.patientName ?? 'report'}`} title="Print"><Printer size={15} /></button>
-                    <button onClick={() => handleDownload(report)} disabled={busyId !== null} aria-label={`Download ${report?.patientName ?? 'report'}`} title="Download"><Download size={15} /></button>
-                    <button className="is-danger" disabled={!canEdit(report)} aria-label={`Delete ${report?.patientName ?? 'report'}`} title="Delete" onClick={async () => {
+                    <button type="button" onClick={() => selectReport(report.id)} aria-label={`Review ${report?.patientName ?? 'report'}`} title="Review"><Eye size={15} /></button>
+                    <button type="button" onClick={() => onEditReport(report)} disabled={!canEdit(report)} aria-label={`Edit ${report?.patientName ?? 'report'}`} title="Edit"><Edit3 size={15} /></button>
+                    <button type="button" onClick={() => handlePrint(report)} disabled={busyId !== null} aria-label={`Print ${report?.patientName ?? 'report'}`} title="Print"><Printer size={15} /></button>
+                    <button type="button" onClick={() => handleDownload(report)} disabled={busyId !== null} aria-label={`Download ${report?.patientName ?? 'report'}`} title="Download"><Download size={15} /></button>
+                    <button type="button" className="is-danger" disabled={!canEdit(report)} aria-label={`Delete ${report?.patientName ?? 'report'}`} title="Delete" onClick={async () => {
                       if (!confirm(`Are you sure you want to delete report ${report.id} for ${report?.patientName ?? 'unknown patient'}?`)) return;
                       try {
                         await onDeleteReport(report.id);
@@ -163,7 +163,7 @@ export default function ReportList({ onDeleteReport, onEditReport, selectedRepor
       </div>
 
       {activeReport && <aside className="report-review-card" aria-label="Report review panel">
-        <div className="review-card-header"><div><span className="workspace-eyebrow"><HeartPulse size={13} /> Selected report</span><h2>Review before delivery</h2></div><button className="review-close" onClick={closePreview} aria-label="Close report review"><X size={18} /></button></div>
+        <div className="review-card-header"><div><span className="workspace-eyebrow"><HeartPulse size={13} /> Selected report</span><h2>Review before delivery</h2></div><button type="button" className="review-close" onClick={closePreview} aria-label="Close report review"><X size={18} /></button></div>
         <div className="review-patient-card"><span className="review-avatar"><User size={20} /></span><div><strong>{activeReport.patientName ?? 'Unknown patient'}</strong><span>{activeReport.gender ?? 'Other'} · {activeReport.age ?? 0} years</span><small>Report ID · {(activeReport as any).reportNumber ?? activeReport.id ?? '—'}</small></div><span className={`report-status ${statusClass(activeReport.status ?? 'Draft')}`}><i />{activeReport.status ?? 'Draft'}</span></div>
         <div className="review-contact-list"><span><Phone size={14} />{activeReport.phone ?? '—'}</span>{activeReport.email && <span><Mail size={14} />{activeReport.email}</span>}<span><Building size={14} />Ref: {activeReport.referredBy ?? '—'}</span></div>
         <div className="review-test-heading"><div><span>Diagnostic test</span><strong>{activeReport.testType ?? 'Diagnostic Test'}</strong></div><ArrowUpRight size={16} /></div>
@@ -171,7 +171,7 @@ export default function ReportList({ onDeleteReport, onEditReport, selectedRepor
           {detailLoading ? <div className="report-empty"><strong>Loading report details…</strong><span>Fetching the complete report for review.</span></div> : <><div className="review-parameter-head"><span>Parameter</span><span>Result</span><span>Flag</span></div>{(Array.isArray(activeReport.parameters) ? activeReport.parameters : []).map((param, index) => <div key={`${param?.name ?? 'parameter'}-${index}`} className={`review-parameter ${param?.status !== 'Normal' ? 'is-abnormal' : ''}`}><span><strong>{param?.name ?? 'Parameter'}</strong><small>Ref: {param?.refRange ?? '—'}</small></span><b>{param?.value ?? ''} <small>{param?.unit ?? ''}</small></b><em>{param?.status ?? 'Normal'}</em></div>)}</>}
         </div>
         {activeReport.interpretation && <div className="review-interpretation"><strong>Clinical interpretation</strong><p>{activeReport.interpretation}</p></div>}
-        <div className="review-actions"><button onClick={() => onEditReport(activeReport)} disabled={!canEdit(activeReport)} className="review-secondary"><Edit3 size={15} /> Edit</button><button onClick={() => handlePrint(activeReport)} disabled={busyId !== null} className="review-secondary"><Printer size={15} /> Print</button><button onClick={() => handleDownload(activeReport)} disabled={busyId !== null} className="review-primary"><Download size={15} /> Download PDF</button></div>
+        <div className="review-actions"><button type="button" onClick={() => onEditReport(activeReport)} disabled={!canEdit(activeReport)} className="review-secondary"><Edit3 size={15} /> Edit</button><button type="button" onClick={() => handlePrint(activeReport)} disabled={busyId !== null} className="review-secondary"><Printer size={15} /> Print</button><button type="button" onClick={() => handleDownload(activeReport)} disabled={busyId !== null} className="review-primary"><Download size={15} /> Download PDF</button></div>
       </aside>}
     </section>
   </div>;

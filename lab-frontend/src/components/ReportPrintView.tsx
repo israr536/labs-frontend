@@ -47,7 +47,7 @@ export default function ReportPrintView({ report, settings }: ReportPrintViewPro
           <div className="meta-row">
             <span className="lbl">Status:</span>
             <span className={`val bold-text ${report.status === 'Critical' ? 'text-critical' : ''}`}>
-              {report.status.toUpperCase()}
+              {(report.status ?? 'Not set').toUpperCase()}
             </span>
           </div>
         </div>

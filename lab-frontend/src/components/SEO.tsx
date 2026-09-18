@@ -37,7 +37,7 @@ const pages: Record<string, SeoConfig> = {
 };
 
 function seoConfigForPath(pathname: string): SeoConfig | undefined {
-  const slug = pathname.replace(/^\\//, '');
+  const slug = pathname.replace(/^\//, '');
   if (!SEO_PATHS.has(slug)) return undefined;
   const title = slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   return { title: `${title} | PathMLT`, description: DEFAULT_DESCRIPTION, canonical: pathname, index: true };

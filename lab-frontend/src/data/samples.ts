@@ -80,7 +80,7 @@ export const DEFAULT_SETTINGS: LabSettings = {
   licenseNumber: "DL-34892-MED",
   isoCertification: "ISO 9001:2015 & NABL Accredited (M-2245)",
   logoDataUrl: "",
-  showMethodNames: true,
+  showMethodNames: false,
   doctors: [
     {
       name: "Dr. Rachel Green, MD",

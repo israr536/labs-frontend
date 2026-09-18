@@ -100,7 +100,7 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 							Start your workspace <ArrowRight size={17} />
 						</button>
 						<button className="landing-secondary" onClick={onLoginClick}>
-							Sign in to PathMLT
+							Login to PathMLT
 						</button>
 						<a
 							className="landing-whatsapp"

@@ -99,7 +99,7 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 						</span>
 					</div>
 					<h1>
-						Run your lab with <em>clarity, speed and control.</em>
+						Laboratory reporting software for <em>diagnostic labs.</em>
 					</h1>
 						<p className="landing-lead">
 							PathMLT is the operating workspace for diagnostic laboratories: register patients, move samples, verify results, and deliver consistent reports without losing the thread.

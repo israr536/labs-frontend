@@ -88,12 +88,22 @@ export default function SEO() {
 
     upsertCanonical(canonicalUrl);
 
+    const faqSchema = pathname === '/faqs' ? {
+      '@type': 'FAQPage',
+      mainEntity: [
+        ['How quickly can we start using PathMLT?', 'Most laboratories can begin with their core patient, test and reporting workflows after an onboarding review.'],
+        ['Can I customize report templates?', 'Yes. Administrators can configure report templates, laboratory identity, reference ranges and result parameters for their workflow.'],
+        ['Does PathMLT maintain an audit trail?', 'PathMLT records important workflow events and approvals so laboratory teams can review operational history.'],
+      ].map(([name, text]) => ({ '@type': 'Question', name, acceptedAnswer: { '@type': 'Answer', text } })),
+    } : null;
+
     upsertJsonLd({
       '@context': 'https://schema.org',
       '@graph': [
-        { '@type': 'Organization', '@id': `${SITE_URL}/#organization`, name: SITE_NAME, url: SITE_URL },
+        { '@type': 'Organization', '@id': `${SITE_URL}/#organization`, name: SITE_NAME, url: SITE_URL, email: 'support@pathmlt.com', areaServed: 'IN' },
         { '@type': 'SoftwareApplication', '@id': `${SITE_URL}/#software`, name: SITE_NAME, applicationCategory: 'BusinessApplication', operatingSystem: 'Web', description: DEFAULT_DESCRIPTION, url: SITE_URL, publisher: { '@id': `${SITE_URL}/#organization` } },
         ...(pathname === '/' ? [{ '@type': 'WebSite', '@id': `${SITE_URL}/#website`, name: SITE_NAME, url: SITE_URL, publisher: { '@id': `${SITE_URL}/#organization` } }] : []),
+        ...(faqSchema ? [faqSchema] : []),
       ],
     });
   }, [pathname]);

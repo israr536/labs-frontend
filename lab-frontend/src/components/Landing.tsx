@@ -340,9 +340,9 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 				</div>
 				<div className="faq-cards">
 					{faqs.map(item => (
-						<details className="faq-card" key={item.q}>
-							<summary>{item.q}</summary>
-							<p>{item.a}</p>
+						<details className="faq-card" key={item.question}>
+							<summary>{item.question}</summary>
+							<p>{item.answer}</p>
 						</details>
 					))}
 				</div>

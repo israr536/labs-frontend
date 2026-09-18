@@ -283,7 +283,7 @@ export function mapOrderAsReport(order: ApiReport): LabReport {
   }
 
   const parameters: ReportParameter[] = items.flatMap((item: any) => {
-    const itemResults = Array.isArray(item.results)
+    const itemResults = Array.isArray(item.results) && item.results.length > 0
       ? item.results
       : resultsByItemId.get(item.id) ?? [];
     const resultByParameterId = new Map(

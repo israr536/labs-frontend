@@ -236,7 +236,7 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings, _tem
       const flag = clean(parameter.status, ''); const abnormal = flag.toLowerCase() !== 'normal' && flag !== '—';
       const flagLabel = flag.toLowerCase() === 'high' ? 'H ↑' : flag.toLowerCase() === 'low' ? 'L ↓' : flag.toLowerCase() === 'abnormal' ? 'A' : '';
       const nameLines = doc.splitTextToSize(clean(parameter.name), 68); const methodLines = settings.showMethodNames && parameter.method ? doc.splitTextToSize(`METHOD : ${upper(parameter.method)}`, 68) : [];
-      const resultLines = doc.splitTextToSize(clean(parameter.value), 28); const refLines = doc.splitTextToSize(referenceRange(parameter), 39); const unitLines = doc.splitTextToSize(clean(parameter.unit), 18);
+      const resultLines = doc.splitTextToSize(clean(parameter.value), 28); const refLines = doc.splitTextToSize(referenceRange(parameter), 32); const unitLines = doc.splitTextToSize(clean(parameter.unit), 18);
       const height = Math.max(7, nameLines.length * 3.4 + methodLines.length * 2.5 + 1.5, resultLines.length * 3.4 + 1.5, refLines.length * 3.4 + 1.5, unitLines.length * 3.4 + 1.5);
       if (cursorY + height + 2 > FOOTER_TOP) { newPage(); drawTableHeader(); }
       // extraBoldText(7.2); doc.text(nameLines, LEFT, cursorY + 3.2, { lineHeightFactor: 1, ...extraBoldOptions });

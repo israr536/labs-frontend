@@ -1,5 +1,7 @@
 import { ArrowRight, BarChart3, Check, ClipboardList, Download, Eye, FileCheck2, ShieldCheck, Sparkles, Users2, Zap } from 'lucide-react';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { faqItems } from '../data/faqData';
 
 type Props = { onLoginClick: () => void; onSignupClick: () => void };
 
@@ -53,18 +55,7 @@ const testGroups = [
 		}
 	];
 
-	const faqs = [
-		{ q: 'How quickly can we start using PathMLT?', a: 'Most laboratories can begin after their workspace identity, core test catalog, users, and report standards are configured. The exact timeline depends on your operating model and whether you need custom templates or implementation support.' },
-		{ q: 'What should we configure first?', a: 'Start with laboratory identity and report standards, activate the panels you run most often, establish reference ranges, invite the operational team, and complete a representative test order.' },
-		{ q: 'Can PathMLT fit our existing workflow?', a: 'PathMLT is designed to be configured around your tests, specimen types, methods, reference ranges, report identity, role boundaries, and team responsibilities.' },
-		{ q: 'Does the platform support multi-test reports?', a: 'Yes. Combined panels and multi-test orders can be managed in one workflow, with each parameter presented clearly for verification and final report generation.' },
-		{ q: 'Can we print and download PDF reports?', a: 'Yes. Reports can be previewed, printed, and downloaded as clean A4 PDF documents. Templates can be configured to reflect your laboratory identity and presentation standards.' },
-		{ q: 'Can I customize report templates?', a: 'Yes. PathMLT supports configurable report layouts and presentation styles so your final documents can align with your laboratory brand and clinical communication standards.' },
-		{ q: 'How does PathMLT support accountable access?', a: 'Workspace access is organized around authenticated team members and role boundaries. Laboratories remain responsible for assigning appropriate access and reviewing their operational policies.' },
-		{ q: 'Does PathMLT maintain an audit trail?', a: 'PathMLT records workflow events and relevant user actions so administrators can review activity around reports, orders, patients, settings, and approvals.' },
-		{ q: 'Who is responsible for patient data policies?', a: 'Your laboratory remains responsible for the information entered into the workspace, including accuracy, lawful use, retention, permissions, and applicable privacy or healthcare requirements.' },
-		{ q: 'Can I book a live demo?', a: 'Yes — use the Book demo on WhatsApp button or contact form to schedule a walkthrough tailored to your lab.' }
-	];
+	const faqs = faqItems;
 
 	const reportScreenshots = [
 		{
@@ -146,13 +137,13 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 					<div className="mini-kpis">
 						<div>
 							<span>Patients</span>
-							<strong>1,248</strong>
-							<small>+12.4% this month</small>
+							<strong>Example</strong>
+							<small>Illustrative dashboard data</small>
 						</div>
 						<div>
 							<span>Reports ready</span>
-							<strong>186</strong>
-							<small>24 awaiting review</small>
+							<strong>Ready</strong>
+							<small>Illustrative report queue</small>
 						</div>
 					</div>
 					<div className="mini-chart">
@@ -176,11 +167,11 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 								<small>12 reports need technician approval</small>
 							</span>
 						</div>
-							<b>12</b>
+							<b>Example</b>
 						</div>
 						</> : <div className="report-preview-panel">
 							<div className="report-preview-head"><span>FINAL REPORT REVIEW</span><b>Ready for sign-off</b></div>
-							<div className="report-preview-patient"><strong>Nashrin · Female · 26 years</strong><span>Order LAB-10482 · Collected today</span></div>
+							<div className="report-preview-patient"><strong>Sample patient · Example report</strong><span>Example order · Example date</span></div>
 							<div className="report-preview-table"><div><span>Hemoglobin</span><b>12.8 g/dL</b><i>Normal</i></div><div><span>WBC count</span><b>7.4 ×10⁹/L</b><i>Normal</i></div><div><span>Platelets</span><b>248 ×10⁹/L</b><i>Normal</i></div></div>
 							<div className="report-preview-footer"><span><ShieldCheck size={14} /> Verified parameters</span><button onClick={onSignupClick}>Create a report <ArrowRight size={13} /></button></div>
 						</div>}
@@ -207,7 +198,7 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 					</section>
 					<section className="landing-decision-bar" aria-label="PathMLT next steps">
 						<div><strong>Evaluating laboratory software?</strong><span>See the answers buyers ask before implementation.</span></div>
-						<div><a href="/faqs">Explore FAQs <ArrowRight size={14} /></a><a className="landing-decision-demo" href="https://wa.me/916388334513?text=Hello%20PathMLT%2C%20I%20want%20to%20book%20a%20demo." target="_blank" rel="noreferrer">Book a demo on WhatsApp <ArrowRight size={14} /></a></div>
+						<div><Link to="/faqs">Explore FAQs <ArrowRight size={14} /></Link><a className="landing-decision-demo" href="https://wa.me/916388334513?text=Hello%20PathMLT%2C%20I%20want%20to%20book%20a%20demo." target="_blank" rel="noreferrer">Book a demo on WhatsApp <ArrowRight size={14} /></a></div>
 					</section>
 
 					<section className="landing-section">
@@ -302,7 +293,7 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 								<div className="screenshot-copy"><span className="screenshot-label">{shot.label}</span><h3>{shot.title}</h3><p>{shot.text}</p><a href="#workflow">Learn this step <ArrowRight size={14} /></a></div>
 								<div className="screenshot-frame" aria-label={`${shot.label} screenshot preview`}>
 									<div className="mock-browser-bar"><i /><i /><i /><span>PathMLT / {shot.label}</span></div>
-									{index === 0 && <div className="mock-report"><div className="mock-report-brand"><b>A</b><span><strong>PathMLT DIAGNOSTICS</strong><small>Trusted laboratory reporting</small></span><em>FINAL REPORT</em></div><div className="mock-patient"><span><small>Patient</small><strong>Nashrin Ahmed</strong></span><span><small>Report ID</small><strong>LAB-10482</strong></span><span><small>Collected</small><strong>12 Sep 2026</strong></span></div><div className="mock-result-head"><span>Test parameter</span><span>Result</span><span>Reference range</span><span>Status</span></div>{[['Hemoglobin','12.8 g/dL','12.0 – 16.0','Normal'],['WBC count','7.4 ×10⁹/L','4.0 – 11.0','Normal'],['Platelets','248 ×10⁹/L','150 – 450','Normal']].map(row => <div className="mock-result-row" key={row[0]}><span>{row[0]}</span><b>{row[1]}</b><span>{row[2]}</span><i><Check size={10} />{row[3]}</i></div>)}<div className="mock-signature"><span><Check size={12} /> Verified by technician</span><b>Ready to share</b></div></div>}
+									{index === 0 && <div className="mock-report"><div className="mock-report-brand"><b>A</b><span><strong>PathMLT DIAGNOSTICS</strong><small>Trusted laboratory reporting</small></span><em>FINAL REPORT</em></div><div className="mock-patient"><span><small>Patient</small><strong>Sample patient</strong></span><span><small>Report ID</small><strong>Example report</strong></span><span><small>Collected</small><strong>Example date</strong></span></div><div className="mock-result-head"><span>Test parameter</span><span>Result</span><span>Reference range</span><span>Status</span></div>{[['Hemoglobin','12.8 g/dL','12.0 – 16.0','Normal'],['WBC count','7.4 ×10⁹/L','4.0 – 11.0','Normal'],['Platelets','248 ×10⁹/L','150 – 450','Normal']].map(row => <div className="mock-result-row" key={row[0]}><span>{row[0]}</span><b>{row[1]}</b><span>{row[2]}</span><i><Check size={10} />{row[3]}</i></div>)}<div className="mock-signature"><span><Check size={12} /> Verified by technician</span><b>Ready to share</b></div></div>}
 									{index === 1 && <div className="mock-queue"><div className="mock-queue-title"><strong>Reports</strong><span>186 total <Download size={12} /></span></div><div className="mock-search">⌕&nbsp; Search patient or report number</div>{[['LAB-10482','Nashrin Ahmed','CBC','Completed'],['LAB-10481','Arjun Mehta','Lipid Profile','Pending'],['LAB-10480','Maya Shah','Thyroid Panel','Draft']].map(row => <div className="mock-queue-row" key={row[0]}><b>{row[0]}</b><span>{row[1]}</span><span>{row[2]}</span><i className={row[3].toLowerCase()}>{row[3]}</i><Eye size={13} /></div>)}</div>}
 									{index === 2 && <div className="mock-entry"><div className="mock-entry-head"><div><small>New report</small><strong>Nashrin Ahmed</strong></div><span>Complete Blood Count (CBC)⌄</span></div><div className="mock-entry-fields"><div><small>Hemoglobin</small><b>12.8 <em>g/dL</em></b></div><div><small>WBC count</small><b>7.4 <em>×10⁹/L</em></b></div><div><small>Platelets</small><b>248 <em>×10⁹/L</em></b></div><div><small>Report status</small><b className="entry-complete">● Completed</b></div></div><div className="mock-entry-note"><ClipboardList size={13} /><span>Interpretation is ready for clinical review.</span></div></div>}
 								</div>
@@ -356,7 +347,7 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 					))}
 				</div>
 				<div className="faq-cta">
-					<a href="/faqs" className="landing-secondary">View full FAQ</a>
+					<Link to="/faqs" className="landing-secondary">View full FAQ</Link>
 					<a className="landing-whatsapp" href="https://wa.me/916388334513?text=Hello%20PathMLT%2C%20I%20want%20to%20book%20a%20demo." target="_blank" rel="noreferrer">Book a demo on WhatsApp</a>
 				</div>
 			</section>

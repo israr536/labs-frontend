@@ -60,6 +60,7 @@ export default function Footer() {
     <strong>Noida Office</strong><br />
     Noida, Uttar Pradesh, India
   </p>
+  
         </div>
       </div>
     </footer>

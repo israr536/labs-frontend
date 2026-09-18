@@ -109,13 +109,9 @@ async function generateLocalPdf(reportId: string, template: ReportTemplateId, fi
 }
 
 async function getProductionPdfBlob(id: string): Promise<Blob> {
-  // The UI keeps printing independent from workflow status. The existing
-  // production backend PDF endpoint is canonical for FINAL orders, while
-  // non-final orders are rendered from the live order response locally.
-  const order = await request<ApiReport>(`orders/${encodeURIComponent(id)}`);
-  if (order.status !== 'FINAL') {
-    throw new Error('ORDER_NOT_FINAL');
-  }
+  // The backend PDF renderer is now canonical for every workflow status.
+  // It reads the complete live order, including item results, so printing does
+  // not depend on the frontend's report-shape mapping.
   return requestBlob(`orders/${encodeURIComponent(id)}/report/pdf`, { timeout: 60000 });
 }
 

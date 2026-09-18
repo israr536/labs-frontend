@@ -9,6 +9,32 @@ const SEO_PATHS = new Set(['laboratory-reporting-software','diagnostic-lab-softw
 const DEFAULT_DESCRIPTION =
   'PathMLT is diagnostic laboratory management software for pathology labs to manage patients, test catalogs, samples, results, verification and professional PDF lab reports from one connected workspace.';
 const KEYWORDS = 'diagnostic lab software, pathology lab management software, laboratory reporting software, pathology report software, lab automation, patient and test management';
+const SEO_TITLES: Record<string,string> = {
+  "/laboratory-reporting-software":"Laboratory Reporting Software for Diagnostic Labs | PathMLT",
+  "/diagnostic-lab-software":"Diagnostic Lab Software for Connected Operations | PathMLT",
+  "/pathology-lab-software":"Pathology Lab Software for Reporting Workflows | PathMLT",
+  "/laboratory-management-software":"Laboratory Management Software for Diagnostic Labs | PathMLT",
+  "/lab-reporting-system":"Lab Reporting System for Verified Results | PathMLT",
+  "/pathology-reporting-software":"Pathology Reporting Software for Consistent Reports | PathMLT",
+  "/lims-software":"LIMS Software for Patient, Testing and Reporting Workflows | PathMLT",
+  "/lab-automation-software":"Lab Automation Software for Reporting Operations | PathMLT",
+  "/patient-management":"Patient Management Software for Diagnostic Labs | PathMLT",
+  "/test-management":"Test Management Software for Laboratory Workflows | PathMLT",
+  "/sample-management":"Sample Management Software for Diagnostic Labs | PathMLT",
+  "/result-entry":"Laboratory Result Entry Software | PathMLT",
+  "/result-verification":"Laboratory Result Verification Software | PathMLT",
+  "/lab-reporting":"Laboratory Reporting Software from Verified Results | PathMLT",
+  "/report-templates":"Laboratory Report Templates | PathMLT",
+  "/reference-ranges":"Laboratory Reference Range Management | PathMLT",
+  "/audit-trail":"Laboratory Audit Trail Software | PathMLT",
+  "/role-based-access":"Role-Based Access for Laboratory Teams | PathMLT",
+  "/pdf-reports":"PDF Lab Report Software | PathMLT",
+  "/pathology-labs":"Laboratory Software for Pathology Labs | PathMLT",
+  "/diagnostic-labs":"Laboratory Software for Diagnostic Labs | PathMLT",
+  "/hospital-labs":"Laboratory Workflow Software for Hospital Labs | PathMLT",
+  "/independent-labs":"Software for Independent Diagnostic Laboratories | PathMLT",
+};
+
 const SEO_DESCRIPTIONS: Record<string,string> = {"/laboratory-reporting-software":"Laboratory reporting software for diagnostic labs. Manage patients, tests, samples, results, verification and professional PDF reports in one workflow.","/diagnostic-lab-software":"Diagnostic lab software connecting patient registration, tests, result entry, verification and final reporting.","/pathology-lab-software":"Pathology lab software for configurable tests, reference ranges, verification, audit history and consistent reports.","/laboratory-management-software":"Laboratory management software for patients, tests, samples, results, reports, users and operational controls.","/lab-reporting-system":"Lab reporting system for structured result entry, reference ranges, verification and final PDF generation.","/pathology-reporting-software":"Pathology reporting software for consistent reports, configurable parameters, reference ranges and review steps.","/lims-software":"Laboratory information workflow software connecting patient, testing, result and reporting operations.","/lab-automation-software":"Lab automation software for repeatable result validation, verification and report generation workflows.","/patient-management":"Patient management software for diagnostic laboratories with searchable records and connected orders and reports.","/test-management":"Test management software with configurable parameters, sample types, departments and reference ranges.","/sample-management":"Sample management for traceable laboratory workflows connected to patient orders and results.","/result-entry":"Structured laboratory result entry with parameter-specific validation and configured reference information.","/result-verification":"Laboratory result verification with flagged values, required-result checks and controlled finalization.","/lab-reporting":"Laboratory reporting from verified results to consistent, professional final reports and PDFs.","/report-templates":"Configurable laboratory report templates for reusable layouts, identity and consistent PDF presentation.","/reference-ranges":"Reference range management with parameter-level data and historical reporting support.","/audit-trail":"Audit trail for laboratory workflow history, approvals and important user actions.","/role-based-access":"Role-based access for laboratory teams with authenticated and controlled responsibilities.","/pdf-reports":"Professional PDF lab reports generated from finalized laboratory results.","/pathology-labs":"Laboratory software for pathology labs focused on testing, result review and controlled report delivery.","/diagnostic-labs":"Laboratory software for diagnostic labs covering patients, orders, results and report delivery.","/hospital-labs":"Laboratory workflow software for hospital labs with role-aware access and traceable reporting.","/independent-labs":"Software for independent diagnostic laboratories covering patient workflows, testing, reporting and controls."};
 
 type SeoConfig = {
@@ -39,8 +65,12 @@ const pages: Record<string, SeoConfig> = {
 function seoConfigForPath(pathname: string): SeoConfig | undefined {
   const slug = pathname.replace(/^\//, '');
   if (!SEO_PATHS.has(slug)) return undefined;
-  const title = slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-  return { title: `${title} | PathMLT`, description: DEFAULT_DESCRIPTION, canonical: pathname, index: true };
+  return {
+    title: SEO_TITLES[pathname] ?? `${slug.replace(/-/g, ' ')} | PathMLT`,
+    description: SEO_DESCRIPTIONS[pathname] ?? DEFAULT_DESCRIPTION,
+    canonical: pathname,
+    index: true,
+  };
 }
 
 function upsertMeta(name: string, content: string) {
@@ -113,6 +143,14 @@ export default function SEO() {
         { '@type': 'SoftwareApplication', '@id': `${SITE_URL}/#software`, name: SITE_NAME, applicationCategory: 'BusinessApplication', operatingSystem: 'Web', description: DEFAULT_DESCRIPTION, url: SITE_URL, publisher: { '@id': `${SITE_URL}/#organization` } },
         { '@type': 'WebPage', '@id': `${canonicalUrl}#webpage`, name: config.title, description: config.description, url: canonicalUrl, isPartOf: { '@id': `${SITE_URL}/#website` }, publisher: { '@id': `${SITE_URL}/#organization` } },
         ...(pathname === '/' ? [{ '@type': 'WebSite', '@id': `${SITE_URL}/#website`, name: SITE_NAME, url: SITE_URL, publisher: { '@id': `${SITE_URL}/#organization` } }] : []),
+        ...(config.index && pathname !== '/' ? [{
+          '@type': 'BreadcrumbList',
+          '@id': `${canonicalUrl}#breadcrumb`,
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+            { '@type': 'ListItem', position: 2, name: config.title.replace(/ \\| PathMLT$/, ''), item: canonicalUrl },
+          ],
+        }] : []),
         ...(faqSchema ? [faqSchema] : []),
       ],
     });

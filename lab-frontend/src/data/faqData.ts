@@ -8,13 +8,17 @@ export const faqGroups = [
   ]},
   { label: 'Reporting operations', items: [
     { question: 'Does the platform support multi-test reports?', answer: 'Yes. Combined panels and multi-test orders can be managed in one workflow, with each parameter presented clearly for verification and final report generation.' },
-    { question: 'Can we print and download PDF reports?', answer: 'Yes. Reports can be previewed, printed, and downloaded as clean A4 PDF documents. Templates can be configured to reflect your laboratory identity and presentation standards.' },
-    { question: 'Can we customize report templates?', answer: 'Yes. PathMLT supports configurable report layouts and presentation styles so your final documents can align with your laboratory brand and clinical communication standards.' },
-  ]},
-  { label: 'Governance and access', items: [
-    { question: 'How does PathMLT support accountable access?', answer: 'Workspace access is organized around authenticated team members and role boundaries. Laboratories remain responsible for assigning appropriate access and reviewing their operational policies.' },
+    { question: 'Can we print and download PDF reports?', answer: 'Yes. Reports can be previewed, printed, and downloaded as A4 PDF documents. Templates can be configured to reflect your laboratory identity and presentation standards.' },
+    { question: 'Can we customize report templates?', answer: 'Yes. PathMLT supports configurable report layouts and presentation styles so your final documents can align with your laboratory brand and reporting standards.' },
     { question: 'Does PathMLT maintain an audit trail?', answer: 'PathMLT records workflow events and relevant user actions so administrators can review activity around reports, orders, patients, settings, and approvals.' },
+  ]},
+  { label: 'Access and governance', items: [
+    { question: 'How does PathMLT support accountable access?', answer: 'Workspace access is organized around authenticated team members and role boundaries. Laboratories remain responsible for assigning appropriate access and reviewing their operational policies.' },
+    { question: 'Can different team members have different responsibilities?', answer: 'Yes. The application uses authenticated roles and role-aware controls so administrative, technician, and other operational responsibilities can be separated.' },
+  ]},
+  { label: 'Data and next steps', items: [
     { question: 'Who is responsible for patient data policies?', answer: 'Your laboratory remains responsible for the information entered into the workspace, including accuracy, lawful use, retention, permissions, and applicable privacy or healthcare requirements.' },
+    { question: 'Can I book a live demo?', answer: 'Yes. Use the contact page or the Book demo on WhatsApp option to schedule a walkthrough around your laboratory workflow.' },
   ]},
 ] as const;
 

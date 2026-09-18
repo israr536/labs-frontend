@@ -131,7 +131,7 @@ export default function SEO() {
 
     upsertCanonical(canonicalUrl);
 
-    const faqSchema = pathname === '/faqs' ? {
+    const faqSchema = (pathname === '/faqs' || pathname === '/') ? {
       '@type': 'FAQPage',
       mainEntity: faqItems.map(item => ({ '@type': 'Question', name: item.question, acceptedAnswer: { '@type': 'Answer', text: item.answer } })),
     } : null;

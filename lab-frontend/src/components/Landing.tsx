@@ -310,7 +310,7 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 					<p>Start with a secure workspace and scale as your team grows.</p>
 				</div>
 				<button className="landing-primary" onClick={onSignupClick}>
-					Create your workspace <ArrowRight size={17} />
+					Register here <ArrowRight size={17} />
 				</button>
 			</section>
 

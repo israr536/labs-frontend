@@ -72,26 +72,28 @@ async function getPdfInputs(reportId: string) {
   const cached = reportPdfCache.get(reportId);
   if (cached && cached.expiresAt > now) return cached;
 
-  const [finalizedResult, settings] = await Promise.all([
-    request<ApiReport>(`orders/${reportId}/report`).catch(() => null),
+  const [orderResult, settings] = await Promise.all([
+    request<ApiReport>(`orders/${reportId}`),
     labsService.getSettings().catch(() => DEFAULT_SETTINGS as LabSettings),
   ]);
 
-  // FinalReport is the preferred immutable print snapshot. Some older/legacy
-  // responses can still arrive in the normal order shape, so only trust the
-  // snapshot when it actually contains tests and result parameters.
-  let report: LabReport | null = null;
-  if (finalizedResult) {
-    const candidate = mapFinalReport(finalizedResult);
-    if (candidate.parameters.length > 0 || Array.isArray(finalizedResult.order?.tests) || Array.isArray(finalizedResult.order?.items)) {
-      report = candidate;
+  // Use the normal order response as the universal compatibility source.
+  // It works for drafts and finalized orders and contains items[].test.parameters[]
+  // plus items[].results[].
+  let report = mapOrderAsReport(orderResult);
+
+  // For FINAL orders, prefer the immutable FinalReport snapshot when available.
+  // Do this only after knowing the order is final, so draft/registered orders do
+  // not generate a misleading 404 against /orders/:id/report.
+  if (orderResult.status === 'FINAL') {
+    const finalizedResult = await request<ApiReport>(`orders/${reportId}/report`).catch(() => null);
+    if (finalizedResult) {
+      const candidate = mapFinalReport(finalizedResult);
+      if (candidate.parameters.length > 0 || (finalizedResult.order?.tests?.length ?? 0) > 0 || (finalizedResult.order?.items?.length ?? 0) > 0) {
+        report = candidate;
+      }
     }
   }
-
-  // /orders/:id is the compatibility fallback for draft/legacy orders and for
-  // finalized records whose snapshot is unavailable. It is mapped from items[]
-  // and therefore preserves parameter definitions + saved result values.
-  if (!report) report = await getReport(reportId);
 
   const entry = { report, settings, expiresAt: now + REPORT_PDF_CACHE_TTL };
   reportPdfCache.set(reportId, entry);

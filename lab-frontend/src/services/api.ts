@@ -23,19 +23,47 @@ function getStoredTokens() {
 }
 
 export function setTokens(tokens: { accessToken?: string }) {
-  if (tokens.accessToken) localStorage.setItem('lab_access_token', tokens.accessToken);
+  if (tokens.accessToken) {
+    localStorage.setItem('lab_access_token', tokens.accessToken);
+    scheduleTokenExpiry(tokens.accessToken);
+  }
 }
+
+let tokenExpiryTimer: number | undefined;
 
 export function clearTokens() {
   localStorage.removeItem('lab_access_token');
   // Remove the legacy refresh token if an older deployment stored one.
   localStorage.removeItem('lab_refresh_token');
+  if (tokenExpiryTimer !== undefined) window.clearTimeout(tokenExpiryTimer);
+  tokenExpiryTimer = undefined;
 }
 
 function notifyAuthExpired() {
   if (typeof window === 'undefined') return;
   window.dispatchEvent(new CustomEvent('lab:auth-expired'));
 }
+
+function scheduleTokenExpiry(token: string) {
+  if (typeof window === 'undefined') return;
+  if (tokenExpiryTimer !== undefined) window.clearTimeout(tokenExpiryTimer);
+  try {
+    const payload = JSON.parse(window.atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+    const expiresAt = Number(payload.exp) * 1000;
+    if (!Number.isFinite(expiresAt)) return;
+    const delay = Math.max(0, expiresAt - Date.now());
+    tokenExpiryTimer = window.setTimeout(() => {
+      if (getStoredTokens().accessToken !== token) return;
+      clearTokens();
+      notifyAuthExpired();
+    }, delay);
+  } catch {
+    // If a token cannot be decoded, the server-side 401 path still logs out safely.
+  }
+}
+
+const initialAccessToken = localStorage.getItem('lab_access_token');
+if (initialAccessToken) scheduleTokenExpiry(initialAccessToken);
 
 // The loader tracks one logical request, not every internal fetch/retry.
 // This prevents token refreshes and retry attempts from making the loader flicker.

@@ -112,7 +112,7 @@ async function getProductionPdfBlob(id: string): Promise<Blob> {
   // The backend PDF renderer is now canonical for every workflow status.
   // It reads the complete live order, including item results, so printing does
   // not depend on the frontend's report-shape mapping.
-  return requestBlob(`orders/${encodeURIComponent(id)}/report/pdf`, { timeout: 60000 });
+  return requestBlob(`orders/${encodeURIComponent(id)}/report/pdf`, { timeout: 120000 });
 }
 
 async function generatePdfForPrint(

@@ -72,24 +72,25 @@ async function getPdfInputs(reportId: string) {
   const cached = reportPdfCache.get(reportId);
   if (cached && cached.expiresAt > now) return cached;
 
-  const [finalizedResult, settings] = await Promise.all([
-    request<ApiReport>(`orders/${reportId}/report`).catch(() => null),
+  const [orderResult, settings] = await Promise.all([
+    request<ApiReport>(`orders/${reportId}`),
     labsService.getSettings().catch(() => DEFAULT_SETTINGS as LabSettings),
   ]);
 
-  // FinalReport is the preferred immutable print snapshot. Some older/legacy
-  // responses can still arrive in the normal order shape, so only trust the
-  // snapshot when it actually contains tests/result data.
-  let report: LabReport | null = null;
-  if (finalizedResult) {
-    const candidate = mapFinalReport(finalizedResult);
-    if (candidate.parameters.length > 0 || Array.isArray(finalizedResult.order?.tests) || Array.isArray(finalizedResult.order?.items)) {
-      report = candidate;
+  // Universal source for drafts and finalized orders.
+  let report = mapOrderAsReport(orderResult);
+
+  // FINAL orders can use the immutable snapshot when it is present. Non-final
+  // orders never call this endpoint, so normal report printing stays 404-free.
+  if (orderResult.status === 'FINAL') {
+    const finalizedResult = await request<ApiReport>(`orders/${reportId}/report`).catch(() => null);
+    if (finalizedResult) {
+      const candidate = mapFinalReport(finalizedResult);
+      if (candidate.parameters.length > 0 || (finalizedResult.order?.tests?.length ?? 0) > 0 || (finalizedResult.order?.items?.length ?? 0) > 0) {
+        report = candidate;
+      }
     }
   }
-
-  // Compatibility fallback for draft/legacy orders and missing snapshots.
-  if (!report) report = await getReport(reportId);
 
   const entry = { report, settings, expiresAt: now + REPORT_PDF_CACHE_TTL };
   reportPdfCache.set(reportId, entry);

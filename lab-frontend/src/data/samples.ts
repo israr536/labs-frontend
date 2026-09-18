@@ -46,7 +46,7 @@ export interface LabReport {
   dateCollected: string;
   dateReported: string;
   testType: string;
-  status: 'Completed' | 'Pending' | 'Critical' | 'Draft';
+  status?: 'Completed' | 'Pending' | 'Critical' | 'Draft';
   parameters: TestParameter[];
   interpretation: string;
 }

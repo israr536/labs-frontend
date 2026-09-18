@@ -97,7 +97,7 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 						</p>
 					<div className="landing-actions">
 						<button className="landing-primary" onClick={onSignupClick}>
-							Start your workspace <ArrowRight size={17} />
+							Register here <ArrowRight size={17} />
 						</button>
 						<button className="landing-secondary" onClick={onLoginClick}>
 							Login to PathMLT

@@ -170,7 +170,7 @@ export function mapFinalReport(data: ApiReport): LabReport {
   const tests = items.map((item: any) => {
     if (Array.isArray(order.tests)) return item;
 
-    const resultByParameterId = new Map(
+    const resultByParameterId = new Map<string, any>(
       (item.results ?? []).map((result: any) => [result.parameterId, result]),
     );
 

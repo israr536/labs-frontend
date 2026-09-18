@@ -72,29 +72,14 @@ async function getPdfInputs(reportId: string) {
   const cached = reportPdfCache.get(reportId);
   if (cached && cached.expiresAt > now) return cached;
 
-  const [orderResult, settings] = await Promise.all([
-    request<ApiReport>(`orders/${reportId}`),
+  // Finalized reports have an immutable snapshot specifically designed for reads/printing.
+  // Avoid GET /orders/:id here because that endpoint materializes catalog parameters and
+  // reloads the complete order graph. Draft reports still use the order endpoint.
+  const [finalizedResult, settings] = await Promise.all([
+    request<ApiReport>(`orders/${reportId}/report`).catch(() => null),
     labsService.getSettings().catch(() => DEFAULT_SETTINGS as LabSettings),
   ]);
-
-  // Use the normal order response as the universal compatibility source.
-  // It works for drafts and finalized orders and contains items[].test.parameters[]
-  // plus items[].results[].
-  let report = mapOrderAsReport(orderResult);
-
-  // For FINAL orders, prefer the immutable FinalReport snapshot when available.
-  // Do this only after knowing the order is final, so draft/registered orders do
-  // not generate a misleading 404 against /orders/:id/report.
-  if (orderResult.status === 'FINAL') {
-    const finalizedResult = await request<ApiReport>(`orders/${reportId}/report`).catch(() => null);
-    if (finalizedResult) {
-      const candidate = mapFinalReport(finalizedResult);
-      if (candidate.parameters.length > 0 || (finalizedResult.order?.tests?.length ?? 0) > 0 || (finalizedResult.order?.items?.length ?? 0) > 0) {
-        report = candidate;
-      }
-    }
-  }
-
+  const report = finalizedResult ? mapFinalReport(finalizedResult) : await getReport(reportId);
   const entry = { report, settings, expiresAt: now + REPORT_PDF_CACHE_TTL };
   reportPdfCache.set(reportId, entry);
   return entry;
@@ -113,39 +98,13 @@ async function generateLocalPdf(reportId: string, template: ReportTemplateId, fi
 
 export async function downloadReportPdf(id: string, fileName?: string, template: ReportTemplateId = getSavedReportTemplate()) {
   const { url, fileName: finalName } = await generateLocalPdf(id, template, fileName);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = finalName;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  // Give the browser time to start the download before revoking the blob URL.
-  setTimeout(() => window.URL.revokeObjectURL(url), 60_000);
+  const a = document.createElement('a'); a.href = url; a.download = finalName; document.body.appendChild(a); a.click(); a.remove(); window.URL.revokeObjectURL(url);
 }
 
 export async function openReportPdf(id: string, template: ReportTemplateId = getSavedReportTemplate()) {
-  // Open the tab synchronously from the user click. Browsers can block a
-  // window.open() that happens only after async API/PDF work completes.
-  const popup = window.open('about:blank', '_blank');
-  try {
-    const { url } = await generateLocalPdf(id, template);
-
-    if (popup && !popup.closed) {
-      popup.location.href = url;
-    } else {
-      // Graceful fallback when the browser blocks popups.
-      const link = document.createElement('a');
-      link.href = url;
-      link.target = '_blank';
-      link.rel = 'noopener,noreferrer';
-      link.click();
-    }
-
-    setTimeout(() => window.URL.revokeObjectURL(url), 60_000);
-  } catch (error) {
-    if (popup && !popup.closed) popup.close();
-    throw error;
-  }
+  const { url } = await generateLocalPdf(id, template);
+  window.open(url, '_blank', 'noopener,noreferrer');
+  setTimeout(() => window.URL.revokeObjectURL(url), 60000);
 }
 
 function mapApiReport(report: ApiReport): LabReport {
@@ -161,80 +120,9 @@ function mapGeneratedReport(data: ApiReport): LabReport {
 }
 
 export function mapFinalReport(data: ApiReport): LabReport {
-  const order = data.order ?? {};
-  const items = Array.isArray(order.tests)
-    ? order.tests
-    : Array.isArray(order.items)
-      ? order.items
-      : [];
-
-  // FinalReport snapshots normally expose tests[].parameters[].value.
-  // Legacy order responses expose items[].test.parameters[] + items[].results[].
-  const tests = items.map((item: any) => {
-    if (Array.isArray(order.tests)) return item;
-
-    const resultByParameterId = new Map(
-      (item.results ?? []).map((result: any) => [result.parameterId, result]),
-    );
-
-    return {
-      orderItemId: item.id,
-      test: item.test,
-      parameters: (item.test?.parameters ?? []).map((parameter: any) => {
-        const result = resultByParameterId.get(parameter.id);
-        return {
-          parameterId: parameter.id,
-          name: parameter.name,
-          value: result?.value ?? null,
-          unit: result?.referenceRangeSnapshot?.unit ?? parameter.unit,
-          referenceRange: result?.referenceRangeSnapshot ?? parameter.referenceRange,
-          referenceRangeId: result?.referenceRangeId ?? null,
-          referenceRangeVersion: result?.referenceRangeSnapshot?.version ?? null,
-          normalMin: result?.referenceRangeSnapshot?.low ?? parameter.normalMin,
-          normalMax: result?.referenceRangeSnapshot?.high ?? parameter.normalMax,
-          flag: result?.flag ?? null,
-          displayOrder: parameter.displayOrder,
-          remarks: parameter.remarks,
-        };
-      }),
-    };
-  });
-
-  const parameters: ReportParameter[] = tests.flatMap((item: any) =>
-    (item.parameters ?? []).map((parameter: any) => ({
-      name: parameter.name ?? 'Parameter',
-      value: parameter.value ?? '',
-      unit: parameter.unit ?? '',
-      refRange: formatRange(parameter),
-      minRef: parameter.normalMin ?? undefined,
-      maxRef: parameter.normalMax ?? undefined,
-      status: mapFlag(parameter.flag, parameter.value, parameter.normalMin, parameter.normalMax),
-      testName: item.test?.name ?? 'Test',
-      testCode: item.test?.code,
-      category: item.test?.category,
-      sampleType: item.test?.sampleType,
-      method: item.test?.method,
-    })),
-  );
-
-  return {
-    id: order.id,
-    patientName: order.patient?.name ?? 'Unknown patient',
-    age: order.patient?.age ?? 0,
-    gender: mapGenderFromApi(order.patient?.gender),
-    phone: order.patient?.mobile ?? '',
-    email: order.patient?.email ?? '',
-    referredBy: order.referredBy ?? 'Dr. Self / Walk-in',
-    dateCollected: toDateTimeLocal(order.samples?.[0]?.collectedAt ?? order.orderedAt ?? order.createdAt),
-    dateReported: toDateTimeLocal(data.finalizedAt ?? order.orderedAt ?? order.updatedAt ?? order.createdAt),
-    testType: tests.map((item: any) => item.test?.name).filter(Boolean).join(' + ') || 'Diagnostic Test',
-    status: mapFinalStatus(tests),
-    parameters,
-    interpretation: order.clinicalNotes ?? '',
-    reportNumber: data.reportNumber ?? order.orderNumber,
-    patientId: order.patient?.id,
-    orderId: order.id,
-  } as LabReport & { orderId: string };
+  const tests = data.order?.tests ?? [];
+  const parameters: ReportParameter[] = tests.flatMap((item: any) => (item.parameters ?? []).map((parameter: any) => ({ name: parameter.name ?? 'Parameter', value: parameter.value ?? '', unit: parameter.unit ?? '', refRange: formatRange(parameter), minRef: parameter.normalMin ?? undefined, maxRef: parameter.normalMax ?? undefined, status: mapFlag(parameter.flag, parameter.value, parameter.normalMin, parameter.normalMax), testName: item.test?.name ?? 'Test', testCode: item.test?.code, category: item.test?.category, sampleType: item.test?.sampleType, method: item.test?.method })));
+  return { id: data.order?.id, patientName: data.order?.patient?.name ?? 'Unknown patient', age: data.order?.patient?.age ?? 0, gender: mapGenderFromApi(data.order?.patient?.gender), phone: data.order?.patient?.mobile ?? '', email: data.order?.patient?.email ?? '', referredBy: data.order?.referredBy ?? 'Dr. Self / Walk-in', dateCollected: toDateTimeLocal(data.order?.samples?.[0]?.collectedAt ?? data.order?.orderedAt), dateReported: toDateTimeLocal(data.finalizedAt ?? data.order?.orderedAt), testType: tests.map((item: any) => item.test?.name).filter(Boolean).join(' + ') || 'Diagnostic Test', status: mapFinalStatus(tests), parameters, interpretation: data.order?.clinicalNotes ?? '', reportNumber: data.reportNumber, patientId: data.order?.patient?.id, orderId: data.order?.id } as LabReport & { orderId: string };
 }
 
 export function mapOrderAsReport(order: ApiReport): LabReport {

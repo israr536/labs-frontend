@@ -81,7 +81,7 @@ export async function updateCombinedReport(report: EditableReport): Promise<LabR
       patient: { name: report.patientName, age: report.age, gender: normalizeGender(report.gender), mobile: report.phone, email: report.email || undefined },
       referredBy: report.referredBy,
       clinicalNotes: report.interpretation,
-      status: report.status,
+      status: typeof report.status === 'string' && report.status.trim() ? report.status.trim() : 'FINAL',
       results,
     }),
   });

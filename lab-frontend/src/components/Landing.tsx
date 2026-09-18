@@ -68,6 +68,8 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
         <div><strong>Patients</strong><b>→</b><strong>Orders</strong><b>→</b><strong>Samples</strong><b>→</b><strong>Results</strong><b>→</b><strong>Verification</strong><b>→</b><strong>Reports</strong></div>
       </section>
 
+      <div className="landing-v2-action-rail"><span>See how PathMLT fits your lab before you commit.</span><div><a className="landing-v2-demo-btn" href="https://wa.me/916388334513?text=Hello%20PathMLT%2C%20I%20want%20to%20book%20a%20demo." target="_blank" rel="noreferrer">Book a demo <ArrowRight size={14} /></a><button className="landing-v2-login-btn" onClick={onLoginClick}>Login</button><button className="landing-v2-register-btn" onClick={onSignupClick}>Register</button></div></div>
+
       <section className="landing-v2-section">
         <div className="landing-v2-section-head">
           <div><span className="landing-v2-eyebrow">Everything in context</span><h2>Less chasing. More work getting done.</h2></div>
@@ -82,6 +84,8 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
         <div className="workflow-v2-copy"><span className="landing-v2-eyebrow">A workflow your team can follow</span><h2>Make the next action obvious.</h2><p>Each stage has a clear owner and state, so work keeps moving without asking where the latest information lives.</p><div className="workflow-v2-list">{workflow.map(([n,t,d]) => <div key={n}><b>{n}</b><span><strong>{t}</strong><small>{d}</small></span></div>)}</div></div>
         <div className="workflow-v2-card"><div className="workflow-card-head"><span><Zap size={15} /> Live workflow</span><small>Order #LAB-10482</small></div>{workflow.map(([n,t],i)=><div className={`workflow-card-row ${i < 3 ? 'complete' : 'next'}`} key={n}><span className="workflow-node">{i < 3 ? <Check size={13}/> : n}</span><div><strong>{t}</strong><small>{i < 3 ? 'Completed' : 'Next action'}</small></div>{i < 3 && <em>Done</em>}</div>)}<div className="workflow-card-footer"><ShieldCheck size={15}/> Verified steps are kept with the report history.</div></div>
       </section>
+
+      <div className="landing-v2-action-rail"><span>Ready to move from manual handoffs to a connected workflow?</span><div><a className="landing-v2-demo-btn" href="https://wa.me/916388334513?text=Hello%20PathMLT%2C%20I%20want%20to%20book%20a%20demo." target="_blank" rel="noreferrer">Book a demo <ArrowRight size={14} /></a><button className="landing-v2-login-btn" onClick={onLoginClick}>Login</button><button className="landing-v2-register-btn" onClick={onSignupClick}>Register</button></div></div>
 
       <section className="landing-v2-showcase">
         <div><span className="landing-v2-eyebrow">Reporting without the clutter</span><h2>Professional reports, built from verified results.</h2><p>Configure your laboratory identity once, keep parameters readable, and give reviewers a focused finalization step.</p><Link to="/report-templates">Explore report templates <ArrowRight size={15} /></Link></div>
@@ -103,6 +107,8 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
         </div>
         <div className="landing-v2-faq-link"><Link to="/faqs">View all FAQs <ArrowRight size={15} /></Link></div>
       </section>
+
+      <div className="landing-v2-action-rail"><span>Have questions? Talk to us, sign in, or create your workspace.</span><div><a className="landing-v2-demo-btn" href="https://wa.me/916388334513?text=Hello%20PathMLT%2C%20I%20want%20to%20book%20a%20demo." target="_blank" rel="noreferrer">Book a demo <ArrowRight size={14} /></a><button className="landing-v2-login-btn" onClick={onLoginClick}>Login</button><button className="landing-v2-register-btn" onClick={onSignupClick}>Register</button></div></div>
 
       <section className="landing-v2-bottom">
         <div><span className="landing-v2-eyebrow">Built to grow with your laboratory</span><h2>Start with the workflow you use every day.</h2><p>Configure your core panels, invite your team and move a representative order from registration to final report.</p></div>

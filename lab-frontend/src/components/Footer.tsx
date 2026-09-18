@@ -24,11 +24,17 @@ export default function Footer() {
           <h4>Product</h4>
           <nav className="footer-links">
             <Link to="/solutions">Solutions</Link>
+            <Link to="/laboratory-reporting-software">Laboratory reporting</Link>
+            <Link to="/diagnostic-lab-software">Diagnostic lab software</Link>
+            <Link to="/pathology-lab-software">Pathology lab software</Link>
             <Link to="/pricing">Pricing</Link>
             <Link to="/about">About</Link>
             <Link to="/contact">Contact</Link>
             <Link to="/faqs">FAQs</Link>
             <Link to="/help">Help center</Link>
+            <Link to="/patient-management">Patient management</Link>
+            <Link to="/result-verification">Result verification</Link>
+            <Link to="/pdf-reports">PDF reports</Link>
           </nav>
         </div>
 

@@ -30,3 +30,25 @@ button, input, select, textarea { min-width: 0; }
 @media (max-width: 1100px) { .main-content { width: 100%; margin-left: 0; padding-top: 18px; padding-bottom: 88px; } .saas-dashboard, .saas-page, .catalog-page { padding-inline: 0 !important; } .catalog-card.is-expanded { grid-column: span 1; } }
 @media (max-width: 700px) { .main-content { padding-inline: 14px; } .saas-dashboard, .saas-page { padding-top: 18px; } .saas-dashboard-heading, .saas-page-header, .catalog-header { flex-direction: column; align-items: stretch !important; } .catalog-toolbar { flex-direction: column; align-items: stretch; } .catalog-toolbar select { min-width: 0 !important; width: 100%; } .catalog-grid { grid-template-columns: 1fr !important; } .glass-panel { padding: 16px; border-radius: 12px; } .custom-table { min-width: 640px; } .modal-overlay { padding: 8px; } .modal, [role="dialog"] { max-width: calc(100vw - 16px); max-height: calc(100dvh - 16px); } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; } }
+
+/* SEO landing pages */
+.seo-landing-page { max-width: 1180px; margin: 0 auto; padding: 56px 0 72px; }
+.seo-landing-hero { display:grid; grid-template-columns:minmax(0,1.35fr) minmax(280px,.65fr); gap:32px; align-items:center; padding:32px 0 64px; }
+.seo-landing-hero h1 { margin:12px 0 18px; font-size:clamp(2.3rem,5vw,4.2rem); line-height:1.02; letter-spacing:-.045em; }
+.seo-landing-hero p { max-width:760px; font-size:1.08rem; line-height:1.7; opacity:.82; }
+.seo-actions { display:flex; gap:12px; flex-wrap:wrap; margin-top:26px; }
+.seo-hero-card { padding:28px; border:1px solid rgba(127,127,127,.2); border-radius:20px; background:rgba(127,127,127,.06); display:flex; flex-direction:column; gap:10px; }
+.seo-hero-card svg { margin-bottom:8px; }
+.seo-benefits { padding:48px 0; border-top:1px solid rgba(127,127,127,.15); }
+.seo-benefit-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin-top:28px; }
+.seo-benefit-grid article { display:flex; gap:12px; align-items:flex-start; padding:18px; border:1px solid rgba(127,127,127,.16); border-radius:14px; }
+.seo-benefit-grid svg { flex:none; margin-top:2px; }
+.seo-related { display:grid; grid-template-columns:.7fr 1.3fr; gap:32px; padding:48px 0; border-top:1px solid rgba(127,127,127,.15); }
+.seo-related-links { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.seo-related-links a { display:flex; justify-content:space-between; gap:10px; align-items:center; padding:16px; border:1px solid rgba(127,127,127,.16); border-radius:12px; text-decoration:none; }
+.seo-related-links a:hover { transform:translateY(-1px); }
+@media (max-width:800px) {
+ .seo-landing-page { padding:32px 0 56px; }
+ .seo-landing-hero,.seo-related { grid-template-columns:1fr; }
+ .seo-benefit-grid,.seo-related-links { grid-template-columns:1fr; }
+}

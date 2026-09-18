@@ -3,7 +3,7 @@ name: Frontend Browser E2E
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, new-features, seo-security-e2e-improvements]
 
 jobs:
   browser-e2e:

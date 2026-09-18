@@ -1,12 +1,15 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { faqItems } from '../data/faqData';
 
 const SITE_URL = 'https://www.pathmlt.com';
 const SITE_NAME = 'PathMLT';
 const OG_IMAGE = `${SITE_URL}/og-image.svg`;
+const SEO_PATHS = new Set(['laboratory-reporting-software','diagnostic-lab-software','pathology-lab-software','laboratory-management-software','lab-reporting-system','pathology-reporting-software','lims-software','lab-automation-software','patient-management','test-management','sample-management','result-entry','result-verification','lab-reporting','report-templates','reference-ranges','audit-trail','role-based-access','pdf-reports','pathology-labs','diagnostic-labs','hospital-labs','independent-labs']);
 const DEFAULT_DESCRIPTION =
   'PathMLT is diagnostic laboratory management software for pathology labs to manage patients, test catalogs, samples, results, verification and professional PDF lab reports from one connected workspace.';
 const KEYWORDS = 'diagnostic lab software, pathology lab management software, laboratory reporting software, pathology report software, lab automation, patient and test management';
+const SEO_DESCRIPTIONS: Record<string,string> = {"/laboratory-reporting-software":"Laboratory reporting software for diagnostic labs. Manage patients, tests, samples, results, verification and professional PDF reports in one workflow.","/diagnostic-lab-software":"Diagnostic lab software connecting patient registration, tests, result entry, verification and final reporting.","/pathology-lab-software":"Pathology lab software for configurable tests, reference ranges, verification, audit history and consistent reports.","/laboratory-management-software":"Laboratory management software for patients, tests, samples, results, reports, users and operational controls.","/lab-reporting-system":"Lab reporting system for structured result entry, reference ranges, verification and final PDF generation.","/pathology-reporting-software":"Pathology reporting software for consistent reports, configurable parameters, reference ranges and review steps.","/lims-software":"Laboratory information workflow software connecting patient, testing, result and reporting operations.","/lab-automation-software":"Lab automation software for repeatable result validation, verification and report generation workflows.","/patient-management":"Patient management software for diagnostic laboratories with searchable records and connected orders and reports.","/test-management":"Test management software with configurable parameters, sample types, departments and reference ranges.","/sample-management":"Sample management for traceable laboratory workflows connected to patient orders and results.","/result-entry":"Structured laboratory result entry with parameter-specific validation and configured reference information.","/result-verification":"Laboratory result verification with flagged values, required-result checks and controlled finalization.","/lab-reporting":"Laboratory reporting from verified results to consistent, professional final reports and PDFs.","/report-templates":"Configurable laboratory report templates for reusable layouts, identity and consistent PDF presentation.","/reference-ranges":"Reference range management with parameter-level data and historical reporting support.","/audit-trail":"Audit trail for laboratory workflow history, approvals and important user actions.","/role-based-access":"Role-based access for laboratory teams with authenticated and controlled responsibilities.","/pdf-reports":"Professional PDF lab reports generated from finalized laboratory results.","/pathology-labs":"Laboratory software for pathology labs focused on testing, result review and controlled report delivery.","/diagnostic-labs":"Laboratory software for diagnostic labs covering patients, orders, results and report delivery.","/hospital-labs":"Laboratory workflow software for hospital labs with role-aware access and traceable reporting.","/independent-labs":"Software for independent diagnostic laboratories covering patient workflows, testing, reporting and controls."};
 
 type SeoConfig = {
   title: string;
@@ -32,6 +35,13 @@ const pages: Record<string, SeoConfig> = {
   '/dashboard': { title: 'Laboratory Dashboard | PathMLT', description: 'Manage your PathMLT laboratory workspace.', canonical: '/dashboard', index: false },
   '/report-templates': { title: 'Report Templates | PathMLT', description: 'Manage laboratory report templates in your PathMLT workspace.', canonical: '/report-templates', index: false },
 };
+
+function seoConfigForPath(pathname: string): SeoConfig | undefined {
+  const slug = pathname.replace(/^\\//, '');
+  if (!SEO_PATHS.has(slug)) return undefined;
+  const title = slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  return { title: `${title} | PathMLT`, description: DEFAULT_DESCRIPTION, canonical: pathname, index: true };
+}
 
 function upsertMeta(name: string, content: string) {
   let element = document.head.querySelector<HTMLMetaElement>(`meta[name="${name}"]`);
@@ -62,7 +72,8 @@ export default function SEO() {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    const config = pages[pathname] ?? { title: `${SITE_NAME} | Laboratory Reporting Software`, description: DEFAULT_DESCRIPTION, canonical: '/', index: false };
+    const config = pages[pathname] ?? seoConfigForPath(pathname) ?? { title: `${SITE_NAME} | Laboratory Reporting Software`, description: DEFAULT_DESCRIPTION, canonical: '/', index: false };
+    if (!pages[pathname] && SEO_DESCRIPTIONS[pathname]) config.description = SEO_DESCRIPTIONS[pathname];
     const canonicalUrl = `${SITE_URL}${config.canonical}`;
 
     document.title = config.title;
@@ -92,11 +103,7 @@ export default function SEO() {
 
     const faqSchema = pathname === '/faqs' ? {
       '@type': 'FAQPage',
-      mainEntity: [
-        ['How quickly can we start using PathMLT?', 'Most laboratories can begin with their core patient, test and reporting workflows after an onboarding review.'],
-        ['Can I customize report templates?', 'Yes. Administrators can configure report templates, laboratory identity, reference ranges and result parameters for their workflow.'],
-        ['Does PathMLT maintain an audit trail?', 'PathMLT records important workflow events and approvals so laboratory teams can review operational history.'],
-      ].map(([name, text]) => ({ '@type': 'Question', name, acceptedAnswer: { '@type': 'Answer', text } })),
+      mainEntity: faqItems.map(item => ({ '@type': 'Question', name: item.question, acceptedAnswer: { '@type': 'Answer', text: item.answer } })),
     } : null;
 
     upsertJsonLd({

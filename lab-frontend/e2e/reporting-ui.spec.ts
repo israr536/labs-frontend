@@ -97,3 +97,25 @@ test.describe('PathMLT browser reporting flow', () => {
     await expect(page.getByRole('button', { name: /sign in/i }).first()).toBeVisible();
   });
 });
+
+
+test('public SEO routes expose indexable metadata and canonical URLs', async ({ page }) => {
+  const routes = [
+    ['/', 'Laboratory Reporting Software for Diagnostic Labs | PathMLT'],
+    ['/laboratory-reporting-software', 'Laboratory Reporting Software for Diagnostic Labs | PathMLT'],
+    ['/diagnostic-lab-software', 'Diagnostic Lab Software | PathMLT'],
+    ['/pathology-lab-software', 'Pathology Lab Software | PathMLT'],
+    ['/patient-management', 'Patient Management | PathMLT'],
+    ['/result-verification', 'Result Verification | PathMLT'],
+    ['/pdf-reports', 'PDF Reports | PathMLT'],
+  ] as const;
+
+  for (const [route, expectedTitle] of routes) {
+    await page.goto(route);
+    await expect(page).toHaveTitle(expectedTitle);
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /laboratory|diagnostic|pathology|report/i);
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'index, follow');
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `https://www.pathmlt.com${route}`);
+    await expect(page.locator('h1')).toBeVisible();
+  }
+});

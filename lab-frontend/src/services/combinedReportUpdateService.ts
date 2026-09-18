@@ -88,12 +88,12 @@ export async function updateCombinedReport(report: EditableReport): Promise<LabR
   return response?.order?.tests ? mapFinalReport(response) : mapOrderAsReport(response);
 }
 
-function normalizeGender(gender?: string): 'MALE' | 'FEMALE' | 'OTHER' {
+function normalizeGender(gender?: string): 'MALE' | 'FEMALE' | 'OTHER' | undefined {
   switch (String(gender ?? '').trim().toUpperCase()) {
     case 'FEMALE': return 'FEMALE';
     case 'OTHER': return 'OTHER';
-    case 'MALE':
-    default: return 'MALE';
+    case 'MALE': return 'MALE';
+    default: return undefined;
   }
 }
 

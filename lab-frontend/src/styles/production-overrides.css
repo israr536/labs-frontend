@@ -52,3 +52,17 @@ button, input, select, textarea { min-width: 0; }
  .seo-landing-hero,.seo-related { grid-template-columns:1fr; }
  .seo-benefit-grid,.seo-related-links { grid-template-columns:1fr; }
 }
+
+/* SEO landing UX */
+.seo-breadcrumbs{display:flex;align-items:center;gap:8px;padding:4px 0 20px;font-size:.84rem;color:rgba(127,127,127,.9);overflow:auto;white-space:nowrap}
+.seo-breadcrumbs a{color:inherit;text-decoration:none}
+.seo-breadcrumbs a:hover{text-decoration:underline}
+.seo-breadcrumbs span:last-child{overflow:hidden;text-overflow:ellipsis}
+.seo-workflow{padding:48px 0;border-top:1px solid rgba(127,127,127,.15)}
+.seo-workflow-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:28px}
+.seo-workflow-grid article{padding:20px;border:1px solid rgba(127,127,127,.16);border-radius:16px;background:rgba(127,127,127,.035)}
+.seo-workflow-grid article>span{display:inline-flex;width:30px;height:30px;align-items:center;justify-content:center;border-radius:9px;background:rgba(127,127,127,.1);font-size:.76rem;font-weight:800}
+.seo-workflow-grid h3{margin:16px 0 7px}
+.seo-workflow-grid p{margin:0;line-height:1.65;opacity:.78}
+@media (max-width:900px){.seo-workflow-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:600px){.seo-workflow-grid{grid-template-columns:1fr}}

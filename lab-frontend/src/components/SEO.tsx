@@ -5,7 +5,8 @@ const SITE_URL = 'https://www.pathmlt.com';
 const SITE_NAME = 'PathMLT';
 const OG_IMAGE = `${SITE_URL}/og-image.svg`;
 const DEFAULT_DESCRIPTION =
-  'PathMLT is laboratory reporting software for diagnostic labs to manage patients, tests, results and professional lab reports from one connected workspace.';
+  'PathMLT is diagnostic laboratory management software for pathology labs to manage patients, test catalogs, samples, results, verification and professional PDF lab reports from one connected workspace.';
+const KEYWORDS = 'diagnostic lab software, pathology lab management software, laboratory reporting software, pathology report software, lab automation, patient and test management';
 
 type SeoConfig = {
   title: string;
@@ -16,12 +17,12 @@ type SeoConfig = {
 
 const pages: Record<string, SeoConfig> = {
   '/': { title: 'Laboratory Reporting Software for Diagnostic Labs | PathMLT', description: DEFAULT_DESCRIPTION, canonical: '/', index: true },
-  '/solutions': { title: 'Laboratory Software Solutions for Diagnostic Labs | PathMLT', description: 'Explore PathMLT solutions for patient management, test management, result entry, reporting, team workflows and laboratory operations.', canonical: '/solutions', index: true },
-  '/pricing': { title: 'Laboratory Reporting Software Pricing | PathMLT', description: 'See PathMLT laboratory reporting software plans for diagnostic labs and compare features, usage and workspace options.', canonical: '/pricing', index: true },
-  '/faqs': { title: 'Laboratory Software FAQs | PathMLT', description: 'Answers about PathMLT laboratory reporting software, implementation, report templates, PDF reports, access controls and workflows.', canonical: '/faqs', index: true },
+  '/solutions': { title: 'Diagnostic Lab & Pathology Software Solutions | PathMLT', description: 'Explore patient management, test catalog, sample tracking, result entry, verification, audit trail and pathology report software for diagnostic laboratories.', canonical: '/solutions', index: true },
+  '/pricing': { title: 'Diagnostic Laboratory Management Software Pricing | PathMLT', description: 'Compare PathMLT plans for pathology and diagnostic labs. Start with a practical laboratory reporting workspace and scale as your team grows.', canonical: '/pricing', index: true },
+  '/faqs': { title: 'Pathology Lab Software FAQs | PathMLT', description: 'Answers about diagnostic laboratory management software, pathology report templates, PDF reports, access controls, implementation and workflows.', canonical: '/faqs', index: true },
   '/faq': { title: 'Laboratory Software FAQs | PathMLT', description: 'Answers about PathMLT laboratory reporting software, implementation, report templates, PDF reports, access controls and workflows.', canonical: '/faqs', index: false },
-  '/about': { title: 'About PathMLT | Laboratory Reporting Software', description: 'Learn about PathMLT and its approach to practical laboratory reporting and diagnostic lab operations software.', canonical: '/about', index: true },
-  '/contact': { title: 'Contact PathMLT | Laboratory Software Demo', description: 'Contact PathMLT to discuss laboratory reporting software, implementation, workflows and a product demonstration for your diagnostic lab.', canonical: '/contact', index: true },
+  '/about': { title: 'About PathMLT | Diagnostic Laboratory Software', description: 'Learn how PathMLT helps pathology and diagnostic laboratories connect patient registration, tests, samples, results and final reports.', canonical: '/about', index: true },
+  '/contact': { title: 'Contact PathMLT | Pathology Lab Software Demo', description: 'Talk to PathMLT about diagnostic laboratory management software, pathology reporting workflows, implementation and a tailored product demonstration.', canonical: '/contact', index: true },
   '/help': { title: 'PathMLT Help Center | Laboratory Software', description: 'Find practical guidance for using PathMLT laboratory reporting software and managing your laboratory workspace.', canonical: '/help', index: true },
   '/privacy': { title: 'Privacy Policy | PathMLT', description: 'Read the PathMLT privacy policy and information about data handling and responsibilities.', canonical: '/privacy', index: false },
   '/terms': { title: 'Terms and Conditions | PathMLT', description: 'Read the PathMLT terms and conditions for use of the laboratory software platform.', canonical: '/terms', index: false },
@@ -66,6 +67,7 @@ export default function SEO() {
 
     document.title = config.title;
     upsertMeta('description', config.description);
+    upsertMeta('keywords', KEYWORDS);
     upsertMeta('robots', config.index ? 'index, follow' : 'noindex, nofollow');
     upsertMeta('googlebot', config.index ? 'index, follow' : 'noindex, nofollow');
     upsertMeta('theme-color', '#ffffff');
@@ -102,6 +104,7 @@ export default function SEO() {
       '@graph': [
         { '@type': 'Organization', '@id': `${SITE_URL}/#organization`, name: SITE_NAME, url: SITE_URL, email: 'support@pathmlt.com', areaServed: 'IN' },
         { '@type': 'SoftwareApplication', '@id': `${SITE_URL}/#software`, name: SITE_NAME, applicationCategory: 'BusinessApplication', operatingSystem: 'Web', description: DEFAULT_DESCRIPTION, url: SITE_URL, publisher: { '@id': `${SITE_URL}/#organization` } },
+        { '@type': 'WebPage', '@id': `${canonicalUrl}#webpage`, name: config.title, description: config.description, url: canonicalUrl, isPartOf: { '@id': `${SITE_URL}/#website` }, publisher: { '@id': `${SITE_URL}/#organization` } },
         ...(pathname === '/' ? [{ '@type': 'WebSite', '@id': `${SITE_URL}/#website`, name: SITE_NAME, url: SITE_URL, publisher: { '@id': `${SITE_URL}/#organization` } }] : []),
         ...(faqSchema ? [faqSchema] : []),
       ],

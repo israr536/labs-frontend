@@ -12,6 +12,7 @@ import './styles/accessibility-saas.css';
 import './styles/theme-refinement.css';
 import App from './App.tsx';
 import SEO from './components/SEO.tsx';
+import AppErrorBoundary from './components/AppErrorBoundary.tsx';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -31,8 +32,10 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
-        <SEO />
-        <App />
+        <AppErrorBoundary>
+          <SEO />
+          <App />
+        </AppErrorBoundary>
       </QueryClientProvider>
     </BrowserRouter>
   </StrictMode>,

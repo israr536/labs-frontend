@@ -299,10 +299,10 @@ export default function DynamicReportEditor({
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (isSaving) return;
-    if (!patientName.trim() || !phone.trim() || !testIds.length) {
+    if (!patientName.trim() || !testIds.length) {
       toast.show({
         type: "error",
-        message: "Patient name, phone and at least one test are required.",
+        message: "Patient name and at least one test are required.",
       });
       return;
     }
@@ -558,20 +558,19 @@ export default function DynamicReportEditor({
             <div className="grid-2-col">
               <div className="form-group">
                 <label className="form-label" htmlFor="report-phone">
-                  Phone
+                  Phone <span className="optional-field-label">(optional)</span>
                 </label>
                 <input
                   id="report-phone"
                   className="form-input"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  required
                   disabled={isSaving}
                 />
               </div>
               <div className="form-group">
                 <label className="form-label" htmlFor="report-email">
-                  Email
+                  Email <span className="optional-field-label">(optional)</span>
                 </label>
                 <input
                   id="report-email"
@@ -584,8 +583,8 @@ export default function DynamicReportEditor({
               </div>
             </div>
             <div className="form-group">
-              <label className="form-label" htmlFor="report-referred-by">
-                Referred By
+                <label className="form-label" htmlFor="report-referred-by">
+                Referred By <span className="optional-field-label">(optional)</span>
               </label>
               <input
                 id="report-referred-by"
@@ -596,8 +595,8 @@ export default function DynamicReportEditor({
               />
             </div>
             <div className="form-group">
-              <label className="form-label" htmlFor="report-date-collected">
-                Sample Collected
+                <label className="form-label" htmlFor="report-date-collected">
+                Sample Collected <span className="optional-field-label">(optional)</span>
               </label>
               <input
                 id="report-date-collected"

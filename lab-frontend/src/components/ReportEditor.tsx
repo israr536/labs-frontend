@@ -178,10 +178,8 @@ export default function ReportEditor({ editingReport, onSaveReport, onCancel }: 
 
     const errors: Record<string, string> = {};
     if (!patientName.trim()) errors.patientName = 'Patient name is required';
-    if (!phone.trim()) errors.phone = 'Contact phone is required';
     if (!Number.isFinite(Number(age)) || Number(age) < 0 || Number(age) > 130) errors.age = 'Age must be between 0 and 130';
     if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) errors.email = 'Invalid email address';
-    if (!dateCollected) errors.dateCollected = 'Collection date is required';
     if (!dateReported) errors.dateReported = 'Report date is required';
 
     if (Object.keys(errors).length > 0) {
@@ -320,14 +318,13 @@ export default function ReportEditor({ editingReport, onSaveReport, onCancel }: 
 
             <div className="grid-2-col">
               <div className="form-group">
-                <label className="form-label">Contact Phone</label>
+                <label className="form-label">Contact Phone (Optional)</label>
                 <input
                   type="text"
                   value={phone}
                   onChange={(e) => { setPhone(e.target.value); setValidationError(null); }}
                   className="form-input"
                   placeholder="Patient phone number"
-                  required
                 />
               </div>
               <div className="form-group">
@@ -343,7 +340,7 @@ export default function ReportEditor({ editingReport, onSaveReport, onCancel }: 
             </div>
 
             <div className="form-group">
-              <label className="form-label">Referred By (Doctor)</label>
+              <label className="form-label">Referred By (Doctor) (Optional)</label>
               <input
                 type="text"
                 value={referredBy}
@@ -355,7 +352,7 @@ export default function ReportEditor({ editingReport, onSaveReport, onCancel }: 
 
             <div className="grid-2-col">
               <div className="form-group">
-                <label className="form-label">Sample Collected Date</label>
+                <label className="form-label">Sample Collected Date (Optional)</label>
                 <input
                   type="datetime-local"
                   value={dateCollected}

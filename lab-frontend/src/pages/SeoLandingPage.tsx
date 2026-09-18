@@ -33,7 +33,17 @@ const common: Record<SeoPageKey, PageData> = {
 export default function SeoLandingPage({pageKey}:{pageKey:SeoPageKey}) {
  const page=common[pageKey];
  return <div className="public-saas-page seo-landing-page">
+  <nav className="seo-breadcrumbs" aria-label="Breadcrumb"><Link to="/">Home</Link><span aria-hidden="true">/</span><span>{page.title}</span></nav>
   <section className="seo-landing-hero"><div><span className="public-eyebrow">{page.eyebrow}</span><h1>{page.title}</h1><p>{page.description}</p><div className="seo-actions"><Link className="landing-primary" to="/signup">Start your workspace <ArrowRight size={16}/></Link><Link className="landing-secondary" to="/contact">Talk to the team</Link></div></div><div className="seo-hero-card"><ShieldCheck size={22}/><strong>Built for accountable reporting</strong><p>Role-aware access, configured reference ranges, verification and final report controls are part of the workflow.</p></div></section>
+  <section className="seo-workflow" aria-labelledby="seo-workflow-title">
+   <div className="landing-section-heading"><span className="landing-eyebrow">How the workflow fits together</span><h2 id="seo-workflow-title">Connect the work from intake to final report.</h2><p>PathMLT keeps the operational context together so teams can move from one stage to the next without rebuilding the same information.</p></div>
+   <div className="seo-workflow-grid">
+    <article><span>01</span><h3>Capture</h3><p>Register the patient, order and configured tests in one workflow.</p></article>
+    <article><span>02</span><h3>Process</h3><p>Connect samples and enter results against your configured parameters.</p></article>
+    <article><span>03</span><h3>Verify</h3><p>Review values, reference information and required results before finalization.</p></article>
+    <article><span>04</span><h3>Report</h3><p>Generate the final report using your configured presentation and PDF workflow.</p></article>
+   </div>
+  </section>
   <section className="seo-benefits"><div className="landing-section-heading"><span className="landing-eyebrow">What the workflow covers</span><h2>Focused on the work laboratories repeat every day.</h2><p>PathMLT connects the operational steps around your configured tests instead of forcing your team into disconnected tools.</p></div><div className="seo-benefit-grid">{page.benefits.map(item=><article key={item}><CheckCircle2 size={17}/><span>{item}</span></article>)}</div></section>
   <section className="seo-related"><div><span className="landing-eyebrow">Explore PathMLT</span><h2>Continue with a related workflow.</h2></div><div className="seo-related-links">{page.related.map(slug=><Link key={slug} to={'/'+slug}><span>{common[slug as SeoPageKey]?.title ?? slug}</span><ArrowRight size={14}/></Link>)}</div></section>
   <section className="landing-cta"><div><span className="landing-eyebrow">Ready when you are</span><h2>See how the workflow fits your laboratory.</h2><p>Start with a trial workspace or request a product walkthrough.</p></div><Link className="landing-primary" to="/contact">Request a workflow review <ArrowRight size={16}/></Link></section>

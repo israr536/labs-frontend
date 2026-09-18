@@ -1,5 +1,6 @@
 import { ArrowRight, Check, ClipboardCheck, FileCheck2, FlaskConical, ShieldCheck, Sparkles, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { faqItems } from '../data/faqData';
 
 type Props = { onLoginClick: () => void; onSignupClick: () => void };
 
@@ -85,6 +86,22 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
       <section className="landing-v2-showcase">
         <div><span className="landing-v2-eyebrow">Reporting without the clutter</span><h2>Professional reports, built from verified results.</h2><p>Configure your laboratory identity once, keep parameters readable, and give reviewers a focused finalization step.</p><Link to="/report-templates">Explore report templates <ArrowRight size={15} /></Link></div>
         <div className="report-mock"><div className="report-mock-head"><div><span>A</span><b>PATHMLT DIAGNOSTICS</b></div><em>FINAL REPORT</em></div><div className="report-mock-patient"><span><small>Patient</small><b>Sample patient</b></span><span><small>Report ID</small><b>LAB-10482</b></span><span><small>Status</small><b>Verified</b></span></div><div className="report-mock-table"><div><span>Parameter</span><span>Result</span><span>Reference</span><span>Status</span></div>{[['Hemoglobin','12.8 g/dL','12.0 – 16.0'],['WBC count','7.4 ×10⁹/L','4.0 – 11.0'],['Platelets','248 ×10⁹/L','150 – 450']].map(r=><div key={r[0]}><span>{r[0]}</span><b>{r[1]}</b><span>{r[2]}</span><i><Check size={10}/> Normal</i></div>)}</div><div className="report-mock-footer"><span><ShieldCheck size={14}/> Verified by technician</span><strong>Ready to share</strong></div></div>
+      </section>
+
+      <section className="landing-v2-faq" aria-labelledby="home-faq-title">
+        <div className="landing-v2-section-head">
+          <div><span className="landing-v2-eyebrow">Frequently asked questions</span><h2 id="home-faq-title">Everything you need to know before getting started.</h2></div>
+          <p>Clear answers about implementation, reporting, access, data responsibilities and how PathMLT fits into your laboratory workflow.</p>
+        </div>
+        <div className="landing-v2-faq-grid">
+          {faqItems.slice(0, 6).map((item) => (
+            <details key={item.question}>
+              <summary>{item.question}<span>+</span></summary>
+              <p>{item.answer}</p>
+            </details>
+          ))}
+        </div>
+        <div className="landing-v2-faq-link"><Link to="/faqs">View all FAQs <ArrowRight size={15} /></Link></div>
       </section>
 
       <section className="landing-v2-bottom">

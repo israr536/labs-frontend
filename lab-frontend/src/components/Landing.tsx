@@ -95,12 +95,12 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 						<p className="landing-lead">
 							PathMLT is the operating workspace for diagnostic laboratories: register patients, move samples, verify results, and deliver consistent reports without losing the thread.
 						</p>
-					<div className="landing-actions">
+					<div className="landing-actions" aria-label="PathMLT account actions">
 						<button className="landing-primary" onClick={onSignupClick}>
-							Start your workspace <ArrowRight size={17} />
+							Register Here <ArrowRight size={17} />
 						</button>
 						<button className="landing-secondary" onClick={onLoginClick}>
-							Sign in to PathMLT
+							Login Here
 						</button>
 						<a
 							className="landing-whatsapp"
@@ -119,7 +119,7 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 							<span className="product-brand-mark">A</span> PathMLT
 						</span>
 							<span className="live-chip">
-								<i /> Live workspace
+								<i /> PathMLT demo
 							</span>
 						</div>
 						<div className="preview-switcher" role="tablist" aria-label="Product preview mode">

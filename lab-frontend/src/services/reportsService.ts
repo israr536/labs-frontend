@@ -1,5 +1,5 @@
 import { DEFAULT_SETTINGS, type LabReport, type LabSettings, type TestParameter } from '../data/samples';
-import { request } from './api';
+import { request, requestBlob } from './api';
 import labsService from './labsService';
 
 type ApiReport = Record<string, any>;
@@ -108,34 +108,84 @@ async function generateLocalPdf(reportId: string, template: ReportTemplateId, fi
   return { url, fileName: fileName || `report-${reportId}.pdf` };
 }
 
-export async function downloadReportPdf(id: string, fileName?: string, template: ReportTemplateId = getSavedReportTemplate()) {
-  const { url, fileName: finalName } = await generateLocalPdf(id, template, fileName);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = finalName;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  // Give the browser time to start the download before revoking the blob URL.
-  setTimeout(() => window.URL.revokeObjectURL(url), 60_000);
+async function getProductionPdfBlob(id: string): Promise<Blob> {
+  // The backend owns the canonical final-report PDF. It reads the immutable
+  // FinalReport snapshot and is already covered by the backend reporting E2E.
+  return requestBlob(`orders/${encodeURIComponent(id)}/report/pdf`, { timeout: 60000 });
 }
 
-export async function openReportPdf(id: string, template: ReportTemplateId = getSavedReportTemplate()) {
-  // Open the tab synchronously from the user click. Browsers can block a
-  // window.open() that happens only after async API/PDF work completes.
-  const popup = window.open('about:blank', '_blank');
+export async function downloadReportPdf(
+  id: string,
+  fileName?: string,
+  template: ReportTemplateId = getSavedReportTemplate(),
+) {
   try {
-    const { url } = await generateLocalPdf(id, template);
+    const blob = await getProductionPdfBlob(id);
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName || `report-${id}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => window.URL.revokeObjectURL(url), 60_000);
+    return;
+  } catch (backendError) {
+    // Draft/legacy reports may not have a FinalReport snapshot yet.
+    // Fall back to the client PDF only in that case.
+    const { url, fileName: finalName } = await generateLocalPdf(id, template, fileName);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = finalName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => window.URL.revokeObjectURL(url), 60_000);
+    void backendError;
+  }
+}
 
+export async function openReportPdf(
+  id: string,
+  template: ReportTemplateId = getSavedReportTemplate(),
+) {
+  // Create the popup synchronously from the click so the browser will not
+  // classify it as a delayed popup after asynchronous API work.
+  const popup = window.open('about:blank', '_blank');
+
+  try {
+    let blob: Blob;
+    try {
+      blob = await getProductionPdfBlob(id);
+    } catch {
+      // Draft/legacy fallback: generate from the order response locally.
+      const { url } = await generateLocalPdf(id, template);
+      if (popup && !popup.closed) {
+        popup.location.href = url;
+      } else {
+        const link = document.createElement('a');
+        link.href = url;
+        link.target = '_blank';
+        link.rel = 'noopener,noreferrer';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      }
+      setTimeout(() => window.URL.revokeObjectURL(url), 60_000);
+      return;
+    }
+
+    const url = window.URL.createObjectURL(blob);
     if (popup && !popup.closed) {
       popup.location.href = url;
     } else {
-      // Graceful fallback when the browser blocks popups.
       const link = document.createElement('a');
       link.href = url;
       link.target = '_blank';
       link.rel = 'noopener,noreferrer';
+      document.body.appendChild(link);
       link.click();
+      link.remove();
     }
 
     setTimeout(() => window.URL.revokeObjectURL(url), 60_000);

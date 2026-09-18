@@ -35,6 +35,9 @@ export default function Footer() {
             <Link to="/patient-management">Patient management</Link>
             <Link to="/result-verification">Result verification</Link>
             <Link to="/pdf-reports">PDF reports</Link>
+            <Link to="/pathology-labs">Pathology labs</Link>
+            <Link to="/diagnostic-labs">Diagnostic labs</Link>
+            <Link to="/hospital-labs">Hospital labs</Link>
           </nav>
         </div>
 
@@ -50,7 +53,7 @@ export default function Footer() {
           <h4>Contact</h4>
 
           <p className="footer-contact">
-            <a href="mailto:support@PathMLT.com">support@PathMLT.com</a>
+            <a href="mailto:support@pathmlt.com">support@PathMLT.com</a>
           </p>
 
           <p className="footer-contact">

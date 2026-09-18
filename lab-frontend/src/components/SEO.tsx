@@ -1,9 +1,11 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { faqItems } from '../data/faqData';
 
 const SITE_URL = 'https://www.pathmlt.com';
 const SITE_NAME = 'PathMLT';
 const OG_IMAGE = `${SITE_URL}/og-image.svg`;
+const SEO_PATHS = new Set(['laboratory-reporting-software','diagnostic-lab-software','pathology-lab-software','laboratory-management-software','lab-reporting-system','pathology-reporting-software','lims-software','lab-automation-software','patient-management','test-management','sample-management','result-entry','result-verification','lab-reporting','report-templates','reference-ranges','audit-trail','role-based-access','pdf-reports','pathology-labs','diagnostic-labs','hospital-labs','independent-labs']);
 const DEFAULT_DESCRIPTION =
   'PathMLT is diagnostic laboratory management software for pathology labs to manage patients, test catalogs, samples, results, verification and professional PDF lab reports from one connected workspace.';
 const KEYWORDS = 'diagnostic lab software, pathology lab management software, laboratory reporting software, pathology report software, lab automation, patient and test management';
@@ -32,6 +34,13 @@ const pages: Record<string, SeoConfig> = {
   '/dashboard': { title: 'Laboratory Dashboard | PathMLT', description: 'Manage your PathMLT laboratory workspace.', canonical: '/dashboard', index: false },
   '/report-templates': { title: 'Report Templates | PathMLT', description: 'Manage laboratory report templates in your PathMLT workspace.', canonical: '/report-templates', index: false },
 };
+
+function seoConfigForPath(pathname: string): SeoConfig | undefined {
+  const slug = pathname.replace(/^\\//, '');
+  if (!SEO_PATHS.has(slug)) return undefined;
+  const title = slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  return { title: `${title} | PathMLT`, description: DEFAULT_DESCRIPTION, canonical: pathname, index: true };
+}
 
 function upsertMeta(name: string, content: string) {
   let element = document.head.querySelector<HTMLMetaElement>(`meta[name="${name}"]`);
@@ -62,7 +71,7 @@ export default function SEO() {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    const config = pages[pathname] ?? { title: `${SITE_NAME} | Laboratory Reporting Software`, description: DEFAULT_DESCRIPTION, canonical: '/', index: false };
+    const config = pages[pathname] ?? seoConfigForPath(pathname) ?? { title: `${SITE_NAME} | Laboratory Reporting Software`, description: DEFAULT_DESCRIPTION, canonical: '/', index: false };
     const canonicalUrl = `${SITE_URL}${config.canonical}`;
 
     document.title = config.title;
@@ -92,11 +101,7 @@ export default function SEO() {
 
     const faqSchema = pathname === '/faqs' ? {
       '@type': 'FAQPage',
-      mainEntity: [
-        ['How quickly can we start using PathMLT?', 'Most laboratories can begin with their core patient, test and reporting workflows after an onboarding review.'],
-        ['Can I customize report templates?', 'Yes. Administrators can configure report templates, laboratory identity, reference ranges and result parameters for their workflow.'],
-        ['Does PathMLT maintain an audit trail?', 'PathMLT records important workflow events and approvals so laboratory teams can review operational history.'],
-      ].map(([name, text]) => ({ '@type': 'Question', name, acceptedAnswer: { '@type': 'Answer', text } })),
+      mainEntity: faqItems.map(item => ({ '@type': 'Question', name: item.question, acceptedAnswer: { '@type': 'Answer', text: item.answer } })),
     } : null;
 
     upsertJsonLd({

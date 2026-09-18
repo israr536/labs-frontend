@@ -81,7 +81,7 @@ export async function updateCombinedReport(report: EditableReport): Promise<LabR
       patient: { name: report.patientName, age: report.age, gender: normalizeGender(report.gender), mobile: report.phone, email: report.email || undefined },
       referredBy: report.referredBy,
       clinicalNotes: report.interpretation,
-      status: report.status,
+      ...(report.status ? { status: report.status } : {}),
       results,
     }),
   });

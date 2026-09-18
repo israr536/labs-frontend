@@ -44,7 +44,7 @@ export async function createCombinedReport(body: CombinedReportBody): Promise<La
   const testIds = [...new Set((body.testIds ?? []).map((id) => id.trim()).filter(Boolean))];
   if (!testIds.length) throw new Error('Please select at least one configured laboratory test.');
   const idempotencyKey = typeof crypto?.randomUUID === 'function' ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-  const status = typeof body.status === 'string' && body.status.trim() ? body.status.trim() : 'FINAL';
+  const status = 'FINAL';
   const response = await request<ApiReport>('orders/complete', { method: 'POST', timeout: 90000, headers: { 'Idempotency-Key': idempotencyKey }, body: JSON.stringify({ patientId: (body as any).patientId, patient: { name: body.patientName, age: body.age, gender: mapGenderToApi(body.gender), mobile: body.phone, email: body.email || undefined }, testIds, parametersByTest: body.parametersByTest ?? {}, referredBy: body.referredBy, clinicalNotes: body.interpretation, status }) });
   if (response?.finalReport) return mapFinalReport(response.finalReport);
   if (response?.order?.tests) return mapFinalReport(response);

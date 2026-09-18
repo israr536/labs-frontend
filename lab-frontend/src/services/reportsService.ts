@@ -109,59 +109,42 @@ async function generateLocalPdf(reportId: string, template: ReportTemplateId, fi
 }
 
 async function getProductionPdfBlob(id: string): Promise<Blob> {
-  // The backend PDF endpoint is only valid for FINAL orders because it reads
-  // the immutable FinalReport snapshot. RESULT_ENTERED/VERIFIED orders must use
-  // the live order data and the local generator.
-  const order = await request<ApiReport>(`orders/${encodeURIComponent(id)}`);
-  if (order.status !== 'FINAL') {
-    throw new Error('ORDER_NOT_FINAL');
-  }
+  // Printing is an output action and is intentionally independent of workflow status.
+  // The backend renders FINAL orders from the immutable snapshot and all other
+  // orders from the current live order data.
   return requestBlob(`orders/${encodeURIComponent(id)}/report/pdf`, { timeout: 60000 });
-}
-
-async function generatePdfForOrder(
-  id: string,
-  template: ReportTemplateId,
-  fileName?: string,
-) {
-  try {
-    const blob = await getProductionPdfBlob(id);
-    return { blob, fileName: fileName || `report-${id}.pdf` };
-  } catch {
-    const { url, fileName: finalName } = await generateLocalPdf(id, template, fileName);
-    return { url, fileName: finalName };
-  }
 }
 
 export async function downloadReportPdf(
   id: string,
   fileName?: string,
-  template: ReportTemplateId = getSavedReportTemplate(),
+  _template: ReportTemplateId = getSavedReportTemplate(),
 ) {
-  const generated = await generatePdfForOrder(id, template, fileName);
-  const url = 'blob' in generated
-    ? window.URL.createObjectURL(generated.blob)
-    : generated.url;
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = generated.fileName;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => window.URL.revokeObjectURL(url), 60_000);
+  const blob = await getProductionPdfBlob(id);
+  const url = window.URL.createObjectURL(blob);
+  try {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName || `report-${id}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  } finally {
+    setTimeout(() => window.URL.revokeObjectURL(url), 60_000);
+  }
 }
 
 export async function openReportPdf(
   id: string,
-  template: ReportTemplateId = getSavedReportTemplate(),
+  _template: ReportTemplateId = getSavedReportTemplate(),
 ) {
+  // Create the tab synchronously from the user click so popup blockers do not
+  // reject the PDF navigation after the API call completes.
   const popup = window.open('about:blank', '_blank');
 
   try {
-    const generated = await generatePdfForOrder(id, template);
-    const url = 'blob' in generated
-      ? window.URL.createObjectURL(generated.blob)
-      : generated.url;
+    const blob = await getProductionPdfBlob(id);
+    const url = window.URL.createObjectURL(blob);
 
     if (popup && !popup.closed) {
       popup.location.href = url;
@@ -181,7 +164,6 @@ export async function openReportPdf(
     throw error;
   }
 }
-
 function mapApiReport(report: ApiReport): LabReport {
   const resultByParameterId = new Map((report.results ?? []).map((result: any) => [result.parameterId, result]));
   const parametersSource = report.test?.parameters?.length ? report.test.parameters : (report.results ?? []).map((result: any) => result.parameter);

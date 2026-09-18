@@ -66,9 +66,9 @@ export default function Signup({ onSignupSuccess, onCancel }: Props) {
   return <>
     <div className="saas-signup-header">
       <div>
-        <span className="saas-signup-eyebrow">14-day free trial</span>
-        <h3>{step === 'details' ? 'Create your lab workspace' : 'Verify your mobile number'}</h3>
-        <p>{step === 'details' ? 'Set up your laboratory workspace. No payment details are required for the trial.' : 'Enter the 6-digit verification code sent by SMS to your registered mobile number.'}</p>
+        <span className="saas-signup-eyebrow">PathMLT Register Here • 14-day free trial</span>
+        <h3>{step === 'details' ? 'Register your laboratory' : 'Verify your mobile number'}</h3>
+        <p>{step === 'details' ? 'Enter your laboratory details to create your PathMLT account. No payment details are required for the trial.' : 'Enter the 6-digit verification code sent by SMS to your registered mobile number.'}</p>
       </div>
       <button type="button" className="saas-signup-cancel" onClick={onCancel}>Cancel</button>
     </div>
@@ -86,8 +86,8 @@ export default function Signup({ onSignupSuccess, onCancel }: Props) {
       </section>
 
       <section className="saas-signup-section">
-        <div className="saas-signup-section-title"><KeyRound size={16} /><span>Administrator credentials</span></div>
-        <p className="saas-signup-note">The admin email will be your login ID. Use at least 8 characters for the password.</p>
+        <div className="saas-signup-section-title"><KeyRound size={16} /><span>Login details</span></div>
+        <p className="saas-signup-note">Your admin email will be used to login. Use at least 8 characters for the password.</p>
         <label className="saas-signup-field"><span>Password</span><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={8} required autoComplete="new-password" placeholder="At least 8 characters" /></label>
       </section>
 

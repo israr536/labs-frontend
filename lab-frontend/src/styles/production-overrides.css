@@ -94,3 +94,14 @@ button, input, select, textarea { min-width: 0; }
 .contact-next-steps>div{display:flex;gap:14px;flex-wrap:wrap;margin-top:4px}
 .contact-next-steps a{display:inline-flex;align-items:center;gap:6px;font-weight:700}
 @media(max-width:900px){.pricing-explainer-grid,.about-audience-links{grid-template-columns:1fr}.about-audience{grid-template-columns:1fr}}
+
+
+/* Simple account actions for first-time and low-literacy users */
+.landing-actions .landing-primary,
+.landing-actions .landing-secondary{min-height:50px;padding:13px 22px;font-size:1rem;font-weight:800}
+.landing-actions .landing-primary{min-width:160px}
+.landing-actions .landing-secondary{min-width:140px}
+@media(max-width:600px){
+  .landing-actions{display:flex;flex-direction:column;align-items:stretch;gap:10px}
+  .landing-actions .landing-primary,.landing-actions .landing-secondary,.landing-actions .landing-whatsapp{width:100%;justify-content:center;box-sizing:border-box}
+}

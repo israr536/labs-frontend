@@ -105,3 +105,29 @@ button, input, select, textarea { min-width: 0; }
   .landing-actions{display:flex;flex-direction:column;align-items:stretch;gap:10px}
   .landing-actions .landing-primary,.landing-actions .landing-secondary,.landing-actions .landing-whatsapp{width:100%;justify-content:center;box-sizing:border-box}
 }
+
+
+/* Public contact page layout — keep the info panel and form in a stable two-column grid. */
+.contact-hero{max-width:900px;margin:0 auto 30px;padding:18px 0 8px}
+.contact-hero h1{margin:12px 0;font-size:clamp(2.1rem,5vw,3.6rem);line-height:1.05;letter-spacing:-.04em;color:var(--color-heading,var(--text-bold))}
+.contact-hero p{max-width:720px;line-height:1.7;color:var(--color-body,var(--text))}
+.contact-layout-new{display:grid;grid-template-columns:minmax(260px,.72fr) minmax(0,1.28fr);gap:18px;align-items:start;max-width:1100px;margin:0 auto;padding-bottom:60px}
+.contact-info-new,.contact-form-new{min-width:0;padding:24px;border:1px solid var(--color-border,var(--border));border-radius:18px;background:var(--color-surface,var(--panel-bg));box-sizing:border-box}
+.contact-info-new h2{margin:0 0 8px;color:var(--color-heading,var(--text-bold));font-size:1.35rem}
+.contact-info-new>p{margin:0 0 20px;line-height:1.6;color:var(--color-body,var(--text))}
+.contact-method{display:flex;align-items:flex-start;gap:12px;padding:14px 0;border-top:1px solid var(--color-border,var(--border));text-decoration:none;color:inherit}
+.contact-method>span{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;border-radius:10px;background:var(--primary-light,#e8f4f7);color:var(--color-brand,var(--primary))}
+.contact-method div{min-width:0;display:grid;gap:3px}.contact-method small{color:var(--color-muted,var(--muted));font-size:.75rem}.contact-method strong{overflow-wrap:anywhere;color:var(--color-heading,var(--text-bold))}
+.contact-form-new{grid-column:2;grid-row:1 / span 2;display:flex;flex-direction:column;gap:14px}
+.contact-form-new label{display:grid;gap:7px;font-weight:700;color:var(--color-heading,var(--text-bold))}
+.contact-form-new input,.contact-form-new select,.contact-form-new textarea{width:100%;max-width:100%;box-sizing:border-box;padding:12px 13px;border:1px solid var(--color-border,var(--border));border-radius:10px;background:var(--color-surface,var(--panel-bg));color:var(--color-heading,var(--text-bold));font:inherit}
+.contact-form-new textarea{resize:vertical;min-height:150px}.contact-form-new input:focus,.contact-form-new select:focus,.contact-form-new textarea:focus{outline:3px solid color-mix(in srgb,var(--color-brand,var(--primary)) 20%,transparent);outline-offset:1px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}.contact-submit{min-height:46px;display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;border:0;border-radius:10px;background:var(--color-brand,var(--primary));color:#fff;font-weight:800;cursor:pointer}.contact-submit:disabled{opacity:.65;cursor:not-allowed}
+.contact-next-steps{grid-column:1;grid-row:2;margin:0!important;height:max-content;box-sizing:border-box}.contact-cta-row{grid-column:1;grid-row:3}.contact-whatsapp{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:800;background:#278b57;color:#fff}
+/* FAQ preview: explicit layout prevents inherited public-page styles from collapsing the cards. */
+.landing-faq-preview{display:block!important;visibility:visible!important;min-height:180px}
+.faq-cards{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:22px}
+.faq-card{display:block!important;min-width:0;padding:17px;border:1px solid rgba(255,255,255,.16);border-radius:12px;background:rgba(255,255,255,.08);color:#fff}
+.faq-card summary{display:list-item;cursor:pointer;color:#fff;font-weight:800;line-height:1.45}.faq-card p{margin:10px 0 0;color:rgba(255,255,255,.78);line-height:1.6}
+.faq-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}.faq-cta>*{display:inline-flex;align-items:center;justify-content:center}
+@media(max-width:850px){.contact-layout-new{grid-template-columns:1fr}.contact-form-new{grid-column:1;grid-row:auto}.contact-next-steps,.contact-cta-row{grid-column:1;grid-row:auto}.form-row{grid-template-columns:1fr}.faq-cards{grid-template-columns:1fr}}

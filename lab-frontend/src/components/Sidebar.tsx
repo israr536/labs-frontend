@@ -1,4 +1,4 @@
-import { Activity, ActivitySquare, AlertTriangle, BarChart3, ClipboardList, FileText, FlaskConical, Moon, PlusCircle, Settings as SettingsIcon, ShieldCheck, Sun, UsersRound, SlidersHorizontal, UserRound, ScrollText } from 'lucide-react';
+import { Activity, ActivitySquare, AlertTriangle, BarChart3, FileText, FlaskConical, Moon, PlusCircle, Settings as SettingsIcon, ShieldCheck, Sun, UsersRound, SlidersHorizontal, UserRound, ScrollText } from 'lucide-react';
 import type { LabSettings } from '../data/samples';
 
 export type DashboardTab = 'dashboard' | 'orders' | 'patients' | 'critical-results' | 'reports' | 'new-report' | 'tests' | 'test-configuration' | 'users' | 'audit' | 'billing' | 'settings';
@@ -9,7 +9,7 @@ export default function Sidebar({ activeTab, setActiveTab, settings, darkMode, s
   if (!isAuthenticated) return null;
   const menuItems = [
     { id: 'dashboard' as const, label: 'Overview', icon: ActivitySquare },
-    { id: 'orders' as const, label: 'Orders & Results', icon: ClipboardList },
+    // { id: 'orders' as const, label: 'Orders & Results', icon: ClipboardList },
     { id: 'patients' as const, label: 'Patients', icon: UserRound },
     { id: 'critical-results' as const, label: 'Critical Results', icon: AlertTriangle },
     { id: 'reports' as const, label: 'Patients & Reports', icon: FileText },

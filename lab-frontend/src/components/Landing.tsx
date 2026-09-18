@@ -300,7 +300,7 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 							</article>
 						))}
 					</div>
-					<div className="how-to-footer"><ShieldCheck size={17} /><span><strong>Tip for a smooth setup:</strong> configure your lab identity, test templates and reference ranges first. Your team can then start with a real order immediately.</span><button className="landing-primary" onClick={onSignupClick}>Try the workflow <ArrowRight size={15} /></button></div>
+					<div className="how-to-footer"><ShieldCheck size={17} /><span><strong>Tip for a smooth setup:</strong> configure your lab identity, test templates and reference ranges first. Your team can then start with a real order immediately.</span><button className="landing-primary" onClick={onSignupClick}>Register here <ArrowRight size={15} /></button></div>
 				</section>
 
 				<section className="landing-cta">

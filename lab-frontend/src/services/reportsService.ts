@@ -268,13 +268,51 @@ export function mapFinalReport(data: ApiReport): LabReport {
 }
 
 export function mapOrderAsReport(order: ApiReport): LabReport {
-  const items = order.items ?? [];
+  const items = Array.isArray(order.items) ? order.items : [];
+
+  // The order endpoint exposes results both as item.results[] and as a flattened
+  // order.results[]. Use the per-item results when present and fall back to the
+  // flattened form so PDF/report rendering is resilient to either response shape.
+  const resultsByItemId = new Map<string, any[]>();
+  for (const result of Array.isArray(order.results) ? order.results : []) {
+    const itemId = typeof result?.orderItemId === 'string' ? result.orderItemId : '';
+    if (!itemId) continue;
+    const current = resultsByItemId.get(itemId) ?? [];
+    current.push(result);
+    resultsByItemId.set(itemId, current);
+  }
+
   const parameters: ReportParameter[] = items.flatMap((item: any) => {
-    const resultByParameterId = new Map((item.results ?? []).map((result: any) => [result.parameterId, result]));
-    return (item.test?.parameters ?? []).map((parameter: any) => mapParameter(parameter, resultByParameterId.get(parameter.id), item.test));
+    const itemResults = Array.isArray(item.results)
+      ? item.results
+      : resultsByItemId.get(item.id) ?? [];
+    const resultByParameterId = new Map(
+      itemResults.map((result: any) => [result.parameterId, result]),
+    );
+    return (item.test?.parameters ?? []).map((parameter: any) =>
+      mapParameter(parameter, resultByParameterId.get(parameter.id), item.test),
+    );
   });
+
   const testNames = items.map((item: any) => item.test?.name).filter(Boolean);
-  return { id: order.id, patientName: order.patient?.name ?? 'Unknown patient', age: order.patient?.age ?? 0, gender: mapGenderFromApi(order.patient?.gender), phone: order.patient?.mobile ?? '', email: order.patient?.email ?? '', referredBy: order.referredBy ?? 'Dr. Self / Walk-in', dateCollected: toDateTimeLocal(order.samples?.[0]?.collectedAt ?? order.createdAt), dateReported: toDateTimeLocal(order.updatedAt ?? order.createdAt), testType: testNames.join(' + ') || 'Diagnostic Test', status: mapOrderStatus(order.status, parameters), interpretation: order.clinicalNotes ?? '', reportNumber: order.orderNumber, patientId: order.patient?.id, orderId: order.id, testIds: items.map((item: any) => item.testId) } as unknown as LabReport & { orderId: string; testIds: string[] };
+  return {
+    id: order.id,
+    patientName: order.patient?.name ?? 'Unknown patient',
+    age: order.patient?.age ?? 0,
+    gender: mapGenderFromApi(order.patient?.gender),
+    phone: order.patient?.mobile ?? '',
+    email: order.patient?.email ?? '',
+    referredBy: order.referredBy ?? 'Dr. Self / Walk-in',
+    dateCollected: toDateTimeLocal(order.samples?.[0]?.collectedAt ?? order.createdAt),
+    dateReported: toDateTimeLocal(order.updatedAt ?? order.createdAt),
+    testType: testNames.join(' + ') || 'Diagnostic Test',
+    status: mapOrderStatus(order.status, parameters),
+    interpretation: order.clinicalNotes ?? '',
+    reportNumber: order.orderNumber,
+    patientId: order.patient?.id,
+    orderId: order.id,
+    testIds: items.map((item: any) => item.testId),
+  } as unknown as LabReport & { orderId: string; testIds: string[] };
 }
 
 function mapParameter(parameter: any, result: any, test?: any): ReportParameter {

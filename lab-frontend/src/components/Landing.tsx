@@ -1,4 +1,4 @@
-import { ArrowRight, BarChart3, Check, ClipboardCheck, FileCheck2, FlaskConical, ShieldCheck, Sparkles, Users2, Zap } from 'lucide-react';
+import { ArrowRight, Check, ClipboardCheck, FileCheck2, FlaskConical, ShieldCheck, Sparkles, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 type Props = { onLoginClick: () => void; onSignupClick: () => void };

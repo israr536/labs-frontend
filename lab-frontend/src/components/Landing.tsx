@@ -23,17 +23,17 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
     <div className="landing-page landing-v2">
       <section className="landing-v2-hero">
         <div className="landing-v2-copy">
-          <div className="landing-v2-badge"><span><Sparkles size={14} /> Laboratory operations platform</span></div>
-          <h1>Run your laboratory on one <span>calm, connected workflow.</span></h1>
-          <p>PathMLT brings patients, tests, samples, results and final reports into one focused workspace built for diagnostic and pathology laboratories.</p>
+          <div className="landing-v2-badge"><span><Sparkles size={14} /> Laboratory reporting software</span></div>
+          <h1>Laboratory reporting software that keeps your <span>entire lab workflow connected.</span></h1>
+          <p>PathMLT connects patient registration, laboratory orders, test configuration, sample tracking, result entry, verification and professional PDF reporting in one focused workspace for diagnostic and pathology laboratories.</p>
           <div className="landing-v2-actions">
-            <button className="landing-v2-primary" onClick={onSignupClick}>Start free <ArrowRight size={17} /></button>
+            <button className="landing-v2-primary" onClick={onSignupClick}>Start your lab workspace <ArrowRight size={17} /></button>
             <button className="landing-v2-secondary" onClick={onLoginClick}>Sign in</button>
           </div>
           <div className="landing-v2-reassurance">
-            <span><Check size={15} /> Role-aware access</span>
-            <span><Check size={15} /> Configurable reports</span>
-            <span><Check size={15} /> Audit-ready history</span>
+            <span><Check size={15} /> Configurable laboratory workflows</span>
+            <span><Check size={15} /> Controlled result verification</span>
+            <span><Check size={15} /> Professional PDF reporting</span>
           </div>
         </div>
 
@@ -72,8 +72,8 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 
       <section className="landing-v2-section">
         <div className="landing-v2-section-head">
-          <div><span className="landing-v2-eyebrow">Everything in context</span><h2>Less chasing. More work getting done.</h2></div>
-          <p>Replace disconnected spreadsheets, manual handoffs and scattered report files with a workflow your team can understand at a glance.</p>
+          <div><span className="landing-v2-eyebrow">Built around laboratory work</span><h2>From patient intake to final report, keep the workflow in context.</h2></div>
+          <p>Replace disconnected spreadsheets, manual handoffs and scattered report files with a repeatable laboratory workflow your team can understand, verify and improve.</p>
         </div>
         <div className="landing-v2-feature-grid">
           {features.map(({ icon: Icon, title, text }) => <article key={title}><span className="feature-icon"><Icon size={20} /></span><h3>{title}</h3><p>{text}</p><Link to="/solutions">Explore <ArrowRight size={14} /></Link></article>)}
@@ -81,20 +81,20 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
       </section>
 
       <section className="landing-v2-workflow">
-        <div className="workflow-v2-copy"><span className="landing-v2-eyebrow">A workflow your team can follow</span><h2>Make the next action obvious.</h2><p>Each stage has a clear owner and state, so work keeps moving without asking where the latest information lives.</p><div className="workflow-v2-list">{workflow.map(([n,t,d]) => <div key={n}><b>{n}</b><span><strong>{t}</strong><small>{d}</small></span></div>)}</div></div>
+        <div className="workflow-v2-copy"><span className="landing-v2-eyebrow">A laboratory reporting workflow with clear ownership</span><h2>Make the next laboratory action obvious.</h2><p>Each stage has a clear owner and state, so work keeps moving without asking where the latest information lives.</p><div className="workflow-v2-list">{workflow.map(([n,t,d]) => <div key={n}><b>{n}</b><span><strong>{t}</strong><small>{d}</small></span></div>)}</div></div>
         <div className="workflow-v2-card"><div className="workflow-card-head"><span><Zap size={15} /> Live workflow</span><small>Order #LAB-10482</small></div>{workflow.map(([n,t],i)=><div className={`workflow-card-row ${i < 3 ? 'complete' : 'next'}`} key={n}><span className="workflow-node">{i < 3 ? <Check size={13}/> : n}</span><div><strong>{t}</strong><small>{i < 3 ? 'Completed' : 'Next action'}</small></div>{i < 3 && <em>Done</em>}</div>)}<div className="workflow-card-footer"><ShieldCheck size={15}/> Verified steps are kept with the report history.</div></div>
       </section>
 
       <div className="landing-v2-action-rail"><span>Ready to move from manual handoffs to a connected workflow?</span><div><a className="landing-v2-demo-btn" href="https://wa.me/916388334513?text=Hello%20PathMLT%2C%20I%20want%20to%20book%20a%20demo." target="_blank" rel="noreferrer">Book a demo <ArrowRight size={14} /></a><button className="landing-v2-login-btn" onClick={onLoginClick}>Login</button><button className="landing-v2-register-btn" onClick={onSignupClick}>Register</button></div></div>
 
       <section className="landing-v2-showcase">
-        <div><span className="landing-v2-eyebrow">Reporting without the clutter</span><h2>Professional reports, built from verified results.</h2><p>Configure your laboratory identity once, keep parameters readable, and give reviewers a focused finalization step.</p><Link to="/report-templates">Explore report templates <ArrowRight size={15} /></Link></div>
+        <div><span className="landing-v2-eyebrow">Professional laboratory reporting</span><h2>Build professional reports from verified laboratory results.</h2><p>Configure your laboratory identity once, keep parameters readable, and give reviewers a focused finalization step.</p><Link to="/report-templates">Explore report templates <ArrowRight size={15} /></Link></div>
         <div className="report-mock"><div className="report-mock-head"><div><span>A</span><b>PATHMLT DIAGNOSTICS</b></div><em>FINAL REPORT</em></div><div className="report-mock-patient"><span><small>Patient</small><b>Sample patient</b></span><span><small>Report ID</small><b>LAB-10482</b></span><span><small>Status</small><b>Verified</b></span></div><div className="report-mock-table"><div><span>Parameter</span><span>Result</span><span>Reference</span><span>Status</span></div>{[['Hemoglobin','12.8 g/dL','12.0 – 16.0'],['WBC count','7.4 ×10⁹/L','4.0 – 11.0'],['Platelets','248 ×10⁹/L','150 – 450']].map(r=><div key={r[0]}><span>{r[0]}</span><b>{r[1]}</b><span>{r[2]}</span><i><Check size={10}/> Normal</i></div>)}</div><div className="report-mock-footer"><span><ShieldCheck size={14}/> Verified by technician</span><strong>Ready to share</strong></div></div>
       </section>
 
       <section className="landing-v2-faq" aria-labelledby="home-faq-title">
         <div className="landing-v2-section-head">
-          <div><span className="landing-v2-eyebrow">Frequently asked questions</span><h2 id="home-faq-title">Everything you need to know before getting started.</h2></div>
+          <div><span className="landing-v2-eyebrow">Frequently asked questions</span><h2 id="home-faq-title">Questions before you move your laboratory reporting workflow?</h2></div>
           <p>Clear answers about implementation, reporting, access, data responsibilities and how PathMLT fits into your laboratory workflow.</p>
         </div>
         <div className="landing-v2-faq-grid">
@@ -111,7 +111,7 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
       <div className="landing-v2-action-rail"><span>Have questions? Talk to us, sign in, or create your workspace.</span><div><a className="landing-v2-demo-btn" href="https://wa.me/916388334513?text=Hello%20PathMLT%2C%20I%20want%20to%20book%20a%20demo." target="_blank" rel="noreferrer">Book a demo <ArrowRight size={14} /></a><button className="landing-v2-login-btn" onClick={onLoginClick}>Login</button><button className="landing-v2-register-btn" onClick={onSignupClick}>Register</button></div></div>
 
       <section className="landing-v2-bottom">
-        <div><span className="landing-v2-eyebrow">Built to grow with your laboratory</span><h2>Start with the workflow you use every day.</h2><p>Configure your core panels, invite your team and move a representative order from registration to final report.</p></div>
+        <div><span className="landing-v2-eyebrow">Built to grow with your laboratory workflow</span><h2>Bring patients, testing, results and reporting into one laboratory workspace.</h2><p>Configure your core panels, invite your team and move a representative order from registration to final report.</p></div>
         <div className="landing-v2-bottom-actions"><button className="landing-v2-primary" onClick={onSignupClick}>Create workspace <ArrowRight size={17}/></button><Link to="/contact">Talk to the team</Link></div>
       </section>
     </div>

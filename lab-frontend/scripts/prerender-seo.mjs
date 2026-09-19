@@ -34,29 +34,29 @@ function escapeHtml(value) {
 
 function upsertMeta(html, name, content) {
   const tag = `<meta name="${name}" content="${escapeHtml(content)}" />`;
-  const re = new RegExp('<meta\\s+name=["\\']' + name + '["\\'][^>]*>', 'i');
+  const re = /<meta\s+name=["']([^"']+)["'][^>]*>/i;
   return re.test(html) ? html.replace(re, tag) : html.replace('</head>', `    ${tag}\\n  </head>`);
 }
 
 function upsertProperty(html, property, content) {
   const tag = `<meta property="${property}" content="${escapeHtml(content)}" />`;
-  const re = new RegExp('<meta\\s+property=["\\']' + property + '["\\'][^>]*>', 'i');
+  const re = /<meta\s+property=["']([^"']+)["'][^>]*>/i;
   return re.test(html) ? html.replace(re, tag) : html.replace('</head>', `    ${tag}\\n  </head>`);
 }
 
 function upsertCanonical(html, href) {
   const tag = `<link rel="canonical" href="${escapeHtml(href)}" />`;
-  const re = /<link\\s+rel=["']canonical["'][^>]*>/i;
+  const re = /<link\s+rel=["']canonical["'][^>]*>/i;
   return re.test(html) ? html.replace(re, tag) : html.replace('</head>', `    ${tag}\\n  </head>`);
 }
 
 function upsertTitle(html, title) {
-  return html.replace(/<title>[^<]*<\\/title>/i, `<title>${escapeHtml(title)}</title>`);
+  return html.replace(/<title>[^<]*<\/title>/i, `<title>${escapeHtml(title)}</title>`);
 }
 
 function upsertJsonLd(html, data) {
   const tag = `<script id="pathmlt-structured-data" type="application/ld+json">${JSON.stringify(data)}</script>`;
-  const re = /<script id=["']pathmlt-structured-data["'][^>]*>[\\s\\S]*?<\\/script>/i;
+  const re = /<script id=["']pathmlt-structured-data["'][^>]*>[\s\S]*?<\/script>/i;
   return re.test(html) ? html.replace(re, tag) : html.replace('</head>', `    ${tag}\\n  </head>`);
 }
 

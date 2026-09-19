@@ -23,7 +23,6 @@ const pages: Record<string, SeoConfig> = {
 '/signup':{title:'Create a Laboratory Workspace | PathMLT',description:'Create your PathMLT workspace for diagnostic laboratory reporting and operations.',canonical:'/signup',index:false},
 '/forgot-password':{title:'Reset Your PathMLT Password',description:'Recover access to your PathMLT laboratory workspace.',canonical:'/forgot-password',index:false},
 '/dashboard':{title:'Laboratory Dashboard | PathMLT',description:'Manage your PathMLT laboratory workspace.',canonical:'/dashboard',index:false},
-'/report-templates':{title:'Laboratory Report Templates | PathMLT',description:'Configure laboratory report templates inside your PathMLT workspace.',canonical:'/report-templates',index:false}
 };
 
 const seoPages: Record<string, Omit<SeoConfig,'canonical'|'index'>> = {

@@ -46,17 +46,17 @@ function upsertProperty(html, property, content) {
 
 function upsertCanonical(html, href) {
   const tag = `<link rel="canonical" href="${escapeHtml(href)}" />`;
-  const re = /<link\\s+rel=["']canonical["'][^>]*>/i;
+  const re = new RegExp('<link\\s+rel=["\\']canonical["\\'][^>]*>', 'i');
   return re.test(html) ? html.replace(re, tag) : html.replace('</head>', `    ${tag}\\n  </head>`);
 }
 
 function upsertTitle(html, title) {
-  return html.replace(/<title>[^<]*<\\/title>/i, `<title>${escapeHtml(title)}</title>`);
+  return html.replace(new RegExp('<title>[^<]*<\\/title>', 'i'), `<title>${escapeHtml(title)}</title>`);
 }
 
 function upsertJsonLd(html, data) {
   const tag = `<script id="pathmlt-structured-data" type="application/ld+json">${JSON.stringify(data)}</script>`;
-  const re = /<script id=["']pathmlt-structured-data["'][^>]*>[\\s\\S]*?<\\/script>/i;
+  const re = new RegExp('<script id=["\\']pathmlt-structured-data["\\'][^>]*>[\\s\\S]*?<\\/script>', 'i');
   return re.test(html) ? html.replace(re, tag) : html.replace('</head>', `    ${tag}\\n  </head>`);
 }
 

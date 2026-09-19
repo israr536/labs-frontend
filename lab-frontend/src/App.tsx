@@ -216,7 +216,7 @@ export default function App() {
           <Routes>
             <Route path="/pricing" element={<PricingPage />} />
             <Route path="/solutions" element={<SolutionsPage />} />
-            {['laboratory-reporting-software','diagnostic-lab-software','pathology-lab-software','laboratory-management-software','lab-reporting-system','pathology-reporting-software','lims-software','lab-automation-software','patient-management','test-management','sample-management','result-entry','result-verification','lab-reporting','report-templates','reference-ranges','audit-trail','role-based-access','pdf-reports','pathology-labs','diagnostic-labs','hospital-labs','independent-labs'].map(path => <Route key={path} path={'/'+path} element={<SeoLandingPage pageKey={path as import('./pages/SeoLandingPage').SeoPageKey} />} />)}
+            {['laboratory-reporting-software','diagnostic-lab-software','pathology-lab-software','laboratory-management-software','lab-reporting-system','pathology-reporting-software','lims-software','lab-automation-software','patient-management','test-management','sample-management','result-entry','result-verification','lab-reporting','reference-ranges','audit-trail','role-based-access','pdf-reports','pathology-labs','diagnostic-labs','hospital-labs','independent-labs'].map(path => <Route key={path} path={'/'+path} element={<SeoLandingPage pageKey={path as import('./pages/SeoLandingPage').SeoPageKey} />} />)}
             <Route path="/help" element={<HelpCenterPage />} />
             <Route path="/privacy" element={<PrivacyPolicyPage />} />
             <Route path="/terms" element={<TermsAndConditionsPage />} />

@@ -10,6 +10,7 @@ export default function Sidebar({ activeTab, setActiveTab, settings, darkMode, s
   const menuItems = [
     { id: 'dashboard' as const, label: 'Overview', icon: ActivitySquare },
     // { id: 'orders' as const, label: 'Orders & Results', icon: ClipboardList },
+    
     { id: 'patients' as const, label: 'Patients', icon: UserRound },
     { id: 'critical-results' as const, label: 'Critical Results', icon: AlertTriangle },
     { id: 'reports' as const, label: 'Patients & Reports', icon: FileText },

@@ -19,7 +19,7 @@ function collectEntries(blockName, defaults = {}) {
   if (blockEnd < 0) return;
 
   const block = source.slice(blockStart, blockEnd);
-  const entryPattern = /['"](\\/[^'"]*)['"]:\{title:'([^']+)',description:'([^']+)'(?:,canonical:'([^']+)',index:(true|false))?\}/g;
+  const entryPattern = /['"](\/[^'"]*)['"]:\{title:'([^']+)',description:'([^']+)'(?:,canonical:'([^']+)',index:(true|false))?\}/g;
 
   for (const match of block.matchAll(entryPattern)) {
     const [, pathname, title, description, canonical, index] = match;
@@ -51,19 +51,19 @@ function escapeHtml(value) {
 function upsertMeta(html, name, content) {
   const tag = `<meta name="${name}" content="${escapeHtml(content)}" />`;
   const re = /<meta\s+name=["']([^"']+)["'][^>]*>/i;
-  return re.test(html) ? html.replace(re, tag) : html.replace('</head>', `    ${tag}\\n  </head>`);
+  return re.test(html) ? html.replace(re, tag) : html.replace('</head>', `    ${tag}\n  </head>`);
 }
 
 function upsertProperty(html, property, content) {
   const tag = `<meta property="${property}" content="${escapeHtml(content)}" />`;
   const re = /<meta\s+property=["']([^"']+)["'][^>]*>/i;
-  return re.test(html) ? html.replace(re, tag) : html.replace('</head>', `    ${tag}\\n  </head>`);
+  return re.test(html) ? html.replace(re, tag) : html.replace('</head>', `    ${tag}\n  </head>`);
 }
 
 function upsertCanonical(html, href) {
   const tag = `<link rel="canonical" href="${escapeHtml(href)}" />`;
   const re = /<link\s+rel=["']canonical["'][^>]*>/i;
-  return re.test(html) ? html.replace(re, tag) : html.replace('</head>', `    ${tag}\\n  </head>`);
+  return re.test(html) ? html.replace(re, tag) : html.replace('</head>', `    ${tag}\n  </head>`);
 }
 
 function upsertTitle(html, title) {
@@ -73,7 +73,7 @@ function upsertTitle(html, title) {
 function upsertJsonLd(html, data) {
   const tag = `<script id="pathmlt-structured-data" type="application/ld+json">${JSON.stringify(data)}</script>`;
   const re = /<script id=["']pathmlt-structured-data["'][^>]*>[\s\S]*?<\/script>/i;
-  return re.test(html) ? html.replace(re, tag) : html.replace('</head>', `    ${tag}\\n  </head>`);
+  return re.test(html) ? html.replace(re, tag) : html.replace('</head>', `    ${tag}\n  </head>`);
 }
 
 function render(entry) {
@@ -139,7 +139,7 @@ function render(entry) {
       '@id': `${canonicalUrl}#breadcrumb`,
       itemListElement: [
         { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
-        { '@type': 'ListItem', position: 2, name: entry.title.replace(/ \\| PathMLT$/, ''), item: canonicalUrl }
+        { '@type': 'ListItem', position: 2, name: entry.title.replace(/ \| PathMLT$/, ''), item: canonicalUrl }
       ]
     });
   }
@@ -149,7 +149,7 @@ function render(entry) {
 }
 
 for (const entry of entries) {
-  const route = entry.pathname === '/' ? '' : entry.pathname.replace(/^\\/ / '');
+  const route = entry.pathname === '/' ? '' : entry.pathname.replace(/^\//, '');
   const outputDir = path.join(root, 'dist', route);
   fs.mkdirSync(outputDir, { recursive: true });
   fs.writeFileSync(path.join(outputDir, 'index.html'), render(entry));

@@ -13,6 +13,7 @@ import './styles/premium-saas-redesign.css';
 import './styles/theme-refinement.css';
 import App from './App.tsx';
 import SEO from './components/SEO.tsx';
+import AnalyticsTracker from './components/AnalyticsTracker.tsx';
 import AppErrorBoundary from './components/AppErrorBoundary.tsx';
 
 const queryClient = new QueryClient({
@@ -35,6 +36,7 @@ createRoot(document.getElementById('root')!).render(
       <QueryClientProvider client={queryClient}>
         <AppErrorBoundary>
           <SEO />
+          <AnalyticsTracker />
           <App />
         </AppErrorBoundary>
       </QueryClientProvider>

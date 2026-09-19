@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { faqItems } from '../data/faqData';
+import { seoDepth } from '../pages/SeoLandingPage';
 
 const SITE_URL = 'https://www.pathmlt.com';
 const SITE_NAME = 'PathMLT';
@@ -72,7 +73,8 @@ export default function SEO(){
     upsertProperty('og:type','website');upsertProperty('og:site_name',SITE_NAME);upsertProperty('og:title',config.title);upsertProperty('og:description',config.description);upsertProperty('og:url',canonicalUrl);upsertProperty('og:locale','en_IN');upsertProperty('og:image',OG_IMAGE);upsertProperty('og:image:alt','PathMLT laboratory reporting software');
     upsertMeta('twitter:card','summary_large_image');upsertMeta('twitter:title',config.title);upsertMeta('twitter:description',config.description);upsertMeta('twitter:image',OG_IMAGE);upsertMeta('twitter:image:alt','PathMLT laboratory reporting software');
     upsertCanonical(canonicalUrl);
-    const faqSchema=(pathname==='/'||pathname==='/faqs')?{'@type':'FAQPage',mainEntity:faqItems.slice(0,6).map(item=>({'@type':'Question',name:item.question,acceptedAnswer:{'@type':'Answer',text:item.answer}}))}:null;
+    const landingFaqs=seoDepth[pathname.slice(1)]?.faq;
+    const faqSchema=(pathname==='/'||pathname==='/faqs')?{'@type':'FAQPage',mainEntity:faqItems.slice(0,6).map(item=>({'@type':'Question',name:item.question,acceptedAnswer:{'@type':'Answer',text:item.answer}}))}:landingFaqs?{'@type':'FAQPage',mainEntity:landingFaqs.map(([name,text])=>({'@type':'Question',name,acceptedAnswer:{'@type':'Answer',text}}))}:null;
     upsertJsonLd({'@context':'https://schema.org','@graph':[
       {'@type':'Organization','@id':`${SITE_URL}/#organization`,name:SITE_NAME,url:SITE_URL,email:'support@pathmlt.com',areaServed:'IN'},
       {'@type':'WebSite','@id':`${SITE_URL}/#website`,name:SITE_NAME,url:SITE_URL,publisher:{'@id':`${SITE_URL}/#organization`}},

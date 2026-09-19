@@ -10,15 +10,31 @@ const SITE_URL = 'https://www.pathmlt.com';
 const OG_IMAGE = `${SITE_URL}/og-image.svg`;
 
 const entries = [];
-const pattern = /(['"])(\/[^'"]*)\1:\{title:'([^']+)',description:'([^']+)',(?:canonical:'([^']+)',index:(true|false)|\})/g;
-for (const match of source.matchAll(pattern)) {
-  const [, , pathname, title, description, canonical, index] = match;
-  if (canonical === undefined) {
-    entries.push({ pathname, title, description, canonical: pathname, index: true });
-  } else {
-    entries.push({ pathname, title, description, canonical, index: index === 'true' });
+
+function collectEntries(blockName, defaults = {}) {
+  const blockStart = source.indexOf(`const ${blockName}`);
+  if (blockStart < 0) return;
+
+  const blockEnd = source.indexOf('\n};', blockStart);
+  if (blockEnd < 0) return;
+
+  const block = source.slice(blockStart, blockEnd);
+  const entryPattern = /['"](\\/[^'"]*)['"]:\{title:'([^']+)',description:'([^']+)'(?:,canonical:'([^']+)',index:(true|false))?\}/g;
+
+  for (const match of block.matchAll(entryPattern)) {
+    const [, pathname, title, description, canonical, index] = match;
+    entries.push({
+      pathname,
+      title,
+      description,
+      canonical: canonical ?? defaults.canonical ?? pathname,
+      index: index === undefined ? (defaults.index ?? true) : index === 'true'
+    });
   }
 }
+
+collectEntries('pages');
+collectEntries('seoPages', { index: true });
 
 if (!entries.length) {
   throw new Error('No SEO routes were found in src/components/SEO.tsx');

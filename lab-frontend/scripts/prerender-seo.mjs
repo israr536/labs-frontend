@@ -133,7 +133,7 @@ function render(entry) {
 }
 
 for (const entry of entries) {
-  const route = entry.pathname === '/' ? '' : entry.pathname.replace(/^\\//, '');
+  const route = entry.pathname === '/' ? '' : entry.pathname.replace(/^\\/ / '');
   const outputDir = path.join(root, 'dist', route);
   fs.mkdirSync(outputDir, { recursive: true });
   fs.writeFileSync(path.join(outputDir, 'index.html'), render(entry));

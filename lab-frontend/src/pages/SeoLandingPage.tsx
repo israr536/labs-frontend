@@ -47,7 +47,7 @@ type SeoDepth = {
   faq: [string, string][];
 };
 
-const seoDepth: Record<string, SeoDepth> = {
+export const seoDepth: Record<string, SeoDepth> = {
 'laboratory-reporting-software': {
   useCases: ['Standardize patient-to-report workflows across routine diagnostic testing.', 'Give reviewers a consistent place to check results before release.', 'Generate patient-ready reports from the same structured data used during testing.'],
   faq: [['Can PathMLT support the full reporting workflow?', 'PathMLT is designed around connected patient, order, test, result, verification and reporting workflows so teams can move between stages without rebuilding the same information.'], ['Who is laboratory reporting software for?', 'It is intended for diagnostic and pathology laboratories that need a structured reporting workspace for recurring laboratory operations.']]

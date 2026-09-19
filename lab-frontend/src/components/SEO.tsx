@@ -41,7 +41,6 @@ const seoPages: Record<string, Omit<SeoConfig,'canonical'|'index'>> = {
 '/result-entry':{title:'Laboratory Result Entry Software | PathMLT',description:'Enter structured qualitative and quantitative laboratory results against configured parameters with validation and reference information.'},
 '/result-verification':{title:'Laboratory Result Verification Software | PathMLT',description:'Review laboratory values, flags and required results before reports are finalized and released.'},
 '/lab-reporting':{title:'Laboratory Reporting Software from Verified Results | PathMLT',description:'Turn verified laboratory results into consistent, professional patient reports without rebuilding documents manually.'},
-'/report-templates':{title:'Laboratory Report Templates & PDF Reporting | PathMLT',description:'Create reusable laboratory report layouts that keep your lab identity, parameters and results consistent across reports.'},
 '/reference-ranges':{title:'Laboratory Reference Range Management | PathMLT',description:'Configure parameter-level reference information and keep reporting context consistent with your laboratory workflow.'},
 '/audit-trail':{title:'Laboratory Audit Trail & Workflow History | PathMLT',description:'Keep important laboratory workflow events, actors and approvals traceable with an operational audit history.'},
 '/role-based-access':{title:'Role-Based Access for Laboratory Teams | PathMLT',description:'Give laboratory teams controlled access to the workflows and responsibilities relevant to their roles.'},

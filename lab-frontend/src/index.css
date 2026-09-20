@@ -11399,3 +11399,37 @@ tbody tr.inactive {
     gap: 30px !important;
   }
 }
+
+@media (max-width: 768px) {
+  .dashboard-main-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .dashboard-main-grid .col-span-2 {
+    grid-column: span 1 !important;
+  }
+
+  .dashboard-sub-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .usage-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .saas-dashboard-heading {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .saas-dashboard-heading > div:last-child {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .usage-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

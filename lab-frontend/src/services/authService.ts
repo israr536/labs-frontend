@@ -20,6 +20,14 @@ export function resendPasswordResetOtp(requestId: string) { return request<Passw
 export function verifyPasswordResetOtp(body: { requestId: string; otp: string }) { return request<PasswordResetVerifyResponse>('auth/forgot-password/verify-otp', { method: 'POST', body: JSON.stringify(body) }); }
 export function resetPassword(body: { requestId: string; resetToken: string; password: string }) { return request<{ success: boolean; message: string }>('auth/forgot-password/reset', { method: 'POST', body: JSON.stringify(body) }); }
 export async function logout() { try { await request('auth/logout', { method: 'POST' }); } catch {} clearTokens(); }
-export function me() { return request<{ user: AuthUser; lab: Record<string, unknown> }>('auth/me'); }
+// Session restoration runs during the initial render. Do not let an unavailable
+// API keep the public landing page on the loading screen for the normal request
+// timeout and retry cycle.
+export function me() {
+  return request<{ user: AuthUser; lab: Record<string, unknown> }>('auth/me', {
+    retry: 0,
+    timeout: 5000,
+  });
+}
 
 export default { login, logout, me, requestSignupOtp, resendSignupOtp, verifySignupOtp, requestPasswordResetOtp, resendPasswordResetOtp, verifyPasswordResetOtp, resetPassword };

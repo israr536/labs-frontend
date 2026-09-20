@@ -11,6 +11,7 @@ import './styles/production-overrides.css';
 import './styles/accessibility-saas.css';
 import './styles/premium-saas-redesign.css';
 import './styles/theme-refinement.css';
+import './styles/responsive.css';
 import App from './App.tsx';
 import SEO from './components/SEO.tsx';
 import AnalyticsTracker from './components/AnalyticsTracker.tsx';

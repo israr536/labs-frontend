@@ -178,7 +178,11 @@ export default function App() {
     queryClient.setQueryData(['settings'], saved);
   };
 
-  if (authLoading) return <ToastProvider><LoadingScreen /></ToastProvider>;
+  // Public routes should not wait for session restoration. Only keep the
+  // protected dashboard behind the loading screen while /auth/me resolves.
+  if (authLoading && location.pathname === '/dashboard') {
+    return <ToastProvider><LoadingScreen /></ToastProvider>;
+  }
 
   const dashboardRoute = isAuthenticated && location.pathname === '/dashboard';
   const dashboardPage = isAuthenticated ? <>

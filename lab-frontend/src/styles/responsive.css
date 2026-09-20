@@ -1,0 +1,181 @@
+/* Final responsive layer. Keep this file imported after all other theme overrides. */
+
+@media screen and (max-width: 900px) {
+  .app-header,
+  .header-inner {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .header-inner {
+    padding-inline: 14px !important;
+    box-sizing: border-box;
+  }
+
+  .nav-links,
+  .header-actions,
+  .header-demo,
+  .header-link,
+  .header-cta,
+  .header-dashboard,
+  .account-trigger {
+    display: none !important;
+  }
+
+  .mobile-menu {
+    display: grid !important;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    margin-left: auto;
+    flex: 0 0 42px;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--panel-bg);
+    color: var(--text-bold);
+  }
+
+  .mobile-nav {
+    position: fixed !important;
+    top: var(--header-height, 68px) !important;
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    max-width: none !important;
+    display: grid !important;
+    gap: 4px;
+    padding: 10px;
+    box-sizing: border-box;
+    z-index: 9999;
+  }
+
+  .mobile-nav a,
+  .mobile-nav button {
+    width: 100% !important;
+    min-height: 44px;
+    box-sizing: border-box;
+  }
+
+  .main-content,
+  .app-container:has(.saas-sidebar) .main-content {
+    width: 100% !important;
+    max-width: 100%;
+    margin-left: 0 !important;
+    padding: calc(var(--header-height, 68px) + 16px) 16px 88px !important;
+  }
+
+  .saas-dashboard,
+  .saas-page,
+  .page-shell,
+  .public-page,
+  .catalog-page,
+  .dashboard-content,
+  .editor-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box;
+  }
+
+  .saas-dashboard-heading,
+  .saas-page-header,
+  .dashboard-header,
+  .reports-header-row,
+  .catalog-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 14px;
+  }
+
+  .saas-dashboard-heading > div,
+  .saas-page-header > div,
+  .dashboard-actions {
+    max-width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .dashboard-main-grid,
+  .dashboard-sub-grid,
+  .form-grid-layout,
+  .contact-layout,
+  .orders-layout,
+  .reports-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  .dashboard-main-grid .col-span-2,
+  .dashboard-main-grid .col-span-3 {
+    grid-column: span 1 !important;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .usage-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .chart-wrapper,
+  .table-container,
+  .saas-table-wrap,
+  .parameter-table-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .custom-table,
+  .saas-table {
+    min-width: 640px;
+  }
+
+  .modal-overlay {
+    padding: 8px !important;
+  }
+
+  .modal,
+  [role='dialog'] {
+    width: 100%;
+    max-width: calc(100vw - 16px) !important;
+    max-height: calc(100dvh - 16px);
+    overflow: auto;
+  }
+}
+
+@media screen and (max-width: 560px) {
+  .main-content,
+  .app-container:has(.saas-sidebar) .main-content {
+    padding-inline: 12px !important;
+  }
+
+  .stats-grid,
+  .usage-grid,
+  .landing-trust-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .saas-dashboard-heading h1,
+  .saas-page-header h1 {
+    font-size: clamp(1.7rem, 8vw, 2.35rem);
+    overflow-wrap: anywhere;
+  }
+
+  .saas-dashboard-heading .saas-secondary-btn,
+  .saas-dashboard-heading .workspace-badge,
+  .dashboard-actions > button {
+    width: 100%;
+  }
+
+  .form-grid,
+  .filters-row,
+  .modal-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .custom-table,
+  .saas-table {
+    min-width: 560px;
+  }
+}

@@ -11164,3 +11164,76 @@ tbody tr.inactive {
     box-sizing: border-box;
   }
 }
+
+
+@media screen and (max-width: 720px) {
+  .landing-v2 {
+    width: 100%;
+    max-width: 100% !important;
+    margin: 0;
+    padding: 12px 14px 55px !important;
+    box-sizing: border-box;
+  }
+
+  .landing-v2-hero {
+    width: 100%;
+    max-width: 100%;
+    display: grid;
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+    min-height: auto !important;
+    padding: 32px 0 45px !important;
+  }
+
+  .landing-v2-copy {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .landing-v2-copy h1 {
+    max-width: 100%;
+    font-size: clamp(2.25rem, 11vw, 3.4rem);
+    line-height: 1.02;
+    overflow-wrap: anywhere;
+  }
+
+  .landing-v2-copy > p {
+    max-width: 100%;
+    font-size: 15px;
+  }
+
+  .landing-v2-product {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    transform: none;
+  }
+
+  .landing-v2-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .landing-v2-primary,
+  .landing-v2-secondary {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .landing-v2-feature-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .landing-v2-section-head,
+  .landing-v2-workflow,
+  .landing-v2-showcase {
+    grid-template-columns: 1fr !important;
+  }
+
+  .landing-v2-workflow,
+  .landing-v2-showcase {
+    gap: 30px;
+  }
+}

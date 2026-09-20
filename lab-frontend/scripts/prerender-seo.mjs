@@ -33,6 +33,7 @@ function collectEntries(blockName, defaults = {}) {
   }
 }
 
+
 collectEntries('pages');
 collectEntries('seoPages', { index: true });
 

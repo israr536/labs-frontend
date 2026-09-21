@@ -140,18 +140,75 @@ export const seoDepth: Record<string, SeoDepth> = {
 
 export default function SeoLandingPage({ pageKey }: { pageKey: SeoPageKey }) {
   const page = common[pageKey];
+  const depth = seoDepth[pageKey];
+  const workflowTitle = `How ${page.eyebrow.toLowerCase()} fits into a laboratory workflow`;
+  const capabilityTitle = `Capabilities to evaluate for ${page.eyebrow.toLowerCase()}`;
+  const useCaseTitle = `Practical ${page.eyebrow.toLowerCase()} use cases`;
+
   return <div className="public-saas-page seo-landing-page">
     <nav className="seo-breadcrumbs" aria-label="Breadcrumb"><Link to="/">Home</Link><span aria-hidden="true">/</span><span>{page.title}</span></nav>
+
     <section className="seo-landing-hero">
-      <div><span className="public-eyebrow">{page.eyebrow}</span><h1>{page.title}</h1><p>{page.description}</p><div className="seo-actions"><Link className="landing-primary" to="/signup">Create your laboratory workspace <ArrowRight size={16}/></Link><Link className="landing-secondary" to="/contact">Talk to the team</Link></div></div>
-      <div className="seo-hero-card"><ShieldCheck size={22}/><strong>Built for accountable laboratory reporting</strong><p>PathMLT connects structured data, controlled review and final reporting so teams can see what happened and what needs to happen next.</p></div>
+      <div>
+        <span className="public-eyebrow">{page.eyebrow}</span>
+        <h1>{page.title}</h1>
+        <p>{page.description}</p>
+        <div className="seo-actions"><Link className="landing-primary" to="/signup">Create your laboratory workspace <ArrowRight size={16}/></Link><Link className="landing-secondary" to="/contact">Talk to the team</Link></div>
+      </div>
+      <div className="seo-hero-card"><ShieldCheck size={22}/><strong>{page.eyebrow}: what the workflow should achieve</strong><p>{page.focus} The goal is a clear operational handoff from the work your team performs to the information the next person needs.</p></div>
     </section>
-    <section className="seo-intent"><div className="landing-section-heading"><span className="landing-eyebrow">Why this workflow matters</span><h2>{page.focus}</h2><p><strong>Designed for:</strong> {page.audience}</p></div></section>
-    <section className="seo-workflow" aria-labelledby="seo-workflow-title"><div className="landing-section-heading"><span className="landing-eyebrow">How PathMLT works</span><h2 id="seo-workflow-title">A clear path from laboratory work to final report.</h2><p>Each stage keeps the information needed for the next step connected, reducing avoidable re-entry and manual handoffs.</p></div><div className="seo-workflow-grid">{page.steps.map(([title,text],i)=><article key={title}><span>{String(i+1).padStart(2,'0')}</span><h3>{title}</h3><p>{text}</p></article>)}</div></section>
-    <section className="seo-benefits"><div className="landing-section-heading"><span className="landing-eyebrow">Core capabilities</span><h2>Built around the work your laboratory repeats every day.</h2></div><div className="seo-benefit-grid">{page.benefits.map(item=><article key={item}><CheckCircle2 size={17}/><span>{item}</span></article>)}</div></section>
-    <section className="seo-use-cases"><div className="landing-section-heading"><span className="landing-eyebrow">Practical use cases</span><h2>Where this workflow fits in a real laboratory.</h2><p>PathMLT is designed around repeatable operational tasks, not isolated screens. Typical uses for this workflow include:</p></div><div className="seo-use-case-grid">{seoDepth[pageKey].useCases.map((item,index)=><article key={item}><span>{String(index+1).padStart(2,'0')}</span><p>{item}</p></article>)}</div></section>
-    <section className="seo-faq" aria-labelledby="seo-faq-title"><div className="landing-section-heading"><span className="landing-eyebrow">Common questions</span><h2 id="seo-faq-title">Questions teams ask about this workflow.</h2></div><div className="seo-faq-list">{seoDepth[pageKey].faq.map(([question,answer])=><details key={question}><summary>{question}</summary><p>{answer}</p></details>)}</div></section>
-    <section className="seo-related"><div><span className="landing-eyebrow">Related laboratory workflows</span><h2>Explore the PathMLT platform.</h2><p>Go deeper into the workflows that connect with this use case.</p></div><div className="seo-related-links">{page.related.map(slug=><Link key={slug} to={'/'+slug}><span>{common[slug].title}</span><ArrowRight size={14}/></Link>)}</div></section>
-    <section className="landing-cta"><div><span className="landing-eyebrow">See it in your workflow</span><h2>Move from disconnected lab work to one reporting workspace.</h2><p>Start with your core tests and reporting process, then build from there.</p></div><Link className="landing-primary" to="/contact">Request a PathMLT walkthrough <ArrowRight size={16}/></Link></section>
+
+    <section className="seo-intent">
+      <div className="landing-section-heading">
+        <span className="landing-eyebrow">Why this workflow matters</span>
+        <h2>{page.focus}</h2>
+        <p><strong>Designed for:</strong> {page.audience}</p>
+      </div>
+    </section>
+
+    <section className="seo-workflow" aria-labelledby="seo-workflow-title">
+      <div className="landing-section-heading">
+        <span className="landing-eyebrow">{page.eyebrow}</span>
+        <h2 id="seo-workflow-title">{workflowTitle}.</h2>
+        <p>These stages describe the operational path for this specific use case. The exact sequence and responsibilities should reflect the laboratory's own configured process.</p>
+      </div>
+      <div className="seo-workflow-grid">{page.steps.map(([title,text],i)=><article key={title}><span>{String(i+1).padStart(2,'0')}</span><h3>{title}</h3><p>{text}</p></article>)}</div>
+    </section>
+
+    <section className="seo-benefits">
+      <div className="landing-section-heading">
+        <span className="landing-eyebrow">What to look for</span>
+        <h2>{capabilityTitle}.</h2>
+        <p>Useful laboratory software should support the specific work behind this search intent, not simply provide a generic document editor or a collection of disconnected screens.</p>
+      </div>
+      <div className="seo-benefit-grid">{page.benefits.map(item=><article key={item}><CheckCircle2 size={17}/><span>{item}</span></article>)}</div>
+    </section>
+
+    <section className="seo-use-cases">
+      <div className="landing-section-heading">
+        <span className="landing-eyebrow">Operational scenarios</span>
+        <h2>{useCaseTitle}.</h2>
+        <p>Consider how this capability affects the people, records and handoffs involved in day-to-day laboratory work.</p>
+      </div>
+      <div className="seo-use-case-grid">{depth.useCases.map((item,index)=><article key={item}><span>{String(index+1).padStart(2,'0')}</span><p>{item}</p></article>)}</div>
+    </section>
+
+    <section className="seo-faq" aria-labelledby="seo-faq-title">
+      <div className="landing-section-heading">
+        <span className="landing-eyebrow">Questions to consider</span>
+        <h2 id="seo-faq-title">Common questions about {page.eyebrow.toLowerCase()}.</h2>
+      </div>
+      <div className="seo-faq-list">{depth.faq.map(([question,answer])=><details key={question}><summary>{question}</summary><p>{answer}</p></details>)}</div>
+    </section>
+
+    <section className="seo-related">
+      <div><span className="landing-eyebrow">Related workflows</span><h2>See how this connects to the rest of the laboratory.</h2><p>Explore adjacent PathMLT workflows rather than treating this capability as an isolated feature.</p></div>
+      <div className="seo-related-links">{page.related.filter((slug,index,array)=>array.indexOf(slug)===index).map(slug=><Link key={slug} to={'/'+slug}><span>{common[slug].title}</span><ArrowRight size={14}/></Link>)}</div>
+    </section>
+
+    <section className="landing-cta">
+      <div><span className="landing-eyebrow">Apply the workflow</span><h2>See how {page.eyebrow.toLowerCase()} could fit your laboratory.</h2><p>Start with the process your team performs most often and discuss the configuration, reporting and access requirements that matter to you.</p></div>
+      <Link className="landing-primary" to="/contact">Request a PathMLT walkthrough <ArrowRight size={16}/></Link>
+    </section>
   </div>;
 }

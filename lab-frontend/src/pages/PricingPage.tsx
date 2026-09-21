@@ -65,9 +65,19 @@ interface PricingPageProps { isAuthenticated: boolean; onLogin: () => void; }\n\
             <p>{plan.description}</p>
             <div className="pricing-divider" />
             <ul>{plan.features.map((feature) => <li key={feature}><Check size={15} />{feature}</li>)}</ul>
-            <button className={plan.featured ? 'pricing-btn primary' : 'pricing-btn'} onClick={() => plan.name === 'Custom' ? navigate('/contact') : undefined}>
-              {plan.name === 'Custom' ? 'Talk to us' : `Start with ${plan.name}`}<ArrowRight size={15} />
-            </button>
+            {plan.name === 'Custom' ? (
+              <button className="pricing-btn" onClick={() => navigate('/contact')}>
+                Talk to us <ArrowRight size={15} />
+              </button>
+            ) : isAuthenticated ? (
+              <RazorpayPaymentButton plan={plan.name === 'Monthly' ? 'MONTHLY' : 'YEARLY'} className={plan.featured ? 'pricing-btn primary' : 'pricing-btn'}>
+                Pay {plan.price}
+              </RazorpayPaymentButton>
+            ) : (
+              <button className={plan.featured ? 'pricing-btn primary' : 'pricing-btn'} onClick={onLogin}>
+                Login to pay <ArrowRight size={15} />
+              </button>
+            )}
           </article>
         ))}
       </section>

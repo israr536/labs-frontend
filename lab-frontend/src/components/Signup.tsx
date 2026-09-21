@@ -78,7 +78,7 @@ export default function Signup({ onSignupSuccess, onCancel }: Props) {
         <div className="saas-signup-section-title"><Building2 size={16} /><span>Laboratory details</span></div>
         <div className="saas-signup-grid">
           <label className="saas-signup-field"><span>Lab name</span><input value={labName} onChange={(e) => setLabName(e.target.value)} required placeholder="Apex Clinical Diagnostics" /></label>
-          <label className="saas-signup-field"><span>Lab code <em>optional</em></span><input value={labCode} onChange={(e) => setLabCode(e.target.value.toUpperCase())} placeholder="AUTO-GENERATED" /></label>
+          {/* <label className="saas-signup-field"><span>Lab code <em>optional</em></span><input value={labCode} onChange={(e) => setLabCode(e.target.value.toUpperCase())} placeholder="AUTO-GENERATED" /></label> */}
           <label className="saas-signup-field"><span>Mobile number</span><input type="tel" value={mobile} onChange={(e) => setMobile(e.target.value)} required placeholder="+91 98765 43210" autoComplete="tel" /></label>
           <label className="saas-signup-field"><span>Admin email</span><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" placeholder="admin@lab.com" /></label>
           <label className="saas-signup-field saas-signup-full"><span>Address <em>optional</em></span><textarea value={address} onChange={(e) => setAddress(e.target.value)} rows={2} placeholder="Full laboratory address" /></label>

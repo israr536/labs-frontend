@@ -1,10 +1,1 @@
-User-agent: *
-Allow: /
-
-Disallow: /dashboard
-Disallow: /login
-Disallow: /signup
-Disallow: /forgot-password
-Disallow: /report-templates
-
-Sitemap: https://www.pathmlt.com/sitemap.xml
+User-agent: *\nAllow: /\n\n# Private application/authentication areas\nDisallow: /dashboard\nDisallow: /login\nDisallow: /signup\nDisallow: /forgot-password\nDisallow: /report-templates\n\nSitemap: https://www.pathmlt.com/sitemap.xml\n

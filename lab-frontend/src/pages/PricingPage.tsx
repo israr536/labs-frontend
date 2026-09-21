@@ -52,7 +52,7 @@ export default function PricingPage() {
         </div>
         <div className="pricing-note">
           <ShieldCheck size={18} />
-          <span><strong>14-day trial</strong><small>Validate the workflow with your team before choosing a plan.</small></span>
+          <span><strong>Free & unlimited for now</strong><small>Use PathMLT without report, user, patient or test limits while we grow the platform.</small></span>
         </div>
       </section>
 

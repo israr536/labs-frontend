@@ -41,6 +41,7 @@ const SolutionsPage = lazy(() => import('./pages/SolutionsPage'));
 const HelpCenterPage = lazy(() => import('./pages/HelpCenterPage'));
 const SeoLandingPage = lazy(() => import('./pages/SeoLandingPage'));
 import WhatsAppButton from './components/WhatsAppButton';
+import RazorpayPlans from './components/RazorpayPlans';
 
 interface SessionUser { id: string; username?: string; email?: string; role?: string; isActive?: boolean; }
 
@@ -206,7 +207,7 @@ export default function App() {
     {activeTab === 'users' && user?.role === 'ADMIN' && <TeamPage />}
     {activeTab === 'audit' && <AuditLogPage />}
     {activeTab === 'billing' && (
-      <div className="saas-page"><div className="saas-page-header"><div><span className="saas-eyebrow">Workspace administration</span><h1>Plan & usage</h1><p>See your current plan, usage limits and subscription status.</p></div><button className="saas-secondary-btn" onClick={() => navigate('/pricing')}>Compare plans</button></div><SubscriptionCard subscription={subscription ?? null} loading={subscriptionLoading} onUpgrade={() => setActiveTab('billing')} /><div className="billing-note"><strong>Usage limits are enforced by the server.</strong><span>This dashboard is informational; creating data is always checked against the current subscription on the backend.</span></div></div>
+      <div className="saas-page"><div className="saas-page-header"><div><span className="saas-eyebrow">Workspace administration</span><h1>Plan & usage</h1><p>See your current plan, usage limits and subscription status.</p></div><button className="saas-secondary-btn" onClick={() => navigate('/pricing')}>Compare plans</button></div><SubscriptionCard subscription={subscription ?? null} loading={subscriptionLoading} onUpgrade={() => setActiveTab('billing')} /><RazorpayPlans /><div className="billing-note"><strong>PathMLT is currently free and unlimited.</strong><span>Paid plans are available through Razorpay when you are ready to start charging for the service.</span></div></div>
     )}
     {activeTab === 'settings' && user?.role === 'ADMIN' && <SettingsPanel settings={currentSettings} onSaveSettings={handleSaveSettings} />}
   </> : <Navigate to="/" replace />;

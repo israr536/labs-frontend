@@ -1,1 +1,7 @@
-User-agent: *\nAllow: /\n\n# Private application/authentication areas\nDisallow: /dashboard\nDisallow: /login\nDisallow: /signup\nDisallow: /forgot-password\nDisallow: /report-templates\n\nSitemap: https://www.pathmlt.com/sitemap.xml\n
+User-agent: *
+Allow: /
+
+# Search engines should be able to crawl these routes and see their noindex metadata.
+# Private application routes are excluded from the sitemap and marked noindex in the HTML.
+
+Sitemap: https://www.pathmlt.com/sitemap.xml

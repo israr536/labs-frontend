@@ -9,7 +9,7 @@ export default function Signup({ onSignupSuccess, onCancel }: Props) {
   const toast = useToast();
   const [step, setStep] = useState<'details' | 'otp'>('details');
   const [labName, setLabName] = useState('');
-  const [labCode, setLabCode] = useState('');
+  // const [labCode, setLabCode] = useState('');
   const [mobile, setMobile] = useState('');
   const [email, setEmail] = useState('');
   const [address, setAddress] = useState('');
@@ -33,7 +33,7 @@ export default function Signup({ onSignupSuccess, onCancel }: Props) {
     if (password.length < 8) { setError('Password must be at least 8 characters.'); return; }
     setLoading(true);
     try {
-      const res = await authService.requestSignupOtp({ labName, labCode, mobile, email, address, password });
+      const res = await authService.requestSignupOtp({ labName, mobile, email, address, password });
       setRequestId(res.requestId); setDevOtp(res.devOtp ?? ''); setOtp(''); setResendSeconds(60); setStep('otp');
       toast.show({ type: 'success', message: 'Verification code sent by SMS to your mobile number.' });
     } catch (err: any) { const message = err?.message || 'Could not start signup.'; setError(message); toast.show({ type: 'error', message }); }

@@ -1,5 +1,6 @@
 import { Check, Sparkles, ArrowRight, ShieldCheck } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';\nimport { RazorpayPaymentButton } from '../components/RazorpayPlans';
+import { Link, useNavigate } from 'react-router-dom';
+import { RazorpayPaymentButton } from '../components/RazorpayPlans';
 
 const plans = [
   {
@@ -28,7 +29,9 @@ const plans = [
   },
 ];
 
-interface PricingPageProps { isAuthenticated: boolean; onLogin: () => void; }\n\nexport default function PricingPage({ isAuthenticated, onLogin }: PricingPageProps) {
+interface PricingPageProps { isAuthenticated: boolean; onLogin: () => void; }
+
+export default function PricingPage({ isAuthenticated, onLogin }: PricingPageProps) {
   const navigate = useNavigate();
 
   return (

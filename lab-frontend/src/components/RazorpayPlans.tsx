@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { CheckCircle2, CreditCard, Loader2 } from 'lucide-react';
 import paymentsService from '../services/paymentsService';
 
@@ -27,7 +27,7 @@ function loadRazorpay() {
   });
 }
 
-export default function RazorpayPlans() {
+export function RazorpayPaymentButton({ plan, className, children }: { plan: 'MONTHLY' | 'YEARLY'; className?: string; children?: ReactNode }) {
   const [loading, setLoading] = useState<'MONTHLY' | 'YEARLY' | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -80,14 +80,14 @@ export default function RazorpayPlans() {
           <div className="pricing-price"><strong>₹299</strong><span>/ month</span></div>
           <p>Flexible monthly billing for a growing laboratory.</p>
           <ul><li><CheckCircle2 size={15} />Patient and report workflows</li><li><CheckCircle2 size={15} />Team access</li><li><CheckCircle2 size={15} />Priority product updates</li></ul>
-          <button className="pricing-btn" type="button" disabled={loading !== null} onClick={() => void pay('MONTHLY')}>{loading === 'MONTHLY' ? <><Loader2 size={15} className="spin" /> Opening checkout…</> : 'Pay ₹299'}</button>
+          <RazorpayPaymentButton plan="MONTHLY" />
         </article>
         <article className="pricing-card-new featured">
           <span className="pricing-name">Yearly</span>
           <div className="pricing-price"><strong>₹2,499</strong><span>/ year</span></div>
           <p>Annual billing for laboratories standardizing their workflow.</p>
           <ul><li><CheckCircle2 size={15} />Everything in Monthly</li><li><CheckCircle2 size={15} />Annual billing</li><li><CheckCircle2 size={15} />Priority support</li></ul>
-          <button className="pricing-btn primary" type="button" disabled={loading !== null} onClick={() => void pay('YEARLY')}>{loading === 'YEARLY' ? <><Loader2 size={15} className="spin" /> Opening checkout…</> : 'Pay ₹2,499'}</button>
+          <RazorpayPaymentButton plan="YEARLY" className="pricing-btn primary" />
         </article>
       </div>
       {message && <p role="status" style={{ marginTop: 16 }}>{message}</p>}

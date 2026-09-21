@@ -82,7 +82,7 @@ export default function PricingPage() {
           </p>
         </div>
         <div className="pricing-explainer-grid">
-          <div><strong>Starting a new reporting workflow?</strong><p>Use the trial to validate patient registration, test configuration, result entry and professional PDF reporting with your team.</p><Link to="/lab-reporting">Explore lab reporting <ArrowRight size={14} /></Link></div>
+          <div><strong>Starting a new reporting workflow?</strong><p>Use the free and unlimited launch period to validate patient registration, test configuration, result entry and professional PDF reporting with your team.</p><Link to="/lab-reporting">Explore lab reporting <ArrowRight size={14} /></Link></div>
           <div><strong>Need stronger verification controls?</strong><p>Review result verification, reference ranges, audit history and role-based access for a more controlled laboratory workflow.</p><Link to="/result-verification">Explore result verification <ArrowRight size={14} /></Link></div>
           <div><strong>Comparing laboratory systems?</strong><p>See how PathMLT connects daily lab operations with structured reporting instead of treating reporting as a separate final step.</p><Link to="/solutions">Explore solutions <ArrowRight size={14} /></Link></div>
         </div>

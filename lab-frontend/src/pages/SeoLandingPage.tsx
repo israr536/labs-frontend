@@ -201,6 +201,44 @@ export default function SeoLandingPage({ pageKey }: { pageKey: SeoPageKey }) {
       <div className="seo-faq-list">{depth.faq.map(([question,answer])=><details key={question}><summary>{question}</summary><p>{answer}</p></details>)}</div>
     </section>
 
+    <section className="seo-product-evidence" aria-labelledby="seo-product-evidence-title">
+      <div className="landing-section-heading">
+        <span className="landing-eyebrow">Inside PathMLT</span>
+        <h2 id="seo-product-evidence-title">See the product workflow behind this capability.</h2>
+        <p>PathMLT is built around connected laboratory records and configurable workflows. The examples below describe product workflows implemented in the application, rather than generic software promises.</p>
+      </div>
+      <div className="seo-product-evidence-grid">
+        <article>
+          <span className="seo-evidence-number">01</span>
+          <h3>Configurable test catalog</h3>
+          <p>Tests can include categories, departments, specimen information, methods, turnaround time and reusable parameters. Parameters support numeric, text, select, multiline, boolean, date and qualitative inputs.</p>
+          <Link to="/contact">Discuss test configuration <ArrowRight size={14}/></Link>
+        </article>
+        <article>
+          <span className="seo-evidence-number">02</span>
+          <h3>Structured result entry</h3>
+          <p>The report workflow loads a laboratory test configuration and its parameters so results can be entered against defined fields instead of rebuilding report content manually.</p>
+          <Link to="/contact">See the result workflow <ArrowRight size={14}/></Link>
+        </article>
+        <article>
+          <span className="seo-evidence-number">03</span>
+          <h3>Verification before reporting</h3>
+          <p>PathMLT separates result entry from review and finalization, giving teams a deliberate checkpoint for required values, flags and completed result sets before release.</p>
+          <Link to="/contact">Discuss verification <ArrowRight size={14}/></Link>
+        </article>
+        <article>
+          <span className="seo-evidence-number">04</span>
+          <h3>Final report generation</h3>
+          <p>After the workflow is completed, PathMLT can turn the structured result data into a patient-facing laboratory report, including PDF output for delivery or printing.</p>
+          <Link to="/contact">See reporting options <ArrowRight size={14}/></Link>
+        </article>
+      </div>
+      <div className="seo-evidence-note">
+        <strong>Product-specific, not placeholder copy.</strong>
+        <span>These examples are tied to PathMLT's current frontend workflow and test-catalog model. Exact fields, permissions and report configuration can vary by laboratory setup.</span>
+      </div>
+    </section>
+
     <section className="seo-related">
       <div><span className="landing-eyebrow">Related workflows</span><h2>See how this connects to the rest of the laboratory.</h2><p>Explore adjacent PathMLT workflows rather than treating this capability as an isolated feature.</p></div>
       <div className="seo-related-links">{page.related.filter((slug,index,array)=>array.indexOf(slug)===index).map(slug=><Link key={slug} to={'/'+slug}><span>{common[slug].title}</span><ArrowRight size={14}/></Link>)}</div>

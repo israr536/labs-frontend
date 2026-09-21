@@ -1,5 +1,5 @@
 import { Check, Sparkles, ArrowRight, ShieldCheck } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';\nimport { RazorpayPaymentButton } from '../components/RazorpayPlans';
 
 const plans = [
   {
@@ -28,7 +28,7 @@ const plans = [
   },
 ];
 
-export default function PricingPage() {
+interface PricingPageProps { isAuthenticated: boolean; onLogin: () => void; }\n\nexport default function PricingPage({ isAuthenticated, onLogin }: PricingPageProps) {
   const navigate = useNavigate();
 
   return (
@@ -42,7 +42,7 @@ export default function PricingPage() {
             and professional laboratory report creation. Start small and expand as your laboratory grows.
           </p>
           <div className="solutions-actions">
-            <button className="landing-primary" onClick={() => navigate('/signup')}>
+            <button className="landing-primary" onClick={() => onLogin()}>
               Start your lab workspace <ArrowRight size={16} />
             </button>
             <Link className="landing-secondary" to="/laboratory-reporting-software">
@@ -65,7 +65,7 @@ export default function PricingPage() {
             <p>{plan.description}</p>
             <div className="pricing-divider" />
             <ul>{plan.features.map((feature) => <li key={feature}><Check size={15} />{feature}</li>)}</ul>
-            <button className={plan.featured ? 'pricing-btn primary' : 'pricing-btn'} onClick={() => plan.name === 'Custom' ? navigate('/contact') : navigate('/signup')}>
+            <button className={plan.featured ? 'pricing-btn primary' : 'pricing-btn'} onClick={() => plan.name === 'Custom' ? navigate('/contact') : undefined}>
               {plan.name === 'Custom' ? 'Talk to us' : `Start with ${plan.name}`}<ArrowRight size={15} />
             </button>
           </article>

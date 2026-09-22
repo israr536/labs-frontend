@@ -19,7 +19,8 @@ export interface SubscriptionUsage {
 export interface SubscriptionStatus {
   plan: string;
   planName: string;
-  status: 'active' | 'scheduled' | 'expired' | string;
+  status: 'active' | 'scheduled' | 'expired' | 'pending' | string;
+  trial?: boolean;
   startsAt: string | null;
   endsAt: string | null;
   limits: SubscriptionLimits;

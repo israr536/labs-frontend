@@ -127,7 +127,7 @@ export default function App() {
 
   const { data: settingsData } = useQuery({
     queryKey: ['settings'],
-    enabled: isAuthenticated && !subscriptionExpired,
+    enabled: isAuthenticated,
     queryFn: () => labsService.getSettings(),
     staleTime: 60_000,
     refetchOnWindowFocus: false,

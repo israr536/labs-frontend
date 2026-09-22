@@ -216,6 +216,7 @@ export default function App() {
           </div>
         </div>
         <SubscriptionCard subscription={subscription ?? null} loading={subscriptionLoading} onUpgrade={() => navigate('/pricing')} />
+        <RazorpayPlans />
       </div>
     ) : null}
     {!subscriptionExpired && activeTab === 'dashboard' && (
@@ -238,7 +239,7 @@ export default function App() {
     {!subscriptionExpired && activeTab === 'users' && user?.role === 'ADMIN' && <TeamPage />}
     {!subscriptionExpired && activeTab === 'audit' && <AuditLogPage />}
     {activeTab === 'billing' && (
-      <div className="saas-page"><div className="saas-page-header"><div><span className="saas-eyebrow">Workspace administration</span><h1>Plan & usage</h1><p>See your current plan, usage limits and subscription status.</p></div><button className="saas-secondary-btn" onClick={() => navigate('/pricing')}>Compare plans</button></div><SubscriptionCard subscription={subscription ?? null} loading={subscriptionLoading} onUpgrade={() => setActiveTab('billing')} /><RazorpayPlans /><div className="billing-note"><strong>PathMLT is currently free and unlimited.</strong><span>Paid plans are available through Razorpay when you are ready to start charging for the service.</span></div></div>
+      <div className="saas-page"><div className="saas-page-header"><div><span className="saas-eyebrow">Workspace administration</span><h1>Plan & usage</h1><p>See your current plan, usage limits and subscription status.</p></div><button className="saas-secondary-btn" onClick={() => navigate('/pricing')}>Compare plans</button></div><SubscriptionCard subscription={subscription ?? null} loading={subscriptionLoading} onUpgrade={() => setActiveTab('billing')} /><RazorpayPlans /><div className="billing-note"><strong>30-day free trial, then paid subscription.</strong><span>Choose Monthly or Yearly to continue after the trial. Payments are processed securely through Razorpay.</span></div></div>
     )}
     {activeTab === 'settings' && user?.role === 'ADMIN' && <SettingsPanel settings={currentSettings} onSaveSettings={handleSaveSettings} />}
   </> : <Navigate to="/" replace />;

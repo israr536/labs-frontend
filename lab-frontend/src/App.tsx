@@ -1,3 +1,4 @@
+import { ArrowRight, CreditCard } from 'lucide-react';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';

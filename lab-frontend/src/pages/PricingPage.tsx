@@ -1,5 +1,7 @@
 import { Check, Sparkles, ArrowRight, ShieldCheck } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import paymentService from '../services/paymentService';
 
 const plans = [
   {
@@ -30,6 +32,26 @@ const plans = [
 
 export default function PricingPage() {
   const navigate = useNavigate();
+  const [paying, setPaying] = useState<'MONTHLY' | 'YEARLY' | null>(null);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+
+  const handlePlan = async (planName: string) => {
+    if (planName === 'Custom') { navigate('/contact'); return; }
+    const token = localStorage.getItem('lab_access_token');
+    if (!token) { navigate('/signup'); return; }
+    const plan = planName === 'Monthly' ? 'MONTHLY' : 'YEARLY';
+    setPaying(plan);
+    setPaymentError(null);
+    try {
+      await paymentService.startSubscription(plan);
+      navigate('/dashboard', { replace: true });
+      window.location.reload();
+    } catch (error) {
+      setPaymentError(error instanceof Error ? error.message : 'Unable to start payment. Please try again.');
+    } finally {
+      setPaying(null);
+    }
+  };
 
   return (
     <div className="public-saas-page">
@@ -52,7 +74,7 @@ export default function PricingPage() {
         </div>
         <div className="pricing-note">
           <ShieldCheck size={18} />
-          <span><strong>14-day trial</strong><small>Validate the workflow with your team before choosing a plan.</small></span>
+          <span><strong>30-day free trial</strong><small>Use PathMLT free for 30 days, then choose a paid plan to continue.</small></span>
         </div>
       </section>
 
@@ -65,8 +87,8 @@ export default function PricingPage() {
             <p>{plan.description}</p>
             <div className="pricing-divider" />
             <ul>{plan.features.map((feature) => <li key={feature}><Check size={15} />{feature}</li>)}</ul>
-            <button className={plan.featured ? 'pricing-btn primary' : 'pricing-btn'} onClick={() => plan.name === 'Custom' ? navigate('/contact') : navigate('/signup')}>
-              {plan.name === 'Custom' ? 'Talk to us' : `Start with ${plan.name}`}<ArrowRight size={15} />
+            <button className={plan.featured ? 'pricing-btn primary' : 'pricing-btn'} disabled={paying !== null} onClick={() => void handlePlan(plan.name)}>
+              {paying === (plan.name === 'Monthly' ? 'MONTHLY' : 'YEARLY') ? 'Opening secure checkout…' : plan.name === 'Custom' ? 'Talk to us' : `Start with ${plan.name}`}<ArrowRight size={15} />
             </button>
           </article>
         ))}

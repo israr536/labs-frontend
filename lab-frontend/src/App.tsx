@@ -127,7 +127,7 @@ export default function App() {
 
   const { data: settingsData } = useQuery({
     queryKey: ['settings'],
-    enabled: isAuthenticated,
+    enabled: isAuthenticated && !subscriptionExpired,
     queryFn: () => labsService.getSettings(),
     staleTime: 60_000,
     refetchOnWindowFocus: false,
@@ -144,6 +144,10 @@ export default function App() {
 
   const currentSettings = settingsData ? settingsData as LabSettings : settings;
   const subscriptionExpired = subscription?.status === 'expired';
+
+  useEffect(() => {
+    if (subscriptionExpired && activeTab !== 'dashboard') setActiveTab('dashboard');
+  }, [subscriptionExpired, activeTab]);
 
   const showLogin = () => { setAuthView('login'); navigate('/login'); };
   const showSignup = () => { setAuthView('signup'); navigate('/signup'); };

@@ -31,9 +31,15 @@ interface RazorpayPaymentButtonProps {
   plan: 'MONTHLY' | 'YEARLY';
   className?: string;
   children?: ReactNode;
+  onSuccess?: () => void;
 }
 
-export function RazorpayPaymentButton({ plan, className = 'pricing-btn', children }: RazorpayPaymentButtonProps) {
+export function RazorpayPaymentButton({
+  plan,
+  className = 'pricing-btn',
+  children,
+  onSuccess,
+}: RazorpayPaymentButtonProps) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -63,7 +69,7 @@ export function RazorpayPaymentButton({ plan, className = 'pricing-btn', childre
           handler: async (response: RazorpayPaymentResponse) => {
             try {
               await paymentsService.verifyPayment(response);
-              setMessage('Payment verified successfully.');
+              setMessage('Payment verified successfully. Your subscription is now active.');
               resolve();
             } catch (error) {
               reject(error);
@@ -76,6 +82,8 @@ export function RazorpayPaymentButton({ plan, className = 'pricing-btn', childre
 
         checkout.open();
       });
+
+      onSuccess?.();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Payment could not be completed.');
     } finally {
@@ -99,8 +107,8 @@ export default function RazorpayPlans() {
       <div className="saas-page-header">
         <div>
           <span className="saas-eyebrow">Payments</span>
-          <h2>Upgrade when you are ready</h2>
-          <p>PathMLT is currently free and unlimited. Razorpay is ready for paid upgrades when you decide to start charging customers.</p>
+          <h2>Continue after your free trial</h2>
+          <p>Your 30-day free trial gives you time to set up the lab. Choose Monthly or Yearly when you are ready to continue with a paid subscription.</p>
         </div>
         <CreditCard size={28} />
       </div>

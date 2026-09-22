@@ -34,6 +34,11 @@ interface PricingPageProps { isAuthenticated: boolean; onLogin: () => void; }
 export default function PricingPage({ isAuthenticated, onLogin }: PricingPageProps) {
   const navigate = useNavigate();
 
+  const handlePaymentSuccess = () => {
+    navigate('/dashboard', { replace: true });
+    window.location.reload();
+  };
+
   return (
     <div className="public-saas-page">
       <section className="pricing-hero">
@@ -41,8 +46,8 @@ export default function PricingPage({ isAuthenticated, onLogin }: PricingPagePro
           <span className="public-eyebrow"><Sparkles size={13} /> Laboratory software pricing</span>
           <h1>Simple pricing for laboratory reporting software.</h1>
           <p>
-            Choose a practical PathMLT plan for patient management, test workflows, result verification
-            and professional laboratory report creation. Start small and expand as your laboratory grows.
+            Start with a 30-day free trial, then choose a paid PathMLT plan for patient management,
+            test workflows, result verification and professional laboratory report creation.
           </p>
           <div className="solutions-actions">
             <button className="landing-primary" onClick={() => onLogin()}>
@@ -55,7 +60,10 @@ export default function PricingPage({ isAuthenticated, onLogin }: PricingPagePro
         </div>
         <div className="pricing-note">
           <ShieldCheck size={18} />
-          <span><strong>Free & unlimited for now</strong><small>Use PathMLT without report, user, patient or test limits while we grow the platform.</small></span>
+          <span>
+            <strong>30-day free trial</strong>
+            <small>Use PathMLT during your first 30 days. After the trial ends, choose Monthly or Yearly to continue workspace access.</small>
+          </span>
         </div>
       </section>
 
@@ -73,7 +81,11 @@ export default function PricingPage({ isAuthenticated, onLogin }: PricingPagePro
                 Talk to us <ArrowRight size={15} />
               </button>
             ) : isAuthenticated ? (
-              <RazorpayPaymentButton plan={plan.name === 'Monthly' ? 'MONTHLY' : 'YEARLY'} className={plan.featured ? 'pricing-btn primary' : 'pricing-btn'}>
+              <RazorpayPaymentButton
+                plan={plan.name === 'Monthly' ? 'MONTHLY' : 'YEARLY'}
+                className={plan.featured ? 'pricing-btn primary' : 'pricing-btn'}
+                onSuccess={handlePaymentSuccess}
+              >
                 Pay {plan.price}
               </RazorpayPaymentButton>
             ) : (
@@ -91,11 +103,11 @@ export default function PricingPage({ isAuthenticated, onLogin }: PricingPagePro
           <h2>Match your laboratory software plan to the work you need to manage.</h2>
           <p>
             PathMLT brings patients, orders, tests, samples, results, verification and final reports
-            into one connected workflow. Choose the plan that matches your current operating needs.
+            into one connected workflow. Start with the 30-day trial and choose a paid plan when it ends.
           </p>
         </div>
         <div className="pricing-explainer-grid">
-          <div><strong>Starting a new reporting workflow?</strong><p>Use the free and unlimited launch period to validate patient registration, test configuration, result entry and professional PDF reporting with your team.</p><Link to="/lab-reporting">Explore lab reporting <ArrowRight size={14} /></Link></div>
+          <div><strong>Starting a new reporting workflow?</strong><p>Use the 30-day free trial to validate patient registration, test configuration, result entry and professional PDF reporting with your team.</p><Link to="/lab-reporting">Explore lab reporting <ArrowRight size={14} /></Link></div>
           <div><strong>Need stronger verification controls?</strong><p>Review result verification, reference ranges, audit history and role-based access for a more controlled laboratory workflow.</p><Link to="/result-verification">Explore result verification <ArrowRight size={14} /></Link></div>
           <div><strong>Comparing laboratory systems?</strong><p>See how PathMLT connects daily lab operations with structured reporting instead of treating reporting as a separate final step.</p><Link to="/solutions">Explore solutions <ArrowRight size={14} /></Link></div>
         </div>

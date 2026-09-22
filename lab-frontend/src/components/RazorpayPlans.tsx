@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { CheckCircle2, CreditCard, Loader2 } from 'lucide-react';
-import paymentsService from '../services/paymentsService';
+import paymentsService, { type RazorpayPaymentResponse } from '../services/paymentsService';
 
 declare global {
   interface Window {

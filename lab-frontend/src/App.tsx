@@ -143,6 +143,7 @@ export default function App() {
   });
 
   const currentSettings = settingsData ? settingsData as LabSettings : settings;
+  const subscriptionExpired = subscription?.status === 'expired';
 
   const showLogin = () => { setAuthView('login'); navigate('/login'); };
   const showSignup = () => { setAuthView('signup'); navigate('/signup'); };
@@ -182,7 +183,21 @@ export default function App() {
 
   const dashboardRoute = isAuthenticated && location.pathname === '/dashboard';
   const dashboardPage = isAuthenticated ? <>
-    {activeTab === 'dashboard' && (
+    {subscriptionExpired ? (
+      <div className="saas-page" style={{ maxWidth: 900, margin: '48px auto' }}>
+        <div className="glass-panel" style={{ padding: 32, textAlign: 'center' }}>
+          <span className="saas-eyebrow">Subscription required</span>
+          <h1 style={{ marginTop: 8 }}>Your 30-day free trial has ended</h1>
+          <p style={{ maxWidth: 620, margin: '12px auto 24px', color: 'var(--text-muted)' }}>
+            Your laboratory data is safe. Choose a monthly or yearly PathMLT subscription to restore workspace access.
+          </p>
+          <SubscriptionCard subscription={subscription ?? null} loading={subscriptionLoading} onUpgrade={() => navigate('/pricing')} />
+          <button className="landing-primary" onClick={() => navigate('/pricing')} style={{ marginTop: 20 }}>
+            Choose a subscription <span aria-hidden="true">→</span>
+          </button>
+        </div>
+      </div>
+    ) : activeTab === 'dashboard' && (
       <div className="saas-dashboard">
         <div className="saas-dashboard-heading">
           <div><span className="saas-eyebrow">Laboratory workspace</span><h1>Good to see you, {user?.username?.split('@')[0] || 'there'}.</h1><p>Monitor your lab operations, reports and workspace usage from one place.</p></div>
@@ -205,6 +220,7 @@ export default function App() {
       <div className="saas-page"><div className="saas-page-header"><div><span className="saas-eyebrow">Workspace administration</span><h1>Plan & usage</h1><p>See your current plan, usage limits and subscription status.</p></div><button className="saas-secondary-btn" onClick={() => navigate('/pricing')}>Compare plans</button></div><SubscriptionCard subscription={subscription ?? null} loading={subscriptionLoading} onUpgrade={() => setActiveTab('billing')} /><div className="billing-note"><strong>Usage limits are enforced by the server.</strong><span>This dashboard is informational; creating data is always checked against the current subscription on the backend.</span></div></div>
     )}
     {activeTab === 'settings' && user?.role === 'ADMIN' && <SettingsPanel settings={currentSettings} onSaveSettings={handleSaveSettings} />}
+    {subscriptionExpired ? null : null}
   </> : <Navigate to="/" replace />;
 
   return <ToastProvider>

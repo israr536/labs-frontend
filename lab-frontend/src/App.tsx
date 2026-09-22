@@ -143,6 +143,14 @@ export default function App() {
     refetchOnWindowFocus: false,
   });
 
+  const subscriptionExpired = subscription?.status === 'expired';
+
+  useEffect(() => {
+    if (subscriptionExpired && activeTab !== 'billing') {
+      setActiveTab('billing');
+    }
+  }, [subscriptionExpired, activeTab]);
+
   const currentSettings = settingsData ? settingsData as LabSettings : settings;
 
   const showLogin = () => { setAuthView('login'); navigate('/login'); };
@@ -187,7 +195,29 @@ export default function App() {
 
   const dashboardRoute = isAuthenticated && location.pathname === '/dashboard';
   const dashboardPage = isAuthenticated ? <>
-    {activeTab === 'dashboard' && (
+    {subscriptionExpired ? (
+      <div className="saas-page subscription-required-page">
+        <div className="subscription-required-card">
+          <div className="subscription-required-icon"><CreditCard size={28} /></div>
+          <span className="saas-eyebrow">Subscription required</span>
+          <h1>Your 30-day free trial has ended</h1>
+          <p>
+            Your laboratory workspace and data are safe. Choose a Monthly or Yearly subscription
+            to restore access to reports, patients, tests and other workspace features.
+          </p>
+          <div className="subscription-required-actions">
+            <button className="landing-primary" type="button" onClick={() => navigate('/pricing')}>
+              Choose a subscription <ArrowRight size={16} />
+            </button>
+            <button className="saas-secondary-btn" type="button" onClick={() => setActiveTab('billing')}>
+              View billing
+            </button>
+          </div>
+        </div>
+        <SubscriptionCard subscription={subscription ?? null} loading={subscriptionLoading} onUpgrade={() => navigate('/pricing')} />
+      </div>
+    ) : null}
+    {!subscriptionExpired && activeTab === 'dashboard' && (
       <div className="saas-dashboard">
         <div className="saas-dashboard-heading">
           <div><span className="saas-eyebrow">Laboratory workspace</span><h1>Good to see you, {user?.username?.split('@')[0] || 'there'}.</h1><p>Monitor your lab operations, reports and workspace usage from one place.</p></div>
@@ -197,15 +227,15 @@ export default function App() {
         <DashboardOverview setActiveTab={setActiveTab} setSelectedReportId={setSelectedReportId} />
       </div>
     )}
-    {activeTab === 'orders' && <OrdersWorkspace role={user?.role} />}
-    {activeTab === 'patients' && <PatientsPage role={user?.role} />}
-    {activeTab === 'critical-results' && <CriticalResultsPage role={user?.role} />}
-    {activeTab === 'reports' && <ReportList onDeleteReport={handleDeleteReport} onEditReport={report => { setEditingReport(report); setActiveTab('new-report'); }} selectedReportId={selectedReportId} setSelectedReportId={setSelectedReportId} />}
-    {activeTab === 'new-report' && <DynamicReportEditor editingReport={editingReport} onSaveReport={handleSaveReport} onCancel={() => { setEditingReport(null); setActiveTab('reports'); }} />}
-    {activeTab === 'tests' && user?.role === 'ADMIN' && <TestCatalogPage role={user.role} />}
-    {activeTab === 'test-configuration' && <TestConfigurationPage />}
-    {activeTab === 'users' && user?.role === 'ADMIN' && <TeamPage />}
-    {activeTab === 'audit' && <AuditLogPage />}
+    {!subscriptionExpired && activeTab === 'orders' && <OrdersWorkspace role={user?.role} />}
+    {!subscriptionExpired && activeTab === 'patients' && <PatientsPage role={user?.role} />}
+    {!subscriptionExpired && activeTab === 'critical-results' && <CriticalResultsPage role={user?.role} />}
+    {!subscriptionExpired && activeTab === 'reports' && <ReportList onDeleteReport={handleDeleteReport} onEditReport={report => { setEditingReport(report); setActiveTab('new-report'); }} selectedReportId={selectedReportId} setSelectedReportId={setSelectedReportId} />}
+    {!subscriptionExpired && activeTab === 'new-report' && <DynamicReportEditor editingReport={editingReport} onSaveReport={handleSaveReport} onCancel={() => { setEditingReport(null); setActiveTab('reports'); }} />}
+    {!subscriptionExpired && activeTab === 'tests' && user?.role === 'ADMIN' && <TestCatalogPage role={user.role} />}
+    {!subscriptionExpired && activeTab === 'test-configuration' && <TestConfigurationPage />}
+    {!subscriptionExpired && activeTab === 'users' && user?.role === 'ADMIN' && <TeamPage />}
+    {!subscriptionExpired && activeTab === 'audit' && <AuditLogPage />}
     {activeTab === 'billing' && (
       <div className="saas-page"><div className="saas-page-header"><div><span className="saas-eyebrow">Workspace administration</span><h1>Plan & usage</h1><p>See your current plan, usage limits and subscription status.</p></div><button className="saas-secondary-btn" onClick={() => navigate('/pricing')}>Compare plans</button></div><SubscriptionCard subscription={subscription ?? null} loading={subscriptionLoading} onUpgrade={() => setActiveTab('billing')} /><RazorpayPlans /><div className="billing-note"><strong>PathMLT is currently free and unlimited.</strong><span>Paid plans are available through Razorpay when you are ready to start charging for the service.</span></div></div>
     )}
@@ -230,7 +260,7 @@ export default function App() {
             <Route path="/faqs" element={<FaqPage />} />
             <Route path="/faq" element={<FaqPage />} />
             <Route path="/report-templates" element={isAuthenticated ? <ReportTemplatesPage /> : <Navigate to="/login" replace />} />
-            <Route path="/login" element={<Modal onClose={closeAuthModal} title="Sign in" description="Access your laboratory workspace securely."><Login onLoginSuccess={handleLoginSuccess} onForgotPassword={showForgotPassword} onSignup={showSignup} /></Modal>} />
+            <Route path="/login" element={<Modal onClose={closeAuthModal} title="Login" description="Access your laboratory workspace securely."><Login onLoginSuccess={handleLoginSuccess} onForgotPassword={showForgotPassword} onSignup={showSignup} /></Modal>} />
             <Route path="/forgot-password" element={<Modal onClose={closeAuthModal} title="Reset password" description="Recover access to your laboratory workspace securely."><ForgotPassword onBackToLogin={showLogin} /></Modal>} />
             <Route path="/signup" element={<Modal onClose={closeAuthModal} title="Create your account" description="Start your laboratory workspace in a few minutes."><Signup onSignupSuccess={() => { setAuthView('login'); navigate('/login'); }} onCancel={closeAuthModal} /></Modal>} />
             <Route path="/dashboard" element={dashboardPage} />

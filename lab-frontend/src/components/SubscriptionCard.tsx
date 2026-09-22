@@ -32,7 +32,7 @@ export default function SubscriptionCard({ subscription, loading, onUpgrade }: P
 
   if (!subscription) return null;
 
-  const isTrial = subscription.plan === 'TRIAL';
+  const isTrial = subscription.trial || subscription.plan === 'TRIAL' || subscription.plan === 'FREE';
   const isExpired = subscription.status === 'expired';
   const statusLabel = isExpired ? 'Expired' : subscription.status === 'scheduled' ? 'Scheduled' : isTrial ? 'Trial active' : 'Active';
 

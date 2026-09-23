@@ -15,6 +15,13 @@ const template = fs.readFileSync(
   'utf8'
 );
 
+const faqSchema = JSON.parse(
+  fs.readFileSync(
+    path.join(root, 'src/seo/faq-schema.json'),
+    'utf8'
+  )
+);
+
 function escapeHtml(value) {
   return String(value)
     .replaceAll('&', '&amp;')
@@ -185,6 +192,21 @@ function buildStructuredData(entry) {
           item: canonicalUrl
         }
       ]
+    });
+  }
+
+  if (entry.path === '/faqs') {
+    graph.push({
+      '@type': 'FAQPage',
+      '@id': `${canonicalUrl}#faq`,
+      mainEntity: faqSchema.questions.map(([question, answer]) => ({
+        '@type': 'Question',
+        name: question,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: answer
+        }
+      }))
     });
   }
 

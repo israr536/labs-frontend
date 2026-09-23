@@ -107,6 +107,32 @@ export async function openReportPdf(id: string, template: ReportTemplateId = get
   setTimeout(() => window.URL.revokeObjectURL(url), 60000);
 }
 
+/**
+ * Shares the generated PDF using the device's native share sheet when supported.
+ * This requires no WhatsApp API: on supported mobile browsers WhatsApp can receive
+ * the actual PDF as an attachment. Desktop/unsupported browsers fall back to a
+ * pre-filled WhatsApp chat containing the report link/current page.
+ */
+export async function shareReportOnWhatsApp(id: string, patientName?: string, template: ReportTemplateId = getSavedReportTemplate()) {
+  const { url, fileName } = await generateLocalPdf(id, template);
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const file = new File([blob], fileName, { type: 'application/pdf' });
+    const message = `Hello, please find the laboratory report for ${patientName || 'the patient'} from PathMLT. Report ID: ${id}`;
+
+    if (navigator.share && (!navigator.canShare || navigator.canShare({ files: [file] }))) {
+      await navigator.share({ title: `PathMLT report - ${patientName || id}`, text: message, files: [file] });
+      return;
+    }
+
+    const fallbackText = `${message}\n${window.location.origin}/dashboard`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(fallbackText)}`, '_blank', 'noopener,noreferrer');
+  } finally {
+    window.setTimeout(() => window.URL.revokeObjectURL(url), 60_000);
+  }
+}
+
 function mapApiReport(report: ApiReport): LabReport {
   const resultByParameterId = new Map((report.results ?? []).map((result: any) => [result.parameterId, result]));
   const parametersSource = report.test?.parameters?.length ? report.test.parameters : (report.results ?? []).map((result: any) => result.parameter);
@@ -160,5 +186,5 @@ function toPatientPayload(report: Partial<LabReport>) { return { name: report.pa
 function requireTestId(report: Partial<LabReport>): string { const testId = (report as LabReport & { testId?: string }).testId; if (!testId?.trim()) throw new Error('Please select a configured laboratory test from the Test Catalog.'); return testId; }
 function toApiResults(parameters: TestParameter[], apiParameters: any[]) { return parameters.map((parameter) => { const apiParameter = apiParameters.find((item: any) => item.name?.toLowerCase() === parameter.name.toLowerCase()); return apiParameter && parameter.value?.trim() ? { parameterId: apiParameter.id, value: parameter.value.trim() } : null; }).filter(Boolean); }
 
-const reportsService = { listReportTemplates, getSavedReportTemplate, saveReportTemplate, listReports, getReport, createCombinedReport, createReport, updateReport, deleteReport, generateReport, finalizeReport, downloadReportPdf, openReportPdf };
+const reportsService = { listReportTemplates, getSavedReportTemplate, saveReportTemplate, listReports, getReport, createCombinedReport, createReport, updateReport, deleteReport, generateReport, finalizeReport, downloadReportPdf, openReportPdf, shareReportOnWhatsApp };
 export default reportsService;

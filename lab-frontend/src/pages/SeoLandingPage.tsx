@@ -1,4 +1,5 @@
 import { ArrowRight, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 export type SeoPageKey =
@@ -145,6 +146,25 @@ export default function SeoLandingPage({ pageKey }: { pageKey: SeoPageKey }) {
   const capabilityTitle = `Capabilities to evaluate for ${page.eyebrow.toLowerCase()}`;
   const useCaseTitle = `Practical ${page.eyebrow.toLowerCase()} use cases`;
 
+  useEffect(() => {
+    const id = 'pathmlt-seo-faq-schema';
+    document.getElementById(id)?.remove();
+    const script = document.createElement('script');
+    script.id = id;
+    script.type = 'application/ld+json';
+    script.textContent = JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: depth.faq.map(([question, answer]) => ({
+        '@type': 'Question',
+        name: question,
+        acceptedAnswer: { '@type': 'Answer', text: answer }
+      }))
+    });
+    document.head.appendChild(script);
+    return () => document.getElementById(id)?.remove();
+  }, [depth.faq]);
+
   return <div className="public-saas-page seo-landing-page">
     <nav className="seo-breadcrumbs" aria-label="Breadcrumb"><Link to="/">Home</Link><span aria-hidden="true">/</span><span>{page.title}</span></nav>
 
@@ -212,25 +232,25 @@ export default function SeoLandingPage({ pageKey }: { pageKey: SeoPageKey }) {
           <span className="seo-evidence-number">01</span>
           <h3>Configurable test catalog</h3>
           <p>Tests can include categories, departments, specimen information, methods, turnaround time and reusable parameters. Parameters support numeric, text, select, multiline, boolean, date and qualitative inputs.</p>
-          <Link to="/contact">Discuss test configuration <ArrowRight size={14}/></Link>
+          <Link to="/test-management">Explore test management <ArrowRight size={14}/></Link>
         </article>
         <article>
           <span className="seo-evidence-number">02</span>
           <h3>Structured result entry</h3>
           <p>The report workflow loads a laboratory test configuration and its parameters so results can be entered against defined fields instead of rebuilding report content manually.</p>
-          <Link to="/contact">See the result workflow <ArrowRight size={14}/></Link>
+          <Link to="/result-entry">Explore result entry <ArrowRight size={14}/></Link>
         </article>
         <article>
           <span className="seo-evidence-number">03</span>
           <h3>Verification before reporting</h3>
           <p>PathMLT separates result entry from review and finalization, giving teams a deliberate checkpoint for required values, flags and completed result sets before release.</p>
-          <Link to="/contact">Discuss verification <ArrowRight size={14}/></Link>
+          <Link to="/result-verification">Explore result verification <ArrowRight size={14}/></Link>
         </article>
         <article>
           <span className="seo-evidence-number">04</span>
           <h3>Final report generation</h3>
           <p>After the workflow is completed, PathMLT can turn the structured result data into a patient-facing laboratory report, including PDF output for delivery or printing.</p>
-          <Link to="/contact">See reporting options <ArrowRight size={14}/></Link>
+          <Link to="/pdf-reports">Explore PDF reports <ArrowRight size={14}/></Link>
         </article>
       </div>
       <div className="seo-evidence-note">

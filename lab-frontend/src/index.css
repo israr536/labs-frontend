@@ -11640,3 +11640,79 @@ tbody tr.inactive {
   background: #1ebe5d !important;
   border-color: #1ebe5d !important;
 }
+
+/* Razorpay payment result modal */
+.payment-result-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.48);
+  backdrop-filter: blur(4px);
+}
+.payment-result-modal {
+  position: relative;
+  width: min(440px, 100%);
+  padding: 30px 26px 24px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: var(--panel-bg);
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22);
+  text-align: center;
+}
+.payment-result-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+.payment-result-icon {
+  width: 62px;
+  height: 62px;
+  margin: 0 auto 16px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+}
+.payment-result-modal.success .payment-result-icon {
+  color: #15803d;
+  background: rgba(34, 197, 94, 0.12);
+}
+.payment-result-modal.error .payment-result-icon {
+  color: #dc2626;
+  background: rgba(239, 68, 68, 0.12);
+}
+.payment-result-modal h3 {
+  margin: 0 0 8px;
+  font-size: 1.25rem;
+}
+.payment-result-modal p {
+  margin: 0 auto;
+  max-width: 360px;
+  color: var(--text);
+  line-height: 1.6;
+  font-size: 0.86rem;
+}
+.payment-result-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+.payment-result-actions .pricing-btn {
+  min-width: 170px;
+}
+@media (max-width: 560px) {
+  .payment-result-backdrop { padding: 14px; }
+  .payment-result-modal { padding: 28px 20px 20px; border-radius: 18px; }
+  .payment-result-actions .pricing-btn { width: 100%; }
+}

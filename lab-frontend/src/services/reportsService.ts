@@ -113,7 +113,16 @@ export async function openReportPdf(id: string, template: ReportTemplateId = get
  * the actual PDF as an attachment. Desktop/unsupported browsers fall back to a
  * pre-filled WhatsApp chat containing the report link/current page.
  */
-export async function shareReportOnWhatsApp(
+/**
+ * Shares the generated report PDF using the device/browser's native share sheet.
+ * On supported mobile browsers this lets the lab choose WhatsApp, Telegram, Mail,
+ * Messages, Nearby Share, etc. and passes the actual PDF file to the selected app.
+ *
+ * If native file sharing is unavailable, the PDF is downloaded and, when a patient
+ * phone number is available, WhatsApp Web is opened in a separate tab with a
+ * pre-filled message. PathMLT itself is never navigated away from.
+ */
+export async function shareReport(
   id: string,
   patientName?: string,
   patientPhone?: string,
@@ -121,14 +130,6 @@ export async function shareReportOnWhatsApp(
 ) {
   const rawPhone = String(patientPhone || '').trim();
   const digits = rawPhone.replace(/\\D/g, '');
-
-  if (!digits) {
-    throw new Error('Patient mobile number is not available for this report.');
-  }
-
-  // WhatsApp's wa.me links require an international-format number without
-  // spaces, +, brackets, or other punctuation. Treat a 10-digit Indian
-  // number as +91 because PathMLT is currently used with Indian patients.
   const whatsappPhone = digits.length === 10 ? `91${digits}` : digits;
 
   const message = [
@@ -137,25 +138,73 @@ export async function shareReportOnWhatsApp(
     'Your laboratory report from PathMLT is ready.',
     `Report ID: ${id}`,
     '',
-    'Please find the report attached in this chat.',
+    'Please find the attached laboratory report.',
     '',
     'Regards,',
     'PathMLT',
   ].join('\\n');
 
-  // No WhatsApp API is used. This opens the patient's WhatsApp chat with
-  // the message pre-filled. WhatsApp requires the user to tap Send and,
-  // when sending the PDF, attach it manually.
-  const whatsappUrl = `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(message)}`;
+  const { url, fileName } = await generateLocalPdf(id, template);
 
-  // Always open WhatsApp separately so the PathMLT dashboard remains open.
-  // Never navigate the current PathMLT tab to WhatsApp.
-  const popup = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const file = new File([blob], fileName, { type: 'application/pdf' });
 
-  if (!popup) {
-    throw new Error('WhatsApp could not be opened. Please allow pop-ups for PathMLT and try again.');
+    // Native Web Share is the preferred path. It exposes all share targets
+    // installed/available on the user's device, including WhatsApp.
+    if (typeof navigator.share === 'function') {
+      const shareData: ShareData = {
+        title: `PathMLT report - ${patientName || id}`,
+        text: message,
+        files: [file],
+      };
+
+      const canShareFiles = typeof navigator.canShare !== 'function' || navigator.canShare({ files: [file] });
+      if (canShareFiles) {
+        await navigator.share(shareData);
+        return { method: 'native' as const };
+      }
+
+      // Some browsers expose navigator.share but do not support file sharing.
+      // Try a text-only native share before falling back to WhatsApp/download.
+      try {
+        await navigator.share({
+          title: `PathMLT report - ${patientName || id}`,
+          text: message,
+        });
+        return { method: 'native-text' as const };
+      } catch (error: any) {
+        if (error?.name === 'AbortError') throw error;
+      }
+    }
+
+    // Desktop/unsupported browsers: download the actual PDF first so it is
+    // immediately available for attaching to WhatsApp, email, Telegram, etc.
+    const downloadLink = document.createElement('a');
+    downloadLink.href = url;
+    downloadLink.download = fileName;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    downloadLink.remove();
+
+    if (whatsappPhone) {
+      const whatsappUrl = `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(message)}`;
+      const popup = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+
+      if (popup) {
+        return { method: 'whatsapp' as const };
+      }
+    }
+
+    return { method: 'download' as const };
+  } finally {
+    window.setTimeout(() => window.URL.revokeObjectURL(url), 60_000);
   }
 }
+
+// Backwards-compatible name for existing callers.
+export const shareReportOnWhatsApp = shareReport;
 
 function mapApiReport(report: ApiReport): LabReport {
   const resultByParameterId = new Map((report.results ?? []).map((result: any) => [result.parameterId, result]));
@@ -210,5 +259,5 @@ function toPatientPayload(report: Partial<LabReport>) { return { name: report.pa
 function requireTestId(report: Partial<LabReport>): string { const testId = (report as LabReport & { testId?: string }).testId; if (!testId?.trim()) throw new Error('Please select a configured laboratory test from the Test Catalog.'); return testId; }
 function toApiResults(parameters: TestParameter[], apiParameters: any[]) { return parameters.map((parameter) => { const apiParameter = apiParameters.find((item: any) => item.name?.toLowerCase() === parameter.name.toLowerCase()); return apiParameter && parameter.value?.trim() ? { parameterId: apiParameter.id, value: parameter.value.trim() } : null; }).filter(Boolean); }
 
-const reportsService = { listReportTemplates, getSavedReportTemplate, saveReportTemplate, listReports, getReport, createCombinedReport, createReport, updateReport, deleteReport, generateReport, finalizeReport, downloadReportPdf, openReportPdf, shareReportOnWhatsApp };
+const reportsService = { listReportTemplates, getSavedReportTemplate, saveReportTemplate, listReports, getReport, createCombinedReport, createReport, updateReport, deleteReport, generateReport, finalizeReport, downloadReportPdf, openReportPdf, shareReport, shareReportOnWhatsApp };
 export default reportsService;

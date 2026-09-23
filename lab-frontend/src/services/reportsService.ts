@@ -119,15 +119,21 @@ export async function shareReportOnWhatsApp(id: string, patientName?: string, te
     const response = await fetch(url);
     const blob = await response.blob();
     const file = new File([blob], fileName, { type: 'application/pdf' });
-    const message = `Hello, please find the laboratory report for ${patientName || 'the patient'} from PathMLT. Report ID: ${id}`;
+    const message = `Hello, your laboratory report is ready from PathMLT. Report ID: ${id}.`;
 
-    if (navigator.share && (!navigator.canShare || navigator.canShare({ files: [file] }))) {
-      await navigator.share({ title: `PathMLT report - ${patientName || id}`, text: message, files: [file] });
-      return;
+    // Native sharing lets the user choose WhatsApp (or another installed app)
+    // and can attach the generated PDF. No WhatsApp API is required.
+    if (navigator.share) {
+      const canShareFile = !navigator.canShare || navigator.canShare({ files: [file] });
+      if (canShareFile) {
+        await navigator.share({ title: `PathMLT report - ${patientName || id}`, text: message, files: [file] });
+        return;
+      }
     }
 
-    const fallbackText = `${message}\n${window.location.origin}/dashboard`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(fallbackText)}`, '_blank', 'noopener,noreferrer');
+    // Desktop/unsupported browsers cannot attach a local PDF to WhatsApp without
+    // an API. Open WhatsApp Web with a pre-filled message instead.
+    window.location.href = `https://wa.me/?text=${encodeURIComponent(message)}`;
   } finally {
     window.setTimeout(() => window.URL.revokeObjectURL(url), 60_000);
   }

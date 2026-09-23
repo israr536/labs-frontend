@@ -147,11 +147,13 @@ export async function shareReportOnWhatsApp(
   // the message pre-filled. WhatsApp requires the user to tap Send and,
   // when sending the PDF, attach it manually.
   const whatsappUrl = `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(message)}`;
+
+  // Always open WhatsApp separately so the PathMLT dashboard remains open.
+  // Never navigate the current PathMLT tab to WhatsApp.
   const popup = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
 
-  // Some browsers block a new tab. Fall back to the current tab.
   if (!popup) {
-    window.location.href = whatsappUrl;
+    throw new Error('WhatsApp could not be opened. Please allow pop-ups for PathMLT and try again.');
   }
 }
 

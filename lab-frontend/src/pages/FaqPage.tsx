@@ -1,8 +1,28 @@
 import { ArrowRight, CircleHelp, FileCheck2, Headphones, LockKeyhole, Settings2 } from 'lucide-react';
 import { faqGroups } from '../data/faqData';
 import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
+import faqSchema from '../seo/faq-schema.json';
 
 export default function FaqPage() {
+ useEffect(() => {
+  const id = 'pathmlt-faq-schema';
+  document.getElementById(id)?.remove();
+  const script = document.createElement('script');
+  script.id = id;
+  script.type = 'application/ld+json';
+  script.textContent = JSON.stringify({
+   '@context': 'https://schema.org',
+   '@type': 'FAQPage',
+   mainEntity: faqSchema.questions.map(([question, answer]) => ({
+    '@type': 'Question',
+    name: question,
+    acceptedAnswer: { '@type': 'Answer', text: answer }
+   }))
+  });
+  document.head.appendChild(script);
+  return () => document.getElementById(id)?.remove();
+ }, []);
  return <div className="public-saas-page faq-enterprise-page">
   <section className="faq-enterprise-hero"><div><span className="public-eyebrow"><CircleHelp size={13}/> PathMLT answers</span><h1>Clarity before implementation.</h1><p>Answers for laboratory owners, operations leaders, and implementation teams evaluating a controlled workspace for patient records, testing, results, and final reporting.</p><div className="faq-hero-meta"><span><Headphones size={14}/> Implementation support available</span><span>Reporting · governance · onboarding</span></div></div><div className="faq-hero-card"><div className="faq-hero-icon"><FileCheck2 size={20}/></div><strong>Need a workflow review?</strong><p>Bring your most common panels and the people who use them. We can walk through how PathMLT fits your current operation.</p><Link to="/contact">Talk to the PathMLT team <ArrowRight size={14}/></Link></div></section>
   <section className="faq-topic-nav">{faqGroups.map(({label},index)=><a href={`#faq-group-${index+1}`} key={label}><Settings2 size={16}/><span><strong>{label}</strong><small>{faqGroups[index].items.length} answers</small></span></a>)}</section>

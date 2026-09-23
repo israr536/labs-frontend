@@ -4869,30 +4869,43 @@ tbody tr:hover {
   .barcode-simulation {
     position: absolute;
     right: 12px;
-    bottom: 8px;
+    bottom: 7px;
+    width: 52px;
     display: flex;
     flex-direction: column;
     align-items: center;
   }
 
   .barcode-lines {
-    width: 35px;
-    height: 14px;
-    background: repeating-linear-gradient(
-      90deg,
-      #0f172a,
-      #0f172a 1px,
-      transparent 1px,
-      transparent 3px,
-      #0f172a 3px,
-      #0f172a 4px
-    );
+    display: flex;
+    align-items: stretch;
+    width: 52px;
+    height: 15px;
+    padding: 0 2px;
+    box-sizing: border-box;
+    background: #fff;
+    overflow: hidden;
   }
 
+  .barcode-bar,
+  .barcode-space {
+    display: block;
+    flex: 0 0 1px;
+    height: 100%;
+  }
+
+  .barcode-bar { background: #0f172a; }
+  .barcode-space { background: #fff; }
+
   .barcode-label {
+    max-width: 52px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     font-size: 5pt;
-    color: #64748b;
-    margin-top: 1px;
+    color: #0f172a;
+    margin-top: 2px;
+    letter-spacing: 0.25px;
   }
 
   /* Test Title Block */

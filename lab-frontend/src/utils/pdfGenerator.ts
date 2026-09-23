@@ -128,7 +128,7 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings, _tem
     row('Ref Doctor', upper(report.referredBy), colA, y + 19); row('Reported Date', dateText(report.dateReported), colB, y + 19);
     row('Lab ID', accession.slice(0, 12), colA, y + 25); row('Barcode No', accession.slice(-12), colB, y + 25);
     row('Client Name/Code', upper(settings.labName), colA, y + 31); row('Report Status', upper(report.status), colB, y + 31);
-    drawBarcode(doc, accession, PAGE_WIDTH - RIGHT - 30, y + 19, 28, 8);
+    drawBarcode(doc, accession, PAGE_WIDTH - RIGHT - 44, y + 18, 42, 10);\n    text(5.2);\n    doc.text(accession, PAGE_WIDTH - RIGHT - 23, y + 31, { align: 'center', maxWidth: 42 });
   };
 
   const drawPageFrame = (continuation = false) => {

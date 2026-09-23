@@ -8,7 +8,7 @@ const plans = [
     price: '₹299',
     period: '/ month',
     description: 'A practical starting plan for laboratories moving patient, test, result and reporting workflows online.',
-    features: ['Patient management', 'Core test catalog', 'Report creation', 'Team access'],
+    features: ['Unlimited report generation', 'Report sharing & PDF delivery', 'Patient management', 'Test catalog & new test setup', 'Team access'],
     featured: false,
   },
   {
@@ -16,7 +16,7 @@ const plans = [
     price: '₹2,499',
     period: '/ year',
     description: 'For laboratories ready to standardize reporting, verification and day-to-day operations throughout the year.',
-    features: ['Everything in Monthly', 'Advanced reporting workflow', 'Result verification', 'Audit-ready history', 'Priority support'],
+    features: ['Everything in Monthly', 'Unlimited report generation', 'Report sharing & PDF delivery', 'Add and configure new tests', 'Result verification', 'Audit-ready history', 'Priority support'],
     featured: true,
   },
   {
@@ -24,7 +24,7 @@ const plans = [
     price: 'Custom',
     period: '',
     description: 'For laboratory networks requiring higher capacity, rollout support, workflow planning or integration guidance.',
-    features: ['Everything in Yearly', 'Higher limits', 'Custom onboarding', 'Dedicated support', 'Integration planning'],
+    features: ['Everything in Yearly', 'Unlimited report generation', 'Report sharing & PDF delivery', 'Test configuration support', 'Custom onboarding', 'Dedicated support', 'Integration planning'],
     featured: false,
   },
 ];
@@ -46,8 +46,8 @@ export default function PricingPage({ isAuthenticated, onLogin }: PricingPagePro
           <span className="public-eyebrow"><Sparkles size={13} /> Laboratory software pricing</span>
           <h1>Simple pricing for laboratory reporting software.</h1>
           <p>
-            Start with a 30-day free trial, then choose a paid PathMLT plan for patient management,
-            test workflows, result verification and professional laboratory report creation.
+            Start with a 30-day free trial, then choose a paid PathMLT plan for unlimited report generation,
+            report sharing, test configuration, result verification and professional laboratory reporting.
           </p>
           <div className="solutions-actions">
             <button className="landing-primary" onClick={() => onLogin()}>
@@ -102,14 +102,14 @@ export default function PricingPage({ isAuthenticated, onLogin }: PricingPagePro
           <span className="public-eyebrow">Choose by workflow</span>
           <h2>Match your laboratory software plan to the work you need to manage.</h2>
           <p>
-            PathMLT brings patients, orders, tests, samples, results, verification and final reports
-            into one connected workflow. Start with the 30-day trial and choose a paid plan when it ends.
+            PathMLT brings patients, orders, tests, samples, results, verification, report generation and sharing
+            into one connected laboratory workflow. Start with the 30-day trial and choose a paid plan when it ends.
           </p>
         </div>
         <div className="pricing-explainer-grid">
-          <div><strong>Starting a new reporting workflow?</strong><p>Use the 30-day free trial to validate patient registration, test configuration, result entry and professional PDF reporting with your team.</p><Link to="/lab-reporting">Explore lab reporting <ArrowRight size={14} /></Link></div>
-          <div><strong>Need stronger verification controls?</strong><p>Review result verification, reference ranges, audit history and role-based access for a more controlled laboratory workflow.</p><Link to="/result-verification">Explore result verification <ArrowRight size={14} /></Link></div>
-          <div><strong>Comparing laboratory systems?</strong><p>See how PathMLT connects daily lab operations with structured reporting instead of treating reporting as a separate final step.</p><Link to="/solutions">Explore solutions <ArrowRight size={14} /></Link></div>
+          <div><strong>Starting a new reporting workflow?</strong><p>Use the 30-day free trial to validate patient registration, new test configuration, result entry, unlimited report generation and professional PDF sharing with your team.</p><Link to="/lab-reporting">Explore lab reporting <ArrowRight size={14} /></Link></div>
+          <div><strong>Need stronger verification controls?</strong><p>Review result verification, reference ranges, audit history, role-based access and report sharing for a more controlled laboratory workflow.</p><Link to="/result-verification">Explore result verification <ArrowRight size={14} /></Link></div>
+          <div><strong>Comparing laboratory systems?</strong><p>See how PathMLT connects daily lab operations with test setup, unlimited report generation and sharing instead of treating reporting as a separate final step.</p><Link to="/solutions">Explore solutions <ArrowRight size={14} /></Link></div>
         </div>
       </section>
 

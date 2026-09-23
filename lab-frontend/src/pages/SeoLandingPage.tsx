@@ -295,6 +295,22 @@ export default function SeoLandingPage({ pageKey }: { pageKey: SeoPageKey }) {
       <div className="seo-implementation-grid">{seoInsights[pageKey].points.map((item,index)=><article key={item}><span>{String(index+1).padStart(2,'0')}</span><p>{item}</p></article>)}</div>
     </section>
 
+    <section className="seo-workflow-links" aria-labelledby="seo-workflow-links-title">
+      <div className="landing-section-heading">
+        <span className="landing-eyebrow">Continue through the workflow</span>
+        <h2 id="seo-workflow-links-title">Explore the connected laboratory workflow.</h2>
+        <p>These product areas are intentionally linked so visitors can move from the capability they are researching to the operational steps around it.</p>
+      </div>
+      <div className="seo-related-links">
+        <Link to="/patient-management"><span>Patient management</span><ArrowRight size={14}/></Link>
+        <Link to="/test-management"><span>Test management</span><ArrowRight size={14}/></Link>
+        <Link to="/result-entry"><span>Result entry</span><ArrowRight size={14}/></Link>
+        <Link to="/result-verification"><span>Result verification</span><ArrowRight size={14}/></Link>
+        <Link to="/lab-reporting"><span>Laboratory reporting</span><ArrowRight size={14}/></Link>
+        <Link to="/pdf-reports"><span>PDF laboratory reports</span><ArrowRight size={14}/></Link>
+      </div>
+    </section>
+
     <section className="seo-related">
       <div><span className="landing-eyebrow">Related workflows</span><h2>See how this connects to the rest of the laboratory.</h2><p>Explore adjacent PathMLT workflows rather than treating this capability as an isolated feature.</p></div>
       <div className="seo-related-links">{page.related.filter((slug,index,array)=>array.indexOf(slug)===index).map(slug=><Link key={slug} to={'/'+slug}><span>{common[slug].title}</span><ArrowRight size={14}/></Link>)}</div>

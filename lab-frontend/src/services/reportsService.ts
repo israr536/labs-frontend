@@ -113,29 +113,45 @@ export async function openReportPdf(id: string, template: ReportTemplateId = get
  * the actual PDF as an attachment. Desktop/unsupported browsers fall back to a
  * pre-filled WhatsApp chat containing the report link/current page.
  */
-export async function shareReportOnWhatsApp(id: string, patientName?: string, template: ReportTemplateId = getSavedReportTemplate()) {
-  const { url, fileName } = await generateLocalPdf(id, template);
-  try {
-    const response = await fetch(url);
-    const blob = await response.blob();
-    const file = new File([blob], fileName, { type: 'application/pdf' });
-    const message = `Hello, your laboratory report is ready from PathMLT. Report ID: ${id}.`;
+export async function shareReportOnWhatsApp(
+  id: string,
+  patientName?: string,
+  patientPhone?: string,
+  template: ReportTemplateId = getSavedReportTemplate()
+) {
+  const rawPhone = String(patientPhone || '').trim();
+  const digits = rawPhone.replace(/\\D/g, '');
 
-    // Native sharing lets the user choose WhatsApp (or another installed app)
-    // and can attach the generated PDF. No WhatsApp API is required.
-    if (navigator.share) {
-      const canShareFile = !navigator.canShare || navigator.canShare({ files: [file] });
-      if (canShareFile) {
-        await navigator.share({ title: `PathMLT report - ${patientName || id}`, text: message, files: [file] });
-        return;
-      }
-    }
+  if (!digits) {
+    throw new Error('Patient mobile number is not available for this report.');
+  }
 
-    // Desktop/unsupported browsers cannot attach a local PDF to WhatsApp without
-    // an API. Open WhatsApp Web with a pre-filled message instead.
-    window.location.href = `https://wa.me/?text=${encodeURIComponent(message)}`;
-  } finally {
-    window.setTimeout(() => window.URL.revokeObjectURL(url), 60_000);
+  // WhatsApp's wa.me links require an international-format number without
+  // spaces, +, brackets, or other punctuation. Treat a 10-digit Indian
+  // number as +91 because PathMLT is currently used with Indian patients.
+  const whatsappPhone = digits.length === 10 ? `91${digits}` : digits;
+
+  const message = [
+    `Hello ${patientName || 'Patient'},`,
+    '',
+    'Your laboratory report from PathMLT is ready.',
+    `Report ID: ${id}`,
+    '',
+    'Please find the report attached in this chat.',
+    '',
+    'Regards,',
+    'PathMLT',
+  ].join('\\n');
+
+  // No WhatsApp API is used. This opens the patient's WhatsApp chat with
+  // the message pre-filled. WhatsApp requires the user to tap Send and,
+  // when sending the PDF, attach it manually.
+  const whatsappUrl = `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(message)}`;
+  const popup = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+
+  // Some browsers block a new tab. Fall back to the current tab.
+  if (!popup) {
+    window.location.href = whatsappUrl;
   }
 }
 

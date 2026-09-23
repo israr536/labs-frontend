@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { Search, Filter, Eye, Edit3, Trash2, Printer, Download, Calendar, X, User, Phone, Mail, Building, HeartPulse, ArrowUpRight, FileText, SlidersHorizontal } from 'lucide-react';
+import { Search, Filter, Eye, Edit3, Trash2, Printer, Download, Calendar, X, User, Phone, Mail, Building, HeartPulse, ArrowUpRight, FileText, SlidersHorizontal, MessageCircleMore } from 'lucide-react';
 import { useToast } from './Toast';
 import type { LabReport } from '../data/samples';
-import { downloadReportPdf, getReport, getSavedReportTemplate, listReports, openReportPdf, saveReportTemplate, type ReportTemplateId } from '../services/reportsService';
+import { downloadReportPdf, getReport, getSavedReportTemplate, listReports, openReportPdf, saveReportTemplate, shareReportOnWhatsApp, type ReportTemplateId } from '../services/reportsService';
 import Pagination from './Pagination';
 
 interface ReportListProps {
@@ -90,6 +90,23 @@ export default function ReportList({ onDeleteReport, onEditReport, selectedRepor
     }
   };
 
+  const handleWhatsAppShare = async (report: LabReport) => {
+    const toastId = toast.show({ type: 'pending', message: `Preparing the report for WhatsApp…` });
+    try {
+      setBusyId(`${report.id}:whatsapp`);
+      await shareReportOnWhatsApp(report.id, report.patientName, template);
+      toast.update(toastId, { type: 'success', message: 'Report is ready to share on WhatsApp.' });
+    } catch (error: any) {
+      if (error?.name === 'AbortError') {
+        toast.update(toastId, { type: 'success', message: 'WhatsApp sharing cancelled.' });
+      } else {
+        toast.update(toastId, { type: 'error', message: error?.message || 'Unable to share report on WhatsApp' });
+      }
+    } finally {
+      setBusyId(null);
+    }
+  };
+
   const handlePrint = async (report: LabReport) => {
     const toastId = toast.show({ type: 'pending', message: `Opening ${template} report…` });
     try {
@@ -144,6 +161,7 @@ export default function ReportList({ onDeleteReport, onEditReport, selectedRepor
                     <button onClick={() => onEditReport(report)} disabled={!canEdit(report)} aria-label={`Edit ${report?.patientName ?? 'report'}`} title="Edit"><Edit3 size={15} /></button>
                     <button onClick={() => handlePrint(report)} disabled={busyId !== null} aria-label={`Print ${report?.patientName ?? 'report'}`} title="Print"><Printer size={15} /></button>
                     <button onClick={() => handleDownload(report)} disabled={busyId !== null} aria-label={`Download ${report?.patientName ?? 'report'}`} title="Download"><Download size={15} /></button>
+                    <button onClick={() => handleWhatsAppShare(report)} disabled={busyId !== null} aria-label={`Share ${report?.patientName ?? 'report'} on WhatsApp`} title="Share on WhatsApp" className="report-whatsapp-action"><MessageCircleMore size={15} /></button>
                     <button className="is-danger" disabled={!canEdit(report)} aria-label={`Delete ${report?.patientName ?? 'report'}`} title="Delete" onClick={async () => {
                       if (!confirm(`Are you sure you want to delete report ${report.id} for ${report?.patientName ?? 'unknown patient'}?`)) return;
                       try {
@@ -171,7 +189,7 @@ export default function ReportList({ onDeleteReport, onEditReport, selectedRepor
           {detailLoading ? <div className="report-empty"><strong>Loading report details…</strong><span>Fetching the complete report for review.</span></div> : <><div className="review-parameter-head"><span>Parameter</span><span>Result</span><span>Flag</span></div>{(Array.isArray(activeReport.parameters) ? activeReport.parameters : []).map((param, index) => <div key={`${param?.name ?? 'parameter'}-${index}`} className={`review-parameter ${param?.status !== 'Normal' ? 'is-abnormal' : ''}`}><span><strong>{param?.name ?? 'Parameter'}</strong><small>Ref: {param?.refRange ?? '—'}</small></span><b>{param?.value ?? ''} <small>{param?.unit ?? ''}</small></b><em>{param?.status ?? 'Normal'}</em></div>)}</>}
         </div>
         {activeReport.interpretation && <div className="review-interpretation"><strong>Clinical interpretation</strong><p>{activeReport.interpretation}</p></div>}
-        <div className="review-actions"><button onClick={() => onEditReport(activeReport)} disabled={!canEdit(activeReport)} className="review-secondary"><Edit3 size={15} /> Edit</button><button onClick={() => handlePrint(activeReport)} disabled={busyId !== null} className="review-secondary"><Printer size={15} /> Print</button><button onClick={() => handleDownload(activeReport)} disabled={busyId !== null} className="review-primary"><Download size={15} /> Download PDF</button></div>
+        <div className="review-actions"><button onClick={() => handleWhatsAppShare(activeReport)} disabled={busyId !== null} className="review-whatsapp"><MessageCircleMore size={15} /> WhatsApp</button><button onClick={() => onEditReport(activeReport)} disabled={!canEdit(activeReport)} className="review-secondary"><Edit3 size={15} /> Edit</button><button onClick={() => handlePrint(activeReport)} disabled={busyId !== null} className="review-secondary"><Printer size={15} /> Print</button><button onClick={() => handleDownload(activeReport)} disabled={busyId !== null} className="review-primary"><Download size={15} /> Download PDF</button></div>
       </aside>}
     </section>
   </div>;

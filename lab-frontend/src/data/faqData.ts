@@ -12,7 +12,6 @@ export const faqGroups = [
     { question: 'Can we print and download PDF reports?', answer: 'Yes. Reports can be previewed, printed, and downloaded as A4 PDF documents. Templates can be configured to reflect your laboratory identity and presentation standards.' },
     { question: 'Are there limits on report generation in paid plans?', answer: 'The current Monthly and Yearly PathMLT plans are configured without an order/report-generation cap, so paid workspaces can generate reports without a plan-level report-count limit.' },
     { question: 'Can we share completed reports?', answer: 'Yes. Completed reports can be downloaded or printed, and the application provides sharing options that can be used with supported device sharing and messaging apps such as WhatsApp.' },
-    { question: 'Can we share completed reports?', answer: 'Yes. Completed reports can be downloaded or printed, and the application provides sharing options that can be used with supported device sharing and messaging apps such as WhatsApp.' },
     { question: 'Can we customize report templates?', answer: 'Yes. PathMLT supports configurable report layouts and presentation styles so your final documents can align with your laboratory brand and reporting standards.' },
     { question: 'Does PathMLT maintain an audit trail?', answer: 'PathMLT records workflow events and relevant user actions so administrators can review activity around reports, orders, patients, settings, and approvals.' },
   ]},

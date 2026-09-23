@@ -3,9 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 
 const solutions = [
   { icon: ClipboardCheck, title: 'Patient and order management', text: 'Register patients, find returning patients quickly, create laboratory orders and keep the collection workflow connected to the right patient and tests.', links: [{ label: 'Patient management', to: '/patient-management' }, { label: 'Diagnostic lab software', to: '/diagnostic-lab-software' }] },
-  { icon: FlaskConical, title: 'Test and sample workflow', text: 'Configure tests, connect samples to orders and give laboratory teams a clear queue for entering and progressing results.', links: [{ label: 'Test management', to: '/test-management' }, { label: 'Sample management', to: '/sample-management' }] },
-  { icon: FileCheck2, title: 'Result verification and reporting', text: 'Enter results, review configured parameters and reference ranges, verify findings, and produce consistent professional laboratory reports.', links: [{ label: 'Result verification', to: '/result-verification' }, { label: 'Laboratory reporting', to: '/laboratory-reporting-software' }, { label: 'PDF reports', to: '/pdf-reports' }] },
-  { icon: Users2, title: 'Laboratory administration', text: 'Manage team access, reporting templates, audit history and operational controls from one focused laboratory management workspace.', links: [{ label: 'Laboratory management', to: '/laboratory-management-software' }, { label: 'Role-based access', to: '/role-based-access' }, { label: 'Audit trail', to: '/audit-trail' }] },
+  { icon: FlaskConical, title: 'Test and sample workflow', text: 'Add and configure tests, connect samples to orders and give laboratory teams a clear queue for entering and progressing results.', links: [{ label: 'Test management', to: '/test-management' }, { label: 'Sample management', to: '/sample-management' }] },
+  { icon: FileCheck2, title: 'Result verification and reporting', text: 'Enter results, review configured parameters and reference ranges, verify findings, generate unlimited reports and share consistent professional laboratory reports.', links: [{ label: 'Result verification', to: '/result-verification' }, { label: 'Laboratory reporting', to: '/laboratory-reporting-software' }, { label: 'PDF reports', to: '/pdf-reports' }] },
+  { icon: Users2, title: 'Laboratory administration', text: 'Manage team access, report templates, audit history, test configuration and operational controls from one focused laboratory management workspace.', links: [{ label: 'Laboratory management', to: '/laboratory-management-software' }, { label: 'Role-based access', to: '/role-based-access' }, { label: 'Audit trail', to: '/audit-trail' }] },
 ];
 
 export default function SolutionsPage() {
@@ -19,7 +19,7 @@ export default function SolutionsPage() {
           <h1>Laboratory software that connects every step from patient registration to final report.</h1>
           <p>
             PathMLT is laboratory reporting and management software for diagnostic and pathology teams.
-            It connects patients, orders, tests, samples, results, verification and professional reports in one workflow.
+            It connects patients, orders, tests, samples, results, verification, unlimited report generation and report sharing in one workflow.
           </p>
           <div className="solutions-actions">
             <button className="landing-primary" onClick={() => navigate('/signup')}>Start your lab workspace <ArrowRight size={16} /></button>

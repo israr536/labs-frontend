@@ -3,8 +3,8 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const topics = [
-  { icon: BookOpen, title: 'Implementation and setup', text: 'Configure your laboratory identity, report standards, test catalog, reference ranges, and team access.' },
-  { icon: FileText, title: 'Reporting operations', text: 'Follow the controlled journey from result entry and verification through finalization and report delivery.' },
+  { icon: BookOpen, title: 'Implementation and setup', text: 'Configure your laboratory identity, report standards, test catalog, new tests, reference ranges, and team access.' },
+  { icon: FileText, title: 'Reporting operations', text: 'Follow the controlled journey from result entry and verification through unlimited report generation, finalization and report sharing.' },
   { icon: ShieldCheck, title: 'Governance and access', text: 'Understand role boundaries, workspace controls, audit history, and the operating practices that support accountability.' },
 ];
 
@@ -12,9 +12,9 @@ const answers = [
   ['What should our implementation team configure first?', 'Start with your laboratory identity and report standards, activate the panels you run most often, establish reference ranges, invite the operational team, and complete a representative test order.'],
   ['How does a report move through PathMLT?', 'A patient is registered, an order is created, samples are generated, results are entered and verified, and an authorized reviewer finalizes the report for controlled delivery.'],
   ['Can PathMLT fit our existing workflow?', 'PathMLT is designed to be configured around your tests, specimen types, methods, reference ranges, report identity, role boundaries, and team responsibilities.'],
-  ['How do report templates work?', 'Configure the presentation standards your laboratory uses, then reuse them as part of the reporting workflow so teams do not rebuild the same layout manually.'],
+  ['Can we generate and share reports without a report-count cap?', 'The current Monthly and Yearly plans do not impose a plan-level order/report-generation cap. Completed reports can be downloaded, printed and shared using supported device sharing and messaging options.'],
   ['How are access and workflow responsibilities handled?', 'Authenticated team members work within role boundaries, while laboratories remain responsible for assigning appropriate access and reviewing their operating policies.'],
-  ['Where can I get help with implementation?', 'Use the contact page to describe your departments, common panels, report format, and rollout goals. The PathMLT team can then discuss the relevant workflow.'],
+  ['Can we add new tests?', 'Administrators can add available catalog tests to the laboratory workspace and configure the parameters used for result entry and reporting. Use the contact page if you need help planning your test setup.'],
 ];
 
 export default function HelpCenterPage() {

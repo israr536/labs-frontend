@@ -6,8 +6,8 @@ type Props = { onLoginClick: () => void; onSignupClick: () => void };
 
 const features = [
   { icon: ClipboardCheck, title: 'Patient & order management', text: 'Keep patient records, orders and samples connected from registration through completion.' },
-  { icon: FlaskConical, title: 'Configurable test workflows', text: 'Set up panels, parameters, specimen types and reference ranges around how your lab operates.' },
-  { icon: FileCheck2, title: 'Verification-first reporting', text: 'Move structured results through review and into consistent, patient-ready PDF reports.' },
+  { icon: FlaskConical, title: 'Configurable test workflows', text: 'Add new tests, configure parameters, specimen types and reference ranges around how your lab operates.' },
+  { icon: FileCheck2, title: 'Verification-first reporting', text: 'Generate unlimited reports from structured results, review them, then share or print patient-ready PDFs.' },
   { icon: ShieldCheck, title: 'Roles, permissions & audit history', text: 'Give every team member the right workspace and keep important workflow actions traceable.' },
 ];
 
@@ -24,16 +24,16 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
       <section className="landing-v2-hero">
         <div className="landing-v2-copy">
           <div className="landing-v2-badge"><span><Sparkles size={14} /> Laboratory reporting software</span></div>
-          <h1>Laboratory reporting software that keeps your <span>entire lab workflow connected.</span></h1>
-          <p>PathMLT connects patient registration, laboratory orders, test configuration, sample tracking, result entry, verification and professional PDF reporting in one focused workspace for diagnostic and pathology laboratories.</p>
+          <h1>Laboratory reporting software for <span>unlimited reports, faster sharing and a connected lab workflow.</span></h1>
+          <p>PathMLT connects patient registration, laboratory orders, test configuration, sample tracking, result entry, verification, unlimited report generation and report sharing in one focused workspace for diagnostic and pathology laboratories.</p>
           <div className="landing-v2-actions">
             <button className="landing-v2-primary" onClick={onSignupClick}>Start your lab workspace <ArrowRight size={17} /></button>
             <button className="landing-v2-secondary" onClick={onLoginClick}>Sign in</button>
           </div>
           <div className="landing-v2-reassurance">
-            <span><Check size={15} /> Configurable laboratory workflows</span>
-            <span><Check size={15} /> Controlled result verification</span>
-            <span><Check size={15} /> Professional PDF reporting</span>
+            <span><Check size={15} /> Unlimited report generation</span>
+            <span><Check size={15} /> Report sharing & PDF delivery</span>
+            <span><Check size={15} /> Add and configure new tests</span>
           </div>
         </div>
 

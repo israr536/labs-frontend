@@ -1,35 +1,43 @@
 import { Check, Sparkles, ArrowRight, ShieldCheck } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { RazorpayPaymentButton } from '../components/RazorpayPlans';
 
 const plans = [
   {
     name: 'Monthly',
     price: '₹299',
     period: '/ month',
-    description: 'A practical starting plan for laboratories moving patient, test, result and reporting workflows online.',
-    features: ['Patient management', 'Core test catalog', 'Report creation', 'Team access'],
+    description: 'A practical starting plan for laboratories moving patient, test, result and reporting workflows online with unlimited report generation.',
+    features: ['Unlimited report generation', 'Report sharing & PDF delivery', 'Patient management', 'Test catalog & new test setup', 'Team access'],
     featured: false,
   },
   {
     name: 'Yearly',
     price: '₹2,499',
     period: '/ year',
-    description: 'For laboratories ready to standardize reporting, verification and day-to-day operations throughout the year.',
-    features: ['Everything in Monthly', 'Advanced reporting workflow', 'Result verification', 'Audit-ready history', 'Priority support'],
+    description: 'For laboratories ready to standardize test configuration, verification, report generation and day-to-day operations throughout the year.',
+    features: ['Everything in Monthly', 'Unlimited report generation', 'Report sharing & PDF delivery', 'Add and configure new tests', 'Result verification', 'Audit-ready history', 'Priority support'],
     featured: true,
   },
   {
     name: 'Custom',
     price: 'Custom',
     period: '',
-    description: 'For laboratory networks requiring higher capacity, rollout support, workflow planning or integration guidance.',
-    features: ['Everything in Yearly', 'Higher limits', 'Custom onboarding', 'Dedicated support', 'Integration planning'],
+    description: 'For laboratory networks that need tailored onboarding, workflow planning, support or integration guidance.',
+    features: ['Everything in Yearly', 'Unlimited report generation', 'Report sharing & PDF delivery', 'Test configuration support', 'Custom onboarding', 'Dedicated support', 'Integration planning'],
     featured: false,
   },
 ];
 
-export default function PricingPage() {
+interface PricingPageProps { isAuthenticated: boolean; onLogin: () => void; }
+
+export default function PricingPage({ isAuthenticated, onLogin }: PricingPageProps) {
   const navigate = useNavigate();
+
+  const handlePaymentSuccess = () => {
+    navigate('/dashboard', { replace: true });
+    window.location.reload();
+  };
 
   return (
     <div className="public-saas-page">
@@ -38,11 +46,11 @@ export default function PricingPage() {
           <span className="public-eyebrow"><Sparkles size={13} /> Laboratory software pricing</span>
           <h1>Simple pricing for laboratory reporting software.</h1>
           <p>
-            Choose a practical PathMLT plan for patient management, test workflows, result verification
-            and professional laboratory report creation. Start small and expand as your laboratory grows.
+            Start with a 30-day free trial, then choose a paid PathMLT plan for unlimited report generation,
+            report sharing, test configuration, result verification and professional laboratory reporting.
           </p>
           <div className="solutions-actions">
-            <button className="landing-primary" onClick={() => navigate('/signup')}>
+            <button className="landing-primary" onClick={() => onLogin()}>
               Start your lab workspace <ArrowRight size={16} />
             </button>
             <Link className="landing-secondary" to="/laboratory-reporting-software">
@@ -52,7 +60,10 @@ export default function PricingPage() {
         </div>
         <div className="pricing-note">
           <ShieldCheck size={18} />
-          <span><strong>14-day trial</strong><small>Validate the workflow with your team before choosing a plan.</small></span>
+          <span>
+            <strong>30-day free trial</strong>
+            <small>Use PathMLT during your first 30 days. After the trial ends, choose Monthly or Yearly to continue workspace access.</small>
+          </span>
         </div>
       </section>
 
@@ -65,9 +76,23 @@ export default function PricingPage() {
             <p>{plan.description}</p>
             <div className="pricing-divider" />
             <ul>{plan.features.map((feature) => <li key={feature}><Check size={15} />{feature}</li>)}</ul>
-            <button className={plan.featured ? 'pricing-btn primary' : 'pricing-btn'} onClick={() => plan.name === 'Custom' ? navigate('/contact') : navigate('/signup')}>
-              {plan.name === 'Custom' ? 'Talk to us' : `Start with ${plan.name}`}<ArrowRight size={15} />
-            </button>
+            {plan.name === 'Custom' ? (
+              <button className="pricing-btn" onClick={() => navigate('/contact')}>
+                Talk to us <ArrowRight size={15} />
+              </button>
+            ) : isAuthenticated ? (
+              <RazorpayPaymentButton
+                plan={plan.name === 'Monthly' ? 'MONTHLY' : 'YEARLY'}
+                className={plan.featured ? 'pricing-btn primary' : 'pricing-btn'}
+                onSuccess={handlePaymentSuccess}
+              >
+                Pay {plan.price}
+              </RazorpayPaymentButton>
+            ) : (
+              <button className={plan.featured ? 'pricing-btn primary' : 'pricing-btn'} onClick={onLogin}>
+                Login to pay <ArrowRight size={15} />
+              </button>
+            )}
           </article>
         ))}
       </section>
@@ -77,14 +102,14 @@ export default function PricingPage() {
           <span className="public-eyebrow">Choose by workflow</span>
           <h2>Match your laboratory software plan to the work you need to manage.</h2>
           <p>
-            PathMLT brings patients, orders, tests, samples, results, verification and final reports
-            into one connected workflow. Choose the plan that matches your current operating needs.
+            PathMLT brings patients, orders, tests, samples, results, verification, report generation and sharing
+            into one connected laboratory workflow. Start with the 30-day trial and choose a paid plan when it ends.
           </p>
         </div>
         <div className="pricing-explainer-grid">
-          <div><strong>Starting a new reporting workflow?</strong><p>Use the trial to validate patient registration, test configuration, result entry and professional PDF reporting with your team.</p><Link to="/lab-reporting">Explore lab reporting <ArrowRight size={14} /></Link></div>
-          <div><strong>Need stronger verification controls?</strong><p>Review result verification, reference ranges, audit history and role-based access for a more controlled laboratory workflow.</p><Link to="/result-verification">Explore result verification <ArrowRight size={14} /></Link></div>
-          <div><strong>Comparing laboratory systems?</strong><p>See how PathMLT connects daily lab operations with structured reporting instead of treating reporting as a separate final step.</p><Link to="/solutions">Explore solutions <ArrowRight size={14} /></Link></div>
+          <div><strong>Starting a new reporting workflow?</strong><p>Use the 30-day free trial to validate patient registration, new test configuration, result entry, unlimited report generation and professional PDF sharing with your team.</p><Link to="/lab-reporting">Explore lab reporting <ArrowRight size={14} /></Link></div>
+          <div><strong>Need stronger verification controls?</strong><p>Review result verification, reference ranges, audit history, role-based access and report sharing for a more controlled laboratory workflow.</p><Link to="/result-verification">Explore result verification <ArrowRight size={14} /></Link></div>
+          <div><strong>Comparing laboratory systems?</strong><p>See how PathMLT connects daily lab operations with test setup, unlimited report generation and sharing instead of treating reporting as a separate final step.</p><Link to="/solutions">Explore solutions <ArrowRight size={14} /></Link></div>
         </div>
       </section>
 

@@ -36,8 +36,8 @@ export default function ContactPage() {
         <span className="public-eyebrow"><MessageSquare size={13} /> Laboratory software support & sales</span>
         <h1>Talk to the PathMLT team about your laboratory workflow.</h1>
         <p>
-          Ask about laboratory reporting software, onboarding, pricing, result verification,
-          report templates, integrations or day-to-day lab operations. Tell us what you need and we’ll help you find the right next step.
+          Ask about laboratory reporting software, unlimited report generation, report sharing, new test configuration, onboarding, pricing, result verification,
+          report templates, integrations or day-to-day lab operations. Tell us what you need and we’ll help you map the right workflow, plan or implementation next step.
         </p>
       </section>
 

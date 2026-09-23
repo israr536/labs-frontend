@@ -15,7 +15,7 @@ interface SettingsPanelProps {
 }
 
 export default function SettingsPanel({ settings, onSaveSettings }: SettingsPanelProps) {
-  const [formData, setFormData] = useState<LabSettings>({ ...settings });
+  const [formData, setFormData] = useState<LabSettings>({ ...settings, showMethodNames: settings.showMethodNames === true });
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<boolean>(false);
 

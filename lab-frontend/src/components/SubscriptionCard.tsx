@@ -22,7 +22,9 @@ function percent(value: number, limit: number | null) {
 
 function formatDate(value: string | null) {
   if (!value) return '—';
-  return new Intl.DateTimeFormat('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(value));
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '—';
+  return new Intl.DateTimeFormat('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }).format(date);
 }
 
 export default function SubscriptionCard({ subscription, loading, onUpgrade }: Props) {
@@ -32,9 +34,10 @@ export default function SubscriptionCard({ subscription, loading, onUpgrade }: P
 
   if (!subscription) return null;
 
-  const isTrial = subscription.plan === 'TRIAL';
+  const isTrial = Boolean(subscription.trial) || subscription.plan === 'TRIAL' || subscription.plan === 'FREE';
   const isExpired = subscription.status === 'expired';
-  const statusLabel = isExpired ? 'Expired' : subscription.status === 'scheduled' ? 'Scheduled' : isTrial ? 'Trial active' : 'Active';
+  const isScheduled = subscription.status === 'scheduled' || subscription.status === 'pending';
+  const statusLabel = isExpired ? 'Expired' : isScheduled ? 'Scheduled' : isTrial ? 'Trial active' : 'Active';
 
   return (
     <section className={`saas-subscription-card ${isExpired ? 'is-expired' : ''}`}>
@@ -57,6 +60,13 @@ export default function SubscriptionCard({ subscription, loading, onUpgrade }: P
         <span>{isExpired ? 'Ended' : 'Renews / ends'} <strong>{formatDate(subscription.endsAt)}</strong></span>
       </div>
 
+      {isTrial && !isExpired && subscription.endsAt && (
+        <div className="subscription-trial-banner">
+          <strong>Your 30-day free trial is active.</strong>
+          <span>Your workspace remains available until {formatDate(subscription.endsAt)}. Choose a paid plan before the trial ends to continue without interruption.</span>
+        </div>
+      )}
+
       <div className="usage-grid">
         {resources.map((resource) => {
           const Icon = resource.icon;
@@ -74,12 +84,13 @@ export default function SubscriptionCard({ subscription, loading, onUpgrade }: P
 
       {(isTrial || isExpired) && (
         <div className="subscription-cta">
-          <div><strong>{isExpired ? 'Keep your lab running' : 'Ready to grow?'}</strong><span>{isExpired ? 'Choose a paid plan to restore workspace access.' : 'Upgrade when your team or patient volume grows.'}</span></div>
-          <button type="button" onClick={onUpgrade}><span>View plans</span><ArrowUpRight size={16} /></button>
+          <div>
+            <strong>{isExpired ? 'Keep your lab running' : 'Plan ahead'}</strong>
+            <span>{isExpired ? 'Choose a paid plan to restore workspace access.' : 'Review Monthly and Yearly plans before your trial ends.'}</span>
+          </div>
+          <button type="button" onClick={onUpgrade}><span>{isExpired ? 'Choose a plan' : 'View plans'}</span><ArrowUpRight size={16} /></button>
         </div>
       )}
-
-
     </section>
   );
 }

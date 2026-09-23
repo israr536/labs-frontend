@@ -98,16 +98,20 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings, _tem
 
   const drawTopHeader = () => {
     const hasLogo = settings.logoDataUrl?.startsWith('data:image/');
+    const logoWidth = 19;
+    const logoX = PAGE_WIDTH - RIGHT - logoWidth;
     if (hasLogo) {
       try {
         const format = settings.logoDataUrl.startsWith('data:image/jpeg') || settings.logoDataUrl.startsWith('data:image/jpg') ? 'JPEG' : 'PNG';
-        doc.addImage(settings.logoDataUrl, format, LEFT, TOP - 1, 19, 19, undefined, 'FAST');
+        doc.addImage(settings.logoDataUrl, format, logoX, TOP - 1, logoWidth, 19, undefined, 'FAST');
       } catch {
         // Keep the report usable when a stored logo is invalid or unsupported.
       }
     }
-    const headerX = hasLogo ? LEFT + 23 : LEFT;
-    const headerWidth = PAGE_WIDTH - RIGHT - headerX;
+    // Keep laboratory name, address and contact details on the left.
+    // The laboratory logo/brand mark stays on the right side of the header.
+    const headerX = LEFT;
+    const headerWidth = hasLogo ? logoX - LEFT - 4 : PAGE_WIDTH - RIGHT - LEFT;
     extraBoldText(10); doc.text(upper(settings.labName, 'DIAGNOSTIC LABORATORY'), headerX, TOP + 2, { align: 'left', maxWidth: headerWidth, lineHeightFactor: 1.15, ...extraBoldOptions });
     extraBoldText(7.2); const address = clean(settings.address, ''); if (address) doc.text(doc.splitTextToSize(address, headerWidth), headerX, TOP + 9, { align: 'left', lineHeightFactor: 1.2, ...extraBoldOptions });
     const phoneEmail = [settings.phone ? `Mob: ${settings.phone}` : '', settings.email ? `E-mail: ${settings.email}` : ''].filter(Boolean);
@@ -115,7 +119,9 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings, _tem
   };
 
   const drawPatientBox = () => {
-    const y = 38; const h = 36;
+    // Reserve a dedicated bottom row for the barcode so it never overlaps
+    // patient metadata values such as Barcode No or Report Status.
+    const y = 38; const h = 50;
     doc.setDrawColor(0, 0, 0); doc.setLineWidth(0.3); doc.rect(LEFT, y, CONTENT_WIDTH, h);
     const colA = LEFT + 3; const colB = LEFT + 99; const labelWidth = 32;
     const row = (label: string, value: unknown, x: number, yy: number, boldValue = false) => { text(7); doc.text(label, x, yy); doc.text(':', x + labelWidth - 1, yy); text(7, boldValue ? 'bold' : 'normal'); doc.text(clean(value), x + labelWidth + 2, yy); };
@@ -124,14 +130,19 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings, _tem
     row('Ref Doctor', upper(report.referredBy), colA, y + 19); row('Reported Date', dateText(report.dateReported), colB, y + 19);
     row('Lab ID', accession.slice(0, 12), colA, y + 25); row('Barcode No', accession.slice(-12), colB, y + 25);
     row('Client Name/Code', upper(settings.labName), colA, y + 31); row('Report Status', upper(report.status), colB, y + 31);
-    drawBarcode(doc, accession, PAGE_WIDTH - RIGHT - 30, y + 19, 28, 8);
+    const barcodeX = PAGE_WIDTH - RIGHT - 44;
+    drawBarcode(doc, accession, barcodeX, y + 36, 42, 6);
+    text(4.2);
+    doc.text(accession.slice(-12), barcodeX + 21, y + 44, {
+      align: 'center',
+      maxWidth: 42,
+    });
   };
 
-  const drawPageFrame = (continuation = false) => {
+  const drawPageFrame = () => {
     drawTopHeader();
     drawPatientBox();
-    cursorY = 81;
-    if (!continuation) cursorY = 81;
+    cursorY = 95;
   };
 
   const drawTableHeader = () => {
@@ -211,7 +222,7 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings, _tem
       { align: 'right' }
     );
   };
-  const newPage = () => { footer(); doc.addPage(); drawPageFrame(true); };
+  const newPage = () => { footer(); doc.addPage(); drawPageFrame(); };
   const ensure = (height: number) => { if (cursorY + height > FOOTER_TOP) newPage(); };
 
   const drawSection = (section: ReportSection) => {

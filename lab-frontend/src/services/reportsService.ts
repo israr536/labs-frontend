@@ -107,6 +107,105 @@ export async function openReportPdf(id: string, template: ReportTemplateId = get
   setTimeout(() => window.URL.revokeObjectURL(url), 60000);
 }
 
+/**
+ * Shares the generated PDF using the device's native share sheet when supported.
+ * This requires no WhatsApp API: on supported mobile browsers WhatsApp can receive
+ * the actual PDF as an attachment. Desktop/unsupported browsers fall back to a
+ * pre-filled WhatsApp chat containing the report link/current page.
+ */
+/**
+ * Shares the generated report PDF using the device/browser's native share sheet.
+ * On supported mobile browsers this lets the lab choose WhatsApp, Telegram, Mail,
+ * Messages, Nearby Share, etc. and passes the actual PDF file to the selected app.
+ *
+ * If native file sharing is unavailable, the PDF is downloaded and, when a patient
+ * phone number is available, WhatsApp Web is opened in a separate tab with a
+ * pre-filled message. PathMLT itself is never navigated away from.
+ */
+export async function shareReport(
+  id: string,
+  patientName?: string,
+  patientPhone?: string,
+  template: ReportTemplateId = getSavedReportTemplate()
+) {
+  const rawPhone = String(patientPhone || '').trim();
+  const digits = rawPhone.replace(/\\D/g, '');
+  const whatsappPhone = digits.length === 10 ? `91${digits}` : digits;
+
+  const message = [
+    `Hello ${patientName || 'Patient'},`,
+    '',
+    'Your laboratory report from PathMLT is ready.',
+    `Report ID: ${id}`,
+    '',
+    'Please find the attached laboratory report.',
+    '',
+    'Regards,',
+    'PathMLT',
+  ].join('\\n');
+
+  const { url, fileName } = await generateLocalPdf(id, template);
+
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const file = new File([blob], fileName, { type: 'application/pdf' });
+
+    // Native Web Share is the preferred path. It exposes all share targets
+    // installed/available on the user's device, including WhatsApp.
+    if (typeof navigator.share === 'function') {
+      const shareData: ShareData = {
+        title: `PathMLT report - ${patientName || id}`,
+        text: message,
+        files: [file],
+      };
+
+      const canShareFiles = typeof navigator.canShare !== 'function' || navigator.canShare({ files: [file] });
+      if (canShareFiles) {
+        await navigator.share(shareData);
+        return { method: 'native' as const };
+      }
+
+      // Some browsers expose navigator.share but do not support file sharing.
+      // Try a text-only native share before falling back to WhatsApp/download.
+      try {
+        await navigator.share({
+          title: `PathMLT report - ${patientName || id}`,
+          text: message,
+        });
+        return { method: 'native-text' as const };
+      } catch (error: any) {
+        if (error?.name === 'AbortError') throw error;
+      }
+    }
+
+    // Desktop/unsupported browsers: download the actual PDF first so it is
+    // immediately available for attaching to WhatsApp, email, Telegram, etc.
+    const downloadLink = document.createElement('a');
+    downloadLink.href = url;
+    downloadLink.download = fileName;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    downloadLink.remove();
+
+    if (whatsappPhone) {
+      const whatsappUrl = `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(message)}`;
+      const popup = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+
+      if (popup) {
+        return { method: 'whatsapp' as const };
+      }
+    }
+
+    return { method: 'download' as const };
+  } finally {
+    window.setTimeout(() => window.URL.revokeObjectURL(url), 60_000);
+  }
+}
+
+// Backwards-compatible name for existing callers.
+export const shareReportOnWhatsApp = shareReport;
+
 function mapApiReport(report: ApiReport): LabReport {
   const resultByParameterId = new Map((report.results ?? []).map((result: any) => [result.parameterId, result]));
   const parametersSource = report.test?.parameters?.length ? report.test.parameters : (report.results ?? []).map((result: any) => result.parameter);
@@ -160,5 +259,5 @@ function toPatientPayload(report: Partial<LabReport>) { return { name: report.pa
 function requireTestId(report: Partial<LabReport>): string { const testId = (report as LabReport & { testId?: string }).testId; if (!testId?.trim()) throw new Error('Please select a configured laboratory test from the Test Catalog.'); return testId; }
 function toApiResults(parameters: TestParameter[], apiParameters: any[]) { return parameters.map((parameter) => { const apiParameter = apiParameters.find((item: any) => item.name?.toLowerCase() === parameter.name.toLowerCase()); return apiParameter && parameter.value?.trim() ? { parameterId: apiParameter.id, value: parameter.value.trim() } : null; }).filter(Boolean); }
 
-const reportsService = { listReportTemplates, getSavedReportTemplate, saveReportTemplate, listReports, getReport, createCombinedReport, createReport, updateReport, deleteReport, generateReport, finalizeReport, downloadReportPdf, openReportPdf };
+const reportsService = { listReportTemplates, getSavedReportTemplate, saveReportTemplate, listReports, getReport, createCombinedReport, createReport, updateReport, deleteReport, generateReport, finalizeReport, downloadReportPdf, openReportPdf, shareReport, shareReportOnWhatsApp };
 export default reportsService;

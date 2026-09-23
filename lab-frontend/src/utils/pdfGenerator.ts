@@ -98,16 +98,20 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings, _tem
 
   const drawTopHeader = () => {
     const hasLogo = settings.logoDataUrl?.startsWith('data:image/');
+    const logoWidth = 19;
+    const logoX = PAGE_WIDTH - RIGHT - logoWidth;
     if (hasLogo) {
       try {
         const format = settings.logoDataUrl.startsWith('data:image/jpeg') || settings.logoDataUrl.startsWith('data:image/jpg') ? 'JPEG' : 'PNG';
-        doc.addImage(settings.logoDataUrl, format, LEFT, TOP - 1, 19, 19, undefined, 'FAST');
+        doc.addImage(settings.logoDataUrl, format, logoX, TOP - 1, logoWidth, 19, undefined, 'FAST');
       } catch {
         // Keep the report usable when a stored logo is invalid or unsupported.
       }
     }
-    const headerX = hasLogo ? LEFT + 23 : LEFT;
-    const headerWidth = PAGE_WIDTH - RIGHT - headerX;
+    // Keep laboratory name, address and contact details on the left.
+    // The laboratory logo/brand mark stays on the right side of the header.
+    const headerX = LEFT;
+    const headerWidth = hasLogo ? logoX - LEFT - 4 : PAGE_WIDTH - RIGHT - LEFT;
     extraBoldText(10); doc.text(upper(settings.labName, 'DIAGNOSTIC LABORATORY'), headerX, TOP + 2, { align: 'left', maxWidth: headerWidth, lineHeightFactor: 1.15, ...extraBoldOptions });
     extraBoldText(7.2); const address = clean(settings.address, ''); if (address) doc.text(doc.splitTextToSize(address, headerWidth), headerX, TOP + 9, { align: 'left', lineHeightFactor: 1.2, ...extraBoldOptions });
     const phoneEmail = [settings.phone ? `Mob: ${settings.phone}` : '', settings.email ? `E-mail: ${settings.email}` : ''].filter(Boolean);

@@ -25,7 +25,7 @@ export function createOrder(plan: 'MONTHLY' | 'YEARLY') {
 }
 
 export function verifyPayment(payload: RazorpayPaymentResponse) {
-  return request<{ success: boolean; paymentId: string; orderId: string; status: string; plan: string }>('payments/verify', {
+  return request<{ success: boolean; paymentId: string; orderId: string; status: string; plan: string; activated?: boolean; subscriptionStartAt?: string | null; subscriptionEndAt?: string | null }>('payments/verify', {
     method: 'POST',
     body: JSON.stringify(payload),
   });

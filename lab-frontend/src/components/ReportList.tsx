@@ -94,7 +94,7 @@ export default function ReportList({ onDeleteReport, onEditReport, selectedRepor
     const toastId = toast.show({ type: 'pending', message: `Preparing the report for WhatsApp…` });
     try {
       setBusyId(`${report.id}:whatsapp`);
-      await shareReportOnWhatsApp(report.id, report.patientName, template);
+      await shareReportOnWhatsApp(report.id, report.patientName, report.phone, template);
       toast.update(toastId, { type: 'success', message: 'Report is ready to share on WhatsApp.' });
     } catch (error: any) {
       if (error?.name === 'AbortError') {

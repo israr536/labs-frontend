@@ -139,7 +139,7 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings, _tem
     });
   };
 
-  const drawPageFrame = (continuation = false) => {
+  const drawPageFrame = () => {
     drawTopHeader();
     drawPatientBox();
     cursorY = 95;
@@ -222,7 +222,7 @@ export const generateReportPdf = (report: LabReport, settings: LabSettings, _tem
       { align: 'right' }
     );
   };
-  const newPage = () => { footer(); doc.addPage(); drawPageFrame(true); };
+  const newPage = () => { footer(); doc.addPage(); drawPageFrame(); };
   const ensure = (height: number) => { if (cursorY + height > FOOTER_TOP) newPage(); };
 
   const drawSection = (section: ReportSection) => {

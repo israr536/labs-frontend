@@ -31,7 +31,7 @@ interface RazorpayPaymentButtonProps {
   plan: 'MONTHLY' | 'YEARLY';
   className?: string;
   children?: ReactNode;
-  onSuccess?: () => void;
+  onSuccess?: () => void | Promise<void>;
 }
 
 export function RazorpayPaymentButton({
@@ -42,11 +42,13 @@ export function RazorpayPaymentButton({
 }: RazorpayPaymentButtonProps) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [messageType, setMessageType] = useState<'success' | 'error'>('success');
 
   const pay = async () => {
     if (loading) return;
     setLoading(true);
     setMessage(null);
+    setMessageType('success');
 
     try {
       const loaded = await loadRazorpay();
@@ -68,8 +70,10 @@ export function RazorpayPaymentButton({
           theme: { color: '#0f766e' },
           handler: async (response: RazorpayPaymentResponse) => {
             try {
-              await paymentsService.verifyPayment(response);
-              setMessage('Payment verified successfully. Your subscription is now active.');
+              const result = await paymentsService.verifyPayment(response);
+              if (!result.success || result.status !== 'VERIFIED') throw new Error('Payment verification could not be completed. Please contact PathMLT support before trying again.');
+              setMessage('Payment verified successfully. Refreshing your subscription…');
+              setMessageType('success');
               resolve();
             } catch (error) {
               reject(error);
@@ -83,9 +87,12 @@ export function RazorpayPaymentButton({
         checkout.open();
       });
 
-      onSuccess?.();
+      await onSuccess?.();
+      setMessage('Subscription updated successfully. Your workspace is ready.');
+      setMessageType('success');
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Payment could not be completed.');
+      setMessageType('error');
+      setMessage(error instanceof Error ? error.message : 'Payment could not be completed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -96,12 +103,12 @@ export function RazorpayPaymentButton({
       <button className={className} type="button" disabled={loading} onClick={() => void pay()}>
         {loading ? <><Loader2 size={15} className="spin" /> Opening checkout…</> : (children ?? (plan === 'MONTHLY' ? 'Pay ₹299' : 'Pay ₹2,499'))}
       </button>
-      {message && <span role="status" style={{ display: 'block', marginTop: 8 }}>{message}</span>}
+      {message && <span role="status" aria-live="polite" style={{ display: 'block', marginTop: 8 }} className={messageType === 'error' ? 'payment-error' : 'payment-success'}>{message}</span>}
     </>
   );
 }
 
-export default function RazorpayPlans() {
+export default function RazorpayPlans({ onSuccess }: { onSuccess?: () => void | Promise<void> }) {
   return (
     <section className="saas-page" aria-label="Paid plans">
       <div className="saas-page-header">
@@ -123,7 +130,7 @@ export default function RazorpayPlans() {
             <li><CheckCircle2 size={15} />Team access</li>
             <li><CheckCircle2 size={15} />Priority product updates</li>
           </ul>
-          <RazorpayPaymentButton plan="MONTHLY" />
+          <RazorpayPaymentButton plan="MONTHLY" onSuccess={onSuccess} />
         </article>
 
         <article className="pricing-card-new featured">
@@ -135,7 +142,7 @@ export default function RazorpayPlans() {
             <li><CheckCircle2 size={15} />Annual billing</li>
             <li><CheckCircle2 size={15} />Priority support</li>
           </ul>
-          <RazorpayPaymentButton plan="YEARLY" className="pricing-btn primary" />
+          <RazorpayPaymentButton plan="YEARLY" className="pricing-btn primary" onSuccess={onSuccess} />
         </article>
       </div>
     </section>

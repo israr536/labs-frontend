@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { CheckCircle2, CreditCard, Loader2 } from 'lucide-react';
+import { CheckCircle2, CreditCard, Loader2, X, AlertCircle } from 'lucide-react';
 import paymentsService, { type RazorpayPaymentResponse } from '../services/paymentsService';
 
 declare global {
@@ -43,12 +43,14 @@ export function RazorpayPaymentButton({
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<'success' | 'error'>('success');
+  const [resultModal, setResultModal] = useState<'success' | 'error' | null>(null);
 
   const pay = async () => {
     if (loading) return;
     setLoading(true);
     setMessage(null);
     setMessageType('success');
+    setResultModal(null);
 
     try {
       const loaded = await loadRazorpay();
@@ -90,16 +92,33 @@ export function RazorpayPaymentButton({
       await onSuccess?.();
       setMessage('Subscription updated successfully. Your workspace is ready.');
       setMessageType('success');
+      setResultModal('success');
     } catch (error) {
       setMessageType('error');
       setMessage(error instanceof Error ? error.message : 'Payment could not be completed. Please try again.');
+      setResultModal('error');
     } finally {
       setLoading(false);
     }
   };
 
+  const closeResultModal = () => setResultModal(null);
+
   return (
     <>
+      {resultModal && (
+        <div className="payment-result-backdrop" role="presentation" onMouseDown={closeResultModal}>
+          <div className={`payment-result-modal ${resultModal}`} role="dialog" aria-modal="true" aria-labelledby="payment-result-title" onMouseDown={(event) => event.stopPropagation()}>
+            <button className="payment-result-close" type="button" aria-label="Close payment result" onClick={closeResultModal}><X size={18} /></button>
+            <div className="payment-result-icon">{resultModal === 'success' ? <CheckCircle2 size={30} /> : <AlertCircle size={30} />}</div>
+            <h3 id="payment-result-title">{resultModal === 'success' ? 'Payment successful' : 'Payment not completed'}</h3>
+            <p>{resultModal === 'success' ? 'Your payment was verified and your PathMLT subscription has been refreshed.' : (message || 'Your payment could not be completed. You can safely try again.')}</p>
+            <div className="payment-result-actions">
+              <button className="pricing-btn primary" type="button" onClick={closeResultModal}>{resultModal === 'success' ? 'Continue to dashboard' : 'Try again'}</button>
+            </div>
+          </div>
+        </div>
+      )}
       <button className={className} type="button" disabled={loading} onClick={() => void pay()}>
         {loading ? <><Loader2 size={15} className="spin" /> Opening checkout…</> : (children ?? (plan === 'MONTHLY' ? 'Pay ₹299' : 'Pay ₹2,499'))}
       </button>

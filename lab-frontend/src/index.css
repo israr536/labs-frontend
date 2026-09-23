@@ -11608,3 +11608,22 @@ tbody tr.inactive {
     width: 100%;
   }
 }
+
+
+/* Report sharing */
+.report-row-actions .report-whatsapp-action {
+  color: #16a34a;
+}
+.report-row-actions .report-whatsapp-action:hover:not(:disabled) {
+  color: #15803d;
+  background: rgba(34, 197, 94, 0.1);
+}
+.review-whatsapp {
+  color: #fff !important;
+  background: #25d366 !important;
+  border-color: #25d366 !important;
+}
+.review-whatsapp:hover:not(:disabled) {
+  background: #1ebe5d !important;
+  border-color: #1ebe5d !important;
+}

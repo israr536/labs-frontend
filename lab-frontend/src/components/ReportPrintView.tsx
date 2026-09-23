@@ -13,19 +13,19 @@ export default function ReportPrintView({ report, settings }: ReportPrintViewPro
       {/* 1. Letterhead Brand Header */}
       <div className="print-header">
         <div className="header-brand-left">
-          <div className="print-logo-circle"></div>
           <div className="print-brand-text">
             <h2>{settings.labName}</h2>
             <p className="tagline">{settings.tagline}</p>
             <p className="certifications">{settings.isoCertification}</p>
+            <p>{settings.address}</p>
+            <p>Phone: {settings.phone}</p>
+            <p>Email: {settings.email}</p>
+            <p>Web: {settings.website}</p>
+            <p className="license-tag">LIC: {settings.licenseNumber}</p>
           </div>
         </div>
         <div className="header-brand-right">
-          <p>{settings.address}</p>
-          <p>Phone: {settings.phone}</p>
-          <p>Email: {settings.email}</p>
-          <p>Web: {settings.website}</p>
-          <p className="license-tag">LIC: {settings.licenseNumber}</p>
+          <div className="print-logo-circle"></div>
         </div>
       </div>
 

@@ -114,7 +114,7 @@ export function RazorpayPaymentButton({
             <h3 id="payment-result-title">{resultModal === 'success' ? 'Payment successful' : 'Payment not completed'}</h3>
             <p>{resultModal === 'success' ? 'Your payment was verified and your PathMLT subscription has been refreshed.' : (message || 'Your payment could not be completed. You can safely try again.')}</p>
             <div className="payment-result-actions">
-              <button className="pricing-btn primary" type="button" onClick={closeResultModal}>{resultModal === 'success' ? 'Continue to dashboard' : 'Try again'}</button>
+              <button className="pricing-btn primary" type="button" onClick={() => { if (resultModal === 'error') { closeResultModal(); void pay(); } else { closeResultModal(); } }}>{resultModal === 'success' ? 'Continue to dashboard' : 'Try payment again'}</button>
             </div>
           </div>
         </div>

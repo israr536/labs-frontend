@@ -66,7 +66,7 @@ export default function Signup({ onSignupSuccess, onCancel }: Props) {
   return <>
     <div className="saas-signup-header">
       <div>
-        <span className="saas-signup-eyebrow">PathMLT Register Here • 14-day free trial</span>
+        <span className="saas-signup-eyebrow">PathMLT Register Here • 30-day free trial</span>
         <h3>{step === 'details' ? 'Register your laboratory' : 'Verify your mobile number'}</h3>
         <p>{step === 'details' ? 'Enter your laboratory details to create your PathMLT account. No payment details are required for the trial.' : 'Enter the 6-digit verification code sent by SMS to your registered mobile number.'}</p>
       </div>

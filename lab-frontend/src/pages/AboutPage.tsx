@@ -11,7 +11,7 @@ export default function AboutPage() {
           <p>
             PathMLT is a laboratory reporting and management platform designed for diagnostic,
             pathology, hospital and independent laboratories. It connects patient registration,
-            orders, tests, samples, result entry, verification and professional report delivery in one focused workflow.
+            orders, tests, samples, result entry, verification, unlimited report generation and professional report delivery in one focused workflow.
           </p>
         </div>
         <div className="about-metric">

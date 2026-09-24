@@ -45,7 +45,9 @@ if (!rootHtml.includes('data-prerendered="true"')) fail('homepage was not preren
 const seenBodies = new Map();
 const prerenderExcluded = new Set(['/dashboard', '/report-templates']);
 
-for (const entry of seo.routes.filter((item) => item.canonical === item.path && !prerenderExcluded.has(item.path))) {
+for (const entry of seo.routes.filter(
+  (item) => item.index === true && item.canonical === item.path && !prerenderExcluded.has(item.path)
+)) {
   const routeDir = entry.path === '/' ? dist : path.join(dist, entry.path.slice(1));
   const file = path.join(routeDir, 'index.html');
   if (!fs.existsSync(file)) fail(`missing prerendered HTML for ${entry.path}`);

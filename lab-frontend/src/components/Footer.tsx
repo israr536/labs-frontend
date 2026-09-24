@@ -41,7 +41,7 @@ export default function Footer() {
             <Link to="/sample-management">Sample management</Link>
             <Link to="/result-entry">Result entry</Link>
             <Link to="/result-verification">Result verification</Link>
-            <Link to="/lab-reporting">Lab reporting</Link>
+            <Link to="/laboratory-reporting-software">Lab reporting</Link>
             <Link to="/report-templates">Report templates</Link>
             <Link to="/reference-ranges">Reference ranges</Link>
             <Link to="/pdf-reports">PDF reports</Link>

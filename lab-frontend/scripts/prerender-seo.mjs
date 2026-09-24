@@ -158,6 +158,7 @@ function renderDocument(templateHtml, entry, body) {
   return html;
 }
 
+
 const entries = seo.routes.filter(
   (entry) =>
     entry.index === true &&

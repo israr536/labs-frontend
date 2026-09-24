@@ -51,8 +51,8 @@ for (const entry of seo.routes.filter((item) => item.canonical === item.path && 
   if (!fs.existsSync(file)) fail(`missing prerendered HTML for ${entry.path}`);
 
   const html = fs.readFileSync(file, 'utf8');
-  const title = html.match(/<title>([\s\S]*?)<\/title>/i)?.[1] ?? '';
-  const description = html.match(/<meta\s+name=["']description["']\s+content=["']([^"']*)["']/i)?.[1] ?? '';
+  const title = htmlText(html.match(/<title>([\s\S]*?)<\/title>/i)?.[1] ?? '');
+  const description = htmlText(html.match(/<meta\s+name=["']description["']\s+content=["']([^"']*)["']/i)?.[1] ?? '');
   const canonical = html.match(/<link\s+rel=["']canonical["']\s+href=["']([^"']*)["']/i)?.[1] ?? '';
   const robots = html.match(/<meta\s+name=["']robots["']\s+content=["']([^"']*)["']/i)?.[1] ?? '';
   const rootMatch = html.match(/<div\s+id=["']root["'][^>]*>([\s\S]*?)<\/div>\s*<script/i);

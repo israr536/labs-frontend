@@ -22,4 +22,5 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - run: npm run lint
       - run: npm run build
+      - run: npm run seo:validate:deep
       - run: npm audit --omit=dev --audit-level=high

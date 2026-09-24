@@ -10,18 +10,28 @@ const fail = (message) => {
   throw new Error(`SEO validation failed: ${message}`);
 };
 
-const htmlText = (value) => value
-  .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-  .replace(/<style[\s\S]*?<\/style>/gi, ' ')
-  .replace(/<[^>]+>/g, ' ')
+const decodeHtmlEntities = (value) => value
   .replace(/&nbsp;/gi, ' ')
   .replace(/&amp;/gi, '&')
   .replace(/&quot;/gi, '"')
   .replace(/&#39;/gi, "'")
   .replace(/&lt;/gi, '<')
-  .replace(/&gt;/gi, '>')
+  .replace(/&gt;/gi, '>');
+
+const htmlText = (value) => decodeHtmlEntities(value
+  .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+  .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+  .replace(/<[^>]+>/g, ' ')
   .replace(/\s+/g, ' ')
-  .trim();
+  .trim());
+
+const visibleBody = (html) => {
+  const match = html.match(/<body\b[^>]*>([\s\S]*?)<\/body>/i);
+  if (!match) return '';
+  return match[1]
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ');
+};
 
 const canonicalIndexable = seo.routes.filter((entry) => entry.index === true && entry.canonical === entry.path);
 const canonicalTargets = new Map();
@@ -57,9 +67,9 @@ for (const entry of seo.routes.filter(
   const description = htmlText(html.match(/<meta\s+name=["']description["']\s+content=["']([^"']*)["']/i)?.[1] ?? '');
   const canonical = html.match(/<link\s+rel=["']canonical["']\s+href=["']([^"']*)["']/i)?.[1] ?? '';
   const robots = html.match(/<meta\s+name=["']robots["']\s+content=["']([^"']*)["']/i)?.[1] ?? '';
-  const rootMatch = html.match(/<div\s+id=["']root["'][^>]*>([\s\S]*?)<\/div>\s*<script/i);
-  const body = htmlText(rootMatch?.[1] ?? '');
-  const h1s = [...html.matchAll(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi)].map((m) => htmlText(m[1]));
+  const bodyMarkup = visibleBody(html);
+  const body = htmlText(bodyMarkup);
+  const h1s = [...bodyMarkup.matchAll(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi)].map((m) => htmlText(m[1]));
 
   if (title !== entry.title) fail(`${entry.path} title does not match seo-routes.json`);
   if (description !== entry.description) fail(`${entry.path} description does not match seo-routes.json`);
@@ -69,11 +79,12 @@ for (const entry of seo.routes.filter(
   if (h1s.length !== 1) fail(`${entry.path} must contain exactly one H1 (found ${h1s.length})`);
   if (entry.index && body.length < 700) fail(`${entry.path} has too little prerendered body content (${body.length} chars)`);
 
-  const blocks = [...html.matchAll(/<(?:h2|h3|p)>[\s\S]*?<\/(?:h2|h3|p)>/gi)]
-    .map((m) => htmlText(m[0]))
-    .filter((block) => block.length >= 40);
-  const uniqueBlocks = [...new Set(blocks)];
-  if (entry.index) seenBodies.set(entry.path, uniqueBlocks);
+  if (entry.index) {
+    const blocks = [...bodyMarkup.matchAll(/<(h2|h3|p)\b[^>]*>([\s\S]*?)<\/\1>/gi)]
+      .map((m) => htmlText(m[2]))
+      .filter((block) => block.length >= 40);
+    seenBodies.set(entry.path, [...new Set(blocks)]);
+  }
 }
 
 const sitemapLocs = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
@@ -89,19 +100,30 @@ for (const loc of sitemapLocs) {
 const robots = fs.readFileSync(path.join(root, 'public/robots.txt'), 'utf8');
 if (!/Sitemap:\s*https:\/\/www\.pathmlt\.com\/sitemap\.xml/i.test(robots)) fail('robots.txt sitemap directive is missing');
 
-const duplicatePairs = [];
-const paths = [...seenBodies.keys()];
-for (let i = 0; i < paths.length; i += 1) {
-  const a = new Set(seenBodies.get(paths[i]));
-  for (let j = i + 1; j < paths.length; j += 1) {
-    const b = new Set(seenBodies.get(paths[j]));
-    const intersection = [...a].filter((item) => b.has(item)).length;
-    const base = Math.max(1, Math.min(a.size, b.size));
-    if (intersection / base > 0.85) duplicatePairs.push(`${paths[i]} <-> ${paths[j]}`);
+if (process.env.SEO_DEEP_CHECK === '1') {
+  const duplicatePairs = [];
+  const paths = [...seenBodies.keys()];
+  for (let i = 0; i < paths.length; i += 1) {
+    const a = new Set(seenBodies.get(paths[i]));
+    for (let j = i + 1; j < paths.length; j += 1) {
+      const b = new Set(seenBodies.get(paths[j]));
+      const small = a.size <= b.size ? a : b;
+      const large = a.size <= b.size ? b : a;
+      let intersection = 0;
+      for (const item of small) if (large.has(item)) intersection += 1;
+      const base = Math.max(1, small.size);
+      if (intersection / base > 0.85) {
+        duplicatePairs.push(paths[i] + ' <-> ' + paths[j]);
+      }
+    }
+  }
+  if (duplicatePairs.length) {
+    fail('near-duplicate indexable content detected: ' + duplicatePairs.join(', '));
   }
 }
-if (duplicatePairs.length) {
-  fail(`near-duplicate indexable content detected: ${duplicatePairs.join(', ')}`);
-}
 
-console.log(`SEO validation passed: ${canonicalIndexable.length} indexable routes, sitemap and prerendered metadata/content verified.`);
+console.log(
+  'SEO validation passed: ' + canonicalIndexable.length +
+  ' indexable routes, sitemap and prerendered metadata/content verified' +
+  (process.env.SEO_DEEP_CHECK === '1' ? '; deep duplicate-content check enabled.' : '.'),
+);

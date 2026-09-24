@@ -42,7 +42,7 @@ function upsertCanonical(html, href) {
   const re = /<link\s+rel=["']canonical["'][^>]*>/i;
   return re.test(html) ? html.replace(re, tag) : html.replace('</head>', `    ${tag}\n  </head>`);
 }
-
+ 
 function upsertTitle(html, title) {
   const tag = `<title>${escapeHtml(title)}</title>`;
   const re = /<title>[^<]*<\/title>/i;

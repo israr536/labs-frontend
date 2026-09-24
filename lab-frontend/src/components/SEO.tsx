@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { faqItems } from '../data/faqData';
 import seoData from '../seo/seo-routes.json';
+import faqSchema from '../seo/faq-schema.json';
 
 const { siteUrl: SITE_URL, siteName: SITE_NAME, ogImage: OG_IMAGE } = seoData;
 type SeoConfig = (typeof seoData.routes)[number];
@@ -115,13 +115,14 @@ function buildStructuredData(config: SeoConfig) {
     });
   }
 
-  if (config.path === '/' || config.path === '/faqs') {
+  if (config.path === '/faqs') {
     graph.push({
       '@type': 'FAQPage',
-      mainEntity: faqItems.slice(0, 6).map(item => ({
+      '@id': `${canonicalUrl}#faq`,
+      mainEntity: faqSchema.questions.map(([question, answer]) => ({
         '@type': 'Question',
-        name: item.question,
-        acceptedAnswer: { '@type': 'Answer', text: item.answer },
+        name: question,
+        acceptedAnswer: { '@type': 'Answer', text: answer },
       })),
     });
   }
@@ -152,7 +153,9 @@ export default function SEO() {
     upsertProperty('og:locale', 'en_IN');
     upsertProperty('og:image', OG_IMAGE);
     upsertProperty('og:image:alt', 'PathMLT laboratory reporting software');
-    upsertProperty('og:image:type', 'image/svg+xml');
+    upsertProperty('og:image:type', 'image/png');
+    upsertProperty('og:image:width', '1200');
+    upsertProperty('og:image:height', '630');
 
     upsertMeta('twitter:card', 'summary_large_image');
     upsertMeta('twitter:title', config.title);

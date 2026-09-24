@@ -266,7 +266,6 @@ export default function App() {
             <Route path="/about" element={<AboutPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/faqs" element={<FaqPage />} />
-            <Route path="/faq" element={<FaqPage />} />
             <Route path="/report-templates" element={isAuthenticated ? <ReportTemplatesPage /> : <Navigate to="/login" replace />} />
             <Route path="/login" element={<Modal onClose={closeAuthModal} title="Login" description="Access your laboratory workspace securely."><Login onLoginSuccess={handleLoginSuccess} onForgotPassword={showForgotPassword} onSignup={showSignup} /></Modal>} />
             <Route path="/forgot-password" element={<Modal onClose={closeAuthModal} title="Reset password" description="Recover access to your laboratory workspace securely."><ForgotPassword onBackToLogin={showLogin} /></Modal>} />

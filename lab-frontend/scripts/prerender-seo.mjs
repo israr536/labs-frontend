@@ -34,6 +34,39 @@ function escapeRegExp(value) {
   return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+function pageHeading(entry) {
+  return entry.title.replace(/\s*\|\s*PathMLT$/, '');
+}
+
+function staticBody(entry) {
+  const heading = pageHeading(entry);
+  const relatedLinks = [
+    ['/solutions', 'Solutions'],
+    ['/laboratory-reporting-software', 'Laboratory reporting software'],
+    ['/patient-management', 'Patient management'],
+    ['/result-verification', 'Result verification'],
+    ['/lab-reporting', 'Lab reporting'],
+    ['/contact', 'Contact PathMLT']
+  ].filter(([href]) => href !== entry.path);
+
+  const links = relatedLinks
+    .map(([href, label]) => `<a href="${href}">${label}</a>`)
+    .join(' · ');
+
+  const faqContent = entry.path === '/faqs'
+    ? `<section aria-labelledby="faq-heading"><h2 id="faq-heading">Frequently asked questions</h2>${faqSchema.questions
+      .map(([question, answer]) => `<details><summary>${escapeHtml(question)}</summary><p>${escapeHtml(answer)}</p></details>`)
+      .join('')}</section>`
+    : '';
+
+  return `<main id="seo-content" data-seo-prerendered="true"><nav aria-label="Primary navigation"><a href="/">Home</a> · ${links}</nav><article><p class="seo-eyebrow">PathMLT laboratory software</p><h1>${escapeHtml(heading)}</h1><p>${escapeHtml(entry.description)}</p><h2>Connect your laboratory workflow</h2><p>PathMLT helps diagnostic and pathology laboratories organize patients, tests, samples, results, verification and professional reporting in one connected workspace. Explore the workflow, compare capabilities, and contact the team for an implementation discussion.</p><p><a href="/contact">Request a workflow review</a> · <a href="/pricing">View pricing</a></p>${faqContent}</article></main>`;
+}
+
+function injectStaticBody(html, entry) {
+  const body = staticBody(entry);
+  return html.replace(/<div id="root"><\/div>/i, `<div id="root">${body}</div>`);
+}
+
 function upsertMeta(html, name, content) {
   const tag =
     `<meta name="${escapeHtml(name)}" content="${escapeHtml(content)}" />`;
@@ -305,7 +338,19 @@ function render(entry) {
   html = upsertProperty(
     html,
     'og:image:type',
-    'image/svg+xml'
+    'image/png'
+  );
+
+  html = upsertProperty(
+    html,
+    'og:image:width',
+    '1200'
+  );
+
+  html = upsertProperty(
+    html,
+    'og:image:height',
+    '630'
   );
 
   html = upsertMeta(
@@ -348,7 +393,7 @@ function render(entry) {
     buildStructuredData(entry)
   );
 
-  return html;
+  return injectStaticBody(html, entry);
 }
 
 const entries = seo.routes.filter(

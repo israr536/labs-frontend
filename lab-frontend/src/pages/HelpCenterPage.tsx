@@ -3,60 +3,28 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const topics = [
-  { icon: BookOpen, title: 'Implementation and setup', text: 'Configure your laboratory identity, report standards, test catalog, new tests, reference ranges, and team access.' },
-  { icon: FileText, title: 'Reporting operations', text: 'Follow the controlled journey from result entry and verification through unlimited report generation, finalization and report sharing.' },
-  { icon: ShieldCheck, title: 'Governance and access', text: 'Understand role boundaries, workspace controls, audit history, and the operating practices that support accountability.' },
+  { icon: BookOpen, title: 'Configure the workspace', text: 'Set your laboratory identity, report presentation, core test catalog, parameters, reference information, and team access.' },
+  { icon: FileText, title: 'Run reporting operations', text: 'Follow the order from patient registration through sample context, result entry, verification, finalization, and PDF delivery.' },
+  { icon: ShieldCheck, title: 'Review access and history', text: 'Understand role responsibilities, report finalization, workflow activity, and the operating policies your laboratory controls.' },
 ];
 
 const answers = [
-  ['What should our implementation team configure first?', 'Start with your laboratory identity and report standards, activate the panels you run most often, establish reference ranges, invite the operational team, and complete a representative test order.'],
-  ['How does a report move through PathMLT?', 'A patient is registered, an order is created, samples are generated, results are entered and verified, and an authorized reviewer finalizes the report for controlled delivery.'],
-  ['Can PathMLT fit our existing workflow?', 'PathMLT is designed to be configured around your tests, specimen types, methods, reference ranges, report identity, role boundaries, and team responsibilities.'],
-  ['Can we generate and share reports without a report-count cap?', 'The current Monthly and Yearly plans do not impose a plan-level order/report-generation cap. Completed reports can be downloaded, printed and shared using supported device sharing and messaging options.'],
-  ['How are access and workflow responsibilities handled?', 'Authenticated team members work within role boundaries, while laboratories remain responsible for assigning appropriate access and reviewing their operating policies.'],
-  ['Can we add new tests?', 'Administrators can add available catalog tests to the laboratory workspace and configure the parameters used for result entry and reporting. Use the contact page if you need help planning your test setup.'],
+  ['What should our implementation team configure first?', 'Start with the laboratory identity and report standards. Then configure the tests and parameters your team uses most often, add reference information, invite users, and complete one representative order from registration to final report.'],
+  ['How does a laboratory order move through PathMLT?', 'The workflow begins with a patient and order. The team connects the required tests and samples, enters structured results, reviews values and flags, verifies the completed result set, and finalizes the report for delivery.'],
+  ['How should we configure tests?', 'Define the test name, category, department, specimen information, method, turnaround information, and reusable parameters. Configure the fields that technicians and reviewers need to use consistently.'],
+  ['How does result verification fit into daily work?', 'Result verification is the review step between entry and release. An authorized team member can check required values, flags, reference information, and report context before finalization.'],
+  ['Can paid plans generate reports without a plan-level cap?', 'The current Monthly and Yearly plans are configured without an order or report-generation cap. Confirm the latest plan terms with the PathMLT team before purchase.'],
+  ['How are access and data responsibilities handled?', 'Authenticated team members work within role-aware controls. Your laboratory remains responsible for assigning appropriate access, maintaining accurate information, and applying the privacy, retention, and healthcare policies relevant to its operation.'],
 ];
 
 export default function HelpCenterPage() {
   const [query, setQuery] = useState('');
   const normalized = query.trim().toLowerCase();
-  const filteredAnswers = useMemo(
-    () => normalized ? answers.filter(([question, answer]) => `${question} ${answer}`.toLowerCase().includes(normalized)) : answers,
-    [normalized],
-  );
-
+  const filteredAnswers = useMemo(() => normalized ? answers.filter(([question, answer]) => `${question} ${answer}`.toLowerCase().includes(normalized)) : answers, [normalized]);
   return <div className="public-saas-page help-page">
-    <section className="help-hero">
-      <span className="public-eyebrow"><Headphones size={13} /> PathMLT implementation center</span>
-      <h1>Operational guidance for your laboratory team.</h1>
-      <p>Practical guidance for implementing PathMLT, governing daily work, and building a dependable reporting operation around your laboratory’s standards.</p>
-      <div className="help-search">
-        <Search size={18} />
-        <input value={query} onChange={event => setQuery(event.target.value)} placeholder="Search setup, reports, access, templates…" aria-label="Search PathMLT help" />
-      </div>
-    </section>
-
-    <section className="help-topics">
-      {topics.map(({ icon: Icon, title, text }) => <article key={title}>
-        <span><Icon size={19} /></span><h2>{title}</h2><p>{text}</p>
-        <Link to="/contact">Contact implementation team <ArrowRight size={14} /></Link>
-      </article>)}
-    </section>
-
-    <section className="help-answers">
-      <div>
-        <span className="public-eyebrow"><CircleHelp size={13} /> Start here</span>
-        <h2>{normalized ? `Search results for “${query.trim()}”` : 'Implementation questions, answered.'}</h2>
-        <p>A practical starting point for laboratory owners, operations leaders, and implementation teams.</p>
-      </div>
-      <div className="answer-list">
-        {filteredAnswers.length ? filteredAnswers.map(([question, answer]) => <details key={question}><summary>{question}</summary><p>{answer}</p></details>) : <div className="help-no-results"><strong>No matching guidance yet.</strong><span>Try “reports”, “templates”, “access”, or “implementation”, or talk to the team.</span><Link to="/contact">Contact PathMLT <ArrowRight size={14} /></Link></div>}
-      </div>
-    </section>
-
-    <section className="help-contact">
-      <div><h2>Planning your PathMLT rollout?</h2><p>Review your departments, panels, report format, and rollout plan with the PathMLT team.</p></div>
-      <Link className="landing-primary" to="/contact">Talk to a specialist <ArrowRight size={16} /></Link>
-    </section>
+    <section className="help-hero"><span className="public-eyebrow"><Headphones size={13} /> PathMLT implementation center</span><h1>Set up a laboratory reporting workflow your team can operate consistently.</h1><p>Use this guide to plan workspace configuration, test setup, result verification, report delivery, user responsibilities, and the first implementation conversation.</p><div className="help-search"><Search size={18} /><input value={query} onChange={event => setQuery(event.target.value)} placeholder="Search tests, reports, access, setup…" aria-label="Search PathMLT help" /></div></section>
+    <section className="help-topics">{topics.map(({ icon: Icon, title, text }) => <article key={title}><span><Icon size={19} /></span><h2>{title}</h2><p>{text}</p><Link to="/contact">Discuss implementation <ArrowRight size={14} /></Link></article>)}</section>
+    <section className="help-answers"><div><span className="public-eyebrow"><CircleHelp size={13} /> Start here</span><h2>{normalized ? `Search results for “${query.trim()}”` : 'Implementation questions, answered.'}</h2><p>Use these answers as a starting point, then validate the workflow with your own laboratory team.</p></div><div className="answer-list">{filteredAnswers.length ? filteredAnswers.map(([question, answer]) => <details key={question}><summary>{question}</summary><p>{answer}</p></details>) : <div className="help-no-results"><strong>No matching guidance yet.</strong><span>Try “reports”, “tests”, “access”, or “implementation”.</span><Link to="/contact">Contact PathMLT <ArrowRight size={14} /></Link></div>}</div></section>
+    <section className="help-contact"><div><h2>Planning your first PathMLT workflow?</h2><p>Review your departments, panels, report format, team roles, and rollout goals with the PathMLT team.</p></div><Link className="landing-primary" to="/contact">Request implementation guidance <ArrowRight size={16} /></Link></section>
   </div>;
 }

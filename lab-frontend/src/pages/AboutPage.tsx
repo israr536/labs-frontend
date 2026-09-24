@@ -4,82 +4,12 @@ import { Link } from 'react-router-dom';
 export default function AboutPage() {
   return (
     <div className="public-saas-page">
-      <section className="about-hero">
-        <div>
-          <span className="public-eyebrow"><Activity size={13} /> About PathMLT</span>
-          <h1>Laboratory reporting software built around how modern diagnostic teams work.</h1>
-          <p>
-            PathMLT is a laboratory reporting and management platform designed for diagnostic,
-            pathology, hospital and independent laboratories. It connects patient registration,
-            orders, tests, samples, result entry, verification, unlimited report generation and professional report delivery in one focused workflow.
-          </p>
-        </div>
-        <div className="about-metric">
-          <strong>One connected laboratory workflow</strong>
-          <span>Patients → orders → tests → samples → results → verification → final reports</span>
-        </div>
-      </section>
-
-      <section className="about-values">
-        {[
-          { icon: ShieldCheck, title: 'Controlled and traceable', text: 'Role-aware access, verification stages and audit history help teams keep laboratory work organized and accountable.' },
-          { icon: Workflow, title: 'Workflow first', text: 'Each stage has a clear status so teams know what is waiting, what is ready and what is complete.' },
-          { icon: Users2, title: 'Made for laboratory teams', text: 'Reception, technicians, reviewers and administrators get tools aligned with the work required to move a report forward.' },
-        ].map(({ icon: Icon, title, text }) => (
-          <article key={title}><span className="about-icon"><Icon size={18} /></span><h3>{title}</h3><p>{text}</p></article>
-        ))}
-      </section>
-
-      <section className="about-story">
-        <div><span className="landing-eyebrow">Why PathMLT</span><h2>A clearer operating layer for laboratory reporting.</h2></div>
-        <div className="about-story-copy">
-          <p>
-            Laboratory reporting depends on accurate context moving through several stages.
-            PathMLT is designed to keep patient, order, test, sample and result information connected
-            while giving teams a clear path from result entry to verification and final report delivery.
-          </p>
-          <div className="about-checks">
-            <span><CheckCircle2 size={15} /> Connected patient and order context</span>
-            <span><CheckCircle2 size={15} /> Test and sample workflow</span>
-            <span><CheckCircle2 size={15} /> Result review and verification stages</span>
-            <span><CheckCircle2 size={15} /> Structured final laboratory reports</span>
-            <span><CheckCircle2 size={15} /> Administrative visibility and access controls</span>
-          </div>
-        </div>
-      </section>
-
-      <section className="about-audience">
-        <div>
-          <span className="landing-eyebrow">Who PathMLT is for</span>
-          <h2>Explore the workflow for your laboratory environment.</h2>
-          <p>Different laboratory settings have different operational handoffs. Start with the workflow closest to your team.</p>
-        </div>
-        <div className="about-audience-links">
-          <Link to="/diagnostic-labs"><strong>Diagnostic labs</strong><span>Connected daily reporting workflows.</span><ArrowRight size={14} /></Link>
-          <Link to="/pathology-labs"><strong>Pathology labs</strong><span>Reporting-focused workflows for pathology teams.</span><ArrowRight size={14} /></Link>
-          <Link to="/hospital-labs"><strong>Hospital labs</strong><span>Role-aware laboratory operations.</span><ArrowRight size={14} /></Link>
-          <Link to="/independent-labs"><strong>Independent labs</strong><span>Practical tools for growing laboratories.</span><ArrowRight size={14} /></Link>
-        </div>
-      </section>
-
-      <section className="about-story">
-        <div><span className="landing-eyebrow">Explore the product</span><h2>Go deeper into the laboratory reporting workflow.</h2></div>
-        <div className="about-story-copy">
-          <p>Explore the specific capabilities that make up the PathMLT workflow, from patient and test management through verification and professional PDF reporting.</p>
-          <div className="about-checks">
-            <Link to="/patient-management">Patient management <ArrowRight size={14} /></Link>
-            <Link to="/test-management">Test management <ArrowRight size={14} /></Link>
-            <Link to="/sample-management">Sample management <ArrowRight size={14} /></Link>
-            <Link to="/result-verification">Result verification <ArrowRight size={14} /></Link>
-            <Link to="/pdf-reports">PDF reports <ArrowRight size={14} /></Link>
-          </div>
-        </div>
-      </section>
-
-      <section className="about-quote">
-        <strong>Built to feel calm when the laboratory work is not.</strong>
-        <span>PathMLT helps teams keep the operational picture connected so they can spend less time chasing status and more time moving reports through a clear workflow.</span>
-      </section>
+      <section className="about-hero"><div><span className="public-eyebrow"><Activity size={13} /> About PathMLT</span><h1>Laboratory reporting software for teams that need a clearer path from test to report.</h1><p>PathMLT is a laboratory reporting and workflow platform for diagnostic, pathology, hospital, and independent laboratories. It connects patient records, orders, tests, samples, results, verification, report templates, and final report delivery in one workspace.</p></div><div className="about-metric"><strong>One connected workflow</strong><span>Patients → orders → tests → samples → results → verification → reports</span></div></section>
+      <section className="about-values">{[{ icon: ShieldCheck, title: 'Review before release', text: 'Structured result entry and verification give teams a clear checkpoint before a report is finalized.' }, { icon: Workflow, title: 'Configuration over repetition', text: 'Tests, parameters, reference information, and report presentation can be configured once and reused across recurring work.' }, { icon: Users2, title: 'Built for laboratory roles', text: 'Reception, technical, review, and administrative responsibilities can work from the same operational context.' }].map(({ icon: Icon, title, text }) => <article key={title}><span className="about-icon"><Icon size={18} /></span><h3>{title}</h3><p>{text}</p></article>)}</section>
+      <section className="about-story"><div><span className="landing-eyebrow">The problem PathMLT addresses</span><h2>Important laboratory context should not disappear between handoffs.</h2></div><div className="about-story-copy"><p>Laboratory reporting is a chain of connected decisions. When patient information, test definitions, samples, results, review, and final reports live in separate places, teams spend time checking status and rebuilding context. PathMLT is designed to keep that chain visible and make the next operational action easier to understand.</p><div className="about-checks"><span><CheckCircle2 size={15} /> Patient and order context stays connected</span><span><CheckCircle2 size={15} /> Test and sample definitions are reusable</span><span><CheckCircle2 size={15} /> Results move through a deliberate review step</span><span><CheckCircle2 size={15} /> Final reports use consistent presentation</span><span><CheckCircle2 size={15} /> Workflow history supports accountable operations</span></div></div></section>
+      <section className="about-audience"><div><span className="landing-eyebrow">Who PathMLT is for</span><h2>Choose the workflow closest to your laboratory.</h2><p>Every laboratory has a different mix of departments, panels, roles, and reporting requirements. Start with the operating environment your team recognizes.</p></div><div className="about-audience-links"><Link to="/diagnostic-labs"><strong>Diagnostic laboratories</strong><span>Recurring patient, testing, and report operations.</span><ArrowRight size={14} /></Link><Link to="/pathology-labs"><strong>Pathology laboratories</strong><span>Configured case and reporting workflows.</span><ArrowRight size={14} /></Link><Link to="/hospital-labs"><strong>Hospital laboratories</strong><span>Clear responsibilities across a shared workspace.</span><ArrowRight size={14} /></Link><Link to="/independent-labs"><strong>Independent laboratories</strong><span>Practical workflow control for growing teams.</span><ArrowRight size={14} /></Link></div></section>
+      <section className="about-story"><div><span className="landing-eyebrow">Explore the product</span><h2>Start with the part of laboratory work you want to improve.</h2></div><div className="about-story-copy"><p>PathMLT can be evaluated by capability or by workflow. Follow the links below to see how each part contributes to a complete laboratory reporting operation.</p><div className="about-checks"><Link to="/patient-management">Patient management <ArrowRight size={14} /></Link><Link to="/test-management">Test catalog management <ArrowRight size={14} /></Link><Link to="/result-entry">Structured result entry <ArrowRight size={14} /></Link><Link to="/result-verification">Result verification <ArrowRight size={14} /></Link><Link to="/pdf-reports">PDF laboratory reports <ArrowRight size={14} /></Link></div></div></section>
+      <section className="about-quote"><strong>Make laboratory operations easier to see and easier to review.</strong><span>PathMLT gives your team a shared workflow for moving accurate, configured, and verified information into a professional final report.</span></section>
     </div>
   );
 }

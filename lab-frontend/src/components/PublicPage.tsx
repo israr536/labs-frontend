@@ -1,26 +1,21 @@
 type Props = { page: 'pricing' | 'privacy' | 'about' };
 
+const content = {
+  pricing: {
+    title: 'Pricing for laboratory reporting software',
+    text: 'Compare PathMLT plans for patient management, test configuration, result verification, report generation, and laboratory workflow operations.',
+  },
+  privacy: {
+    title: 'PathMLT privacy and information responsibility',
+    text: 'Review how PathMLT approaches account, laboratory, workflow, and patient information while your laboratory remains responsible for its policies and legal obligations.',
+  },
+  about: {
+    title: 'About PathMLT laboratory software',
+    text: 'PathMLT connects patient records, tests, results, verification, and professional laboratory reports in one workspace for diagnostic and pathology teams.',
+  },
+} as const;
+
 export default function PublicPage({ page }: Props) {
-  if (page === 'pricing') {
-    return (
-      <div className="public-page">
-        <h2>Pricing</h2>
-        <p>Simple, affordable pricing for clinics of all sizes. Contact sales for volume discounts.</p>
-      </div>
-    );
-  }
-  if (page === 'privacy') {
-    return (
-      <div className="public-page">
-        <h2>Privacy Policy</h2>
-        <p>We respect patient data and follow industry-standard practices. This is a demo policy.</p>
-      </div>
-    );
-  }
-  return (
-    <div className="public-page">
-      <h2>About Us</h2>
-      <p>PathMLT — modern lab reporting built for clinicians. Designed for speed and compliance.</p>
-    </div>
-  );
+  const item = content[page];
+  return <div className="public-page"><h1>{item.title}</h1><p>{item.text}</p></div>;
 }

@@ -1,44 +1,311 @@
 {
   "siteUrl": "https://www.pathmlt.com",
   "siteName": "PathMLT",
-  "ogImage": "https://www.pathmlt.com/og-image.svg",
+  "ogImage": "https://www.pathmlt.com/og-image.png",
   "defaultLocale": "en_IN",
   "routes": [
-    {"path":"/","title":"Laboratory Reporting Software for Diagnostic Labs | PathMLT","description":"PathMLT is laboratory reporting software for diagnostic and pathology labs. Connect patients, orders, tests, samples, results, verification and professional reports in one workflow.","canonical":"/","index":true,"priority":1,"changefreq":"weekly"},
-    {"path":"/solutions","title":"Diagnostic Lab Software Solutions | LIMS, Reporting & Workflow | PathMLT","description":"Explore PathMLT solutions for laboratory reporting, patient management, test configuration, sample workflows, result verification, PDF reports and audit history.","canonical":"/solutions","index":true,"priority":0.8,"changefreq":"monthly"},
-    {"path":"/pricing","title":"Laboratory Management Software Pricing | PathMLT","description":"Explore PathMLT pricing for diagnostic laboratories and choose a reporting workspace that can grow with your patients, tests, reports and team.","canonical":"/pricing","index":true,"priority":0.8,"changefreq":"monthly"},
-    {"path":"/faqs","title":"Laboratory Reporting Software FAQs | PathMLT","description":"Answers about PathMLT laboratory reporting software, implementation, report templates, PDF reports, access controls, workflows and product capabilities.","canonical":"/faqs","index":true,"priority":0.8,"changefreq":"monthly"},
-    {"path":"/faq","title":"Laboratory Software FAQs | PathMLT","description":"Answers about PathMLT laboratory reporting, implementation, report templates, PDF reports and workflow controls.","canonical":"/faqs","index":false},
-    {"path":"/about","title":"About PathMLT | Laboratory Reporting & Management Software","description":"Learn how PathMLT connects the everyday workflow of diagnostic and pathology laboratories from patient registration through verified final reporting.","canonical":"/about","index":true,"priority":0.8,"changefreq":"monthly"},
-    {"path":"/contact","title":"Contact PathMLT | Book a Diagnostic Lab Software Demo","description":"Talk with the PathMLT team about laboratory reporting software, diagnostic lab workflows, implementation and a product walkthrough.","canonical":"/contact","index":true,"priority":0.8,"changefreq":"monthly"},
-    {"path":"/help","title":"PathMLT Help Center | Laboratory Reporting Software","description":"Find practical guidance for using PathMLT laboratory reporting software and managing your laboratory workspace.","canonical":"/help","index":true,"priority":0.6,"changefreq":"monthly"},
-    {"path":"/privacy","title":"Privacy Policy | PathMLT","description":"Read the PathMLT privacy policy and information about data handling.","canonical":"/privacy","index":false},
-    {"path":"/terms","title":"Terms and Conditions | PathMLT","description":"Read the PathMLT terms and conditions for use of the platform.","canonical":"/terms","index":false},
-    {"path":"/login","title":"Login to Your Laboratory Workspace | PathMLT","description":"Securely log in to your PathMLT laboratory workspace.","canonical":"/login","index":false},
-    {"path":"/signup","title":"Create a Laboratory Workspace | PathMLT","description":"Create your PathMLT workspace for diagnostic laboratory reporting and operations.","canonical":"/signup","index":false},
-    {"path":"/forgot-password","title":"Reset Your PathMLT Password","description":"Recover access to your PathMLT laboratory workspace.","canonical":"/forgot-password","index":false},
-    {"path":"/dashboard","title":"Laboratory Dashboard | PathMLT","description":"Manage your PathMLT laboratory workspace.","canonical":"/dashboard","index":false},
-    {"path":"/laboratory-reporting-software","title":"Laboratory Reporting Software for Diagnostic Labs | PathMLT","description":"Build a reliable laboratory reporting workflow from patient registration and testing to result verification and professional PDF reports.","canonical":"/laboratory-reporting-software","index":true,"priority":0.8,"changefreq":"monthly"},
-    {"path":"/diagnostic-lab-software","title":"Diagnostic Lab Software for Modern Laboratory Operations | PathMLT","description":"Connect patients, orders, tests, samples, results and reports in one diagnostic laboratory software workflow.","canonical":"/diagnostic-lab-software","index":true,"priority":0.8,"changefreq":"monthly"},
-    {"path":"/pathology-lab-software","title":"Pathology Lab Software for Reporting & Result Workflows | PathMLT","description":"Organize pathology laboratory workflows with configurable tests, result review, report templates, verification and audit history.","canonical":"/pathology-lab-software","index":true,"priority":0.8,"changefreq":"monthly"},
-    {"path":"/laboratory-management-software","title":"Laboratory Management Software for Diagnostic Labs | PathMLT","description":"Manage laboratory operations, teams, patients, testing, reports and workflow controls from one connected workspace.","canonical":"/laboratory-management-software","index":true,"priority":0.8,"changefreq":"monthly"},
-    {"path":"/lab-reporting-system","title":"Lab Reporting System for Verified Results | PathMLT","description":"Move structured laboratory results through validation, review and final report generation with a repeatable reporting workflow.","canonical":"/lab-reporting-system","index":true,"priority":0.8,"changefreq":"monthly"},
-    {"path":"/pathology-reporting-software","title":"Pathology Reporting Software for Consistent Reports | PathMLT","description":"Create consistent pathology and diagnostic reports with configurable parameters, reference information, review and PDF output.","canonical":"/pathology-reporting-software","index":true,"priority":0.8,"changefreq":"monthly"},
-    {"path":"/lims-software","title":"LIMS Software for Laboratory Reporting Workflows | PathMLT","description":"Connect patient, testing, sample, result and reporting workflows with a focused laboratory information system experience.","canonical":"/lims-software","index":true,"priority":0.8,"changefreq":"monthly"},
-    {"path":"/lab-automation-software","title":"Laboratory Automation Software for Reporting Workflows | PathMLT","description":"Reduce repetitive laboratory reporting handoffs with configurable workflows, result checks, verification and report generation.","canonical":"/lab-automation-software","index":true,"priority":0.8,"changefreq":"monthly"},
-    {"path":"/patient-management","title":"Patient Management Software for Diagnostic Laboratories | PathMLT","description":"Keep patient records, laboratory orders and reports connected with searchable, role-aware patient management.","canonical":"/patient-management","index":true,"priority":0.7,"changefreq":"monthly"},
-    {"path":"/test-management","title":"Laboratory Test Management & Test Catalog Software | PathMLT","description":"Configure laboratory tests, parameters, specimen types, departments and reference information in one test catalog.","canonical":"/test-management","index":true,"priority":0.7,"changefreq":"monthly"},
-    {"path":"/sample-management","title":"Laboratory Sample Management Software | PathMLT","description":"Track samples through patient orders and testing workflows so laboratory teams can see what needs processing and what comes next.","canonical":"/sample-management","index":true,"priority":0.7,"changefreq":"monthly"},
-    {"path":"/result-entry","title":"Laboratory Result Entry Software | PathMLT","description":"Enter structured qualitative and quantitative laboratory results against configured parameters with validation and reference information.","canonical":"/result-entry","index":true,"priority":0.7,"changefreq":"monthly"},
-    {"path":"/result-verification","title":"Laboratory Result Verification Software | PathMLT","description":"Review laboratory values, flags and required results before reports are finalized and released.","canonical":"/result-verification","index":true,"priority":0.7,"changefreq":"monthly"},
-    {"path":"/lab-reporting","title":"Laboratory Reporting Software from Verified Results | PathMLT","description":"Turn verified laboratory results into consistent, professional patient reports without rebuilding documents manually.","canonical":"/lab-reporting","index":true,"priority":0.8,"changefreq":"monthly"},
-    {"path":"/reference-ranges","title":"Laboratory Reference Range Management | PathMLT","description":"Configure parameter-level reference information and keep reporting context consistent with your laboratory workflow.","canonical":"/reference-ranges","index":true,"priority":0.7,"changefreq":"monthly"},
-    {"path":"/audit-trail","title":"Laboratory Audit Trail & Workflow History | PathMLT","description":"Keep important laboratory workflow events, actors and approvals traceable with an operational audit history.","canonical":"/audit-trail","index":true,"priority":0.7,"changefreq":"monthly"},
-    {"path":"/role-based-access","title":"Role-Based Access for Laboratory Teams | PathMLT","description":"Give laboratory teams controlled access to the workflows and responsibilities relevant to their roles.","canonical":"/role-based-access","index":true,"priority":0.7,"changefreq":"monthly"},
-    {"path":"/pdf-reports","title":"PDF Lab Report Software for Diagnostic Laboratories | PathMLT","description":"Generate professional PDF laboratory reports from finalized results using consistent report data and presentation.","canonical":"/pdf-reports","index":true,"priority":0.7,"changefreq":"monthly"},
-    {"path":"/pathology-labs","title":"Laboratory Software for Pathology Labs | PathMLT","description":"Connect pathology laboratory teams around patients, tests, results, verification and controlled report delivery.","canonical":"/pathology-labs","index":true,"priority":0.7,"changefreq":"monthly"},
-    {"path":"/diagnostic-labs","title":"Software for Diagnostic Laboratories | PathMLT","description":"Standardize day-to-day diagnostic laboratory operations from patient registration to verified report delivery.","canonical":"/diagnostic-labs","index":true,"priority":0.7,"changefreq":"monthly"},
-    {"path":"/hospital-labs","title":"Laboratory Workflow Software for Hospital Labs | PathMLT","description":"Organize hospital laboratory testing and reporting around patients, orders, results, team roles and final reports.","canonical":"/hospital-labs","index":true,"priority":0.7,"changefreq":"monthly"},
-    {"path":"/independent-labs","title":"Software for Independent Diagnostic Laboratories | PathMLT","description":"Give independent diagnostic laboratories a practical workspace for patients, testing, reporting and operational controls.","canonical":"/independent-labs","index":true,"priority":0.7,"changefreq":"monthly"}
+    {
+      "path": "/",
+      "title": "Laboratory Reporting Software for Diagnostic Labs | PathMLT",
+      "description": "PathMLT connects patients, orders, tests, samples, results, verification, and professional laboratory reports in one workflow for diagnostic and pathology labs.",
+      "canonical": "/",
+      "index": true,
+      "priority": 1,
+      "changefreq": "weekly"
+    },
+    {
+      "path": "/solutions",
+      "title": "Diagnostic Lab Software Solutions | LIMS, Reporting & Workflow | PathMLT",
+      "description": "Explore laboratory software for patient management, test configuration, sample workflows, result verification, PDF reports, access control, and audit history.",
+      "canonical": "/solutions",
+      "index": true,
+      "priority": 0.8,
+      "changefreq": "monthly"
+    },
+    {
+      "path": "/pricing",
+      "title": "Laboratory Management Software Pricing | PathMLT",
+      "description": "Compare PathMLT pricing for laboratory reporting software, including the 30-day trial, Monthly and Yearly plans, report generation, and team workflows.",
+      "canonical": "/pricing",
+      "index": true,
+      "priority": 0.8,
+      "changefreq": "monthly"
+    },
+    {
+      "path": "/faqs",
+      "title": "Laboratory Reporting Software FAQs | PathMLT",
+      "description": "Find answers about PathMLT laboratory reporting software, test setup, result verification, PDF reports, access responsibilities, implementation, and plans.",
+      "canonical": "/faqs",
+      "index": true,
+      "priority": 0.8,
+      "changefreq": "monthly"
+    },
+    {
+      "path": "/about",
+      "title": "About PathMLT | Laboratory Reporting & Management Software",
+      "description": "Learn how PathMLT helps diagnostic, pathology, hospital, and independent laboratories connect testing, verification, and professional report delivery.",
+      "canonical": "/about",
+      "index": true,
+      "priority": 0.8,
+      "changefreq": "monthly"
+    },
+    {
+      "path": "/contact",
+      "title": "Contact PathMLT | Book a Diagnostic Lab Software Demo",
+      "description": "Talk to PathMLT about laboratory reporting software, test configuration, result verification, PDF reports, pricing, onboarding, and your workflow.",
+      "canonical": "/contact",
+      "index": true,
+      "priority": 0.8,
+      "changefreq": "monthly"
+    },
+    {
+      "path": "/help",
+      "title": "PathMLT Help Center | Laboratory Reporting Software",
+      "description": "Use the PathMLT implementation center to plan laboratory setup, test configuration, result verification, report delivery, access, and daily operations.",
+      "canonical": "/help",
+      "index": true,
+      "priority": 0.6,
+      "changefreq": "monthly"
+    },
+    {
+      "path": "/privacy",
+      "title": "Privacy Policy | PathMLT",
+      "description": "Read the PathMLT privacy policy and information about data handling.",
+      "canonical": "/privacy",
+      "index": false
+    },
+    {
+      "path": "/terms",
+      "title": "Terms and Conditions | PathMLT",
+      "description": "Read the PathMLT terms and conditions for use of the platform.",
+      "canonical": "/terms",
+      "index": false
+    },
+    {
+      "path": "/login",
+      "title": "Login to Your Laboratory Workspace | PathMLT",
+      "description": "Securely log in to your PathMLT laboratory workspace.",
+      "canonical": "/login",
+      "index": false
+    },
+    {
+      "path": "/signup",
+      "title": "Create a Laboratory Workspace | PathMLT",
+      "description": "Create your PathMLT workspace for diagnostic laboratory reporting and operations.",
+      "canonical": "/signup",
+      "index": false
+    },
+    {
+      "path": "/forgot-password",
+      "title": "Reset Your PathMLT Password",
+      "description": "Recover access to your PathMLT laboratory workspace.",
+      "canonical": "/forgot-password",
+      "index": false
+    },
+    {
+      "path": "/dashboard",
+      "title": "Laboratory Dashboard | PathMLT",
+      "description": "Manage your PathMLT laboratory workspace.",
+      "canonical": "/dashboard",
+      "index": false
+    },
+    {
+      "path": "/laboratory-reporting-software",
+      "title": "Laboratory Reporting Software for Diagnostic Labs | PathMLT",
+      "description": "Run patient, order, test, result, verification, and final report workflows in one laboratory reporting workspace.",
+      "canonical": "/laboratory-reporting-software",
+      "index": true,
+      "priority": 0.8,
+      "changefreq": "monthly"
+    },
+    {
+      "path": "/diagnostic-lab-software",
+      "title": "Diagnostic Lab Software for Modern Laboratory Operations | PathMLT",
+      "description": "Connect recurring patient, testing, verification, and report operations with software designed for diagnostic laboratories.",
+      "canonical": "/diagnostic-lab-software",
+      "index": true,
+      "priority": 0.8,
+      "changefreq": "monthly"
+    },
+    {
+      "path": "/pathology-lab-software",
+      "title": "Pathology Lab Software for Reporting & Result Workflows | PathMLT",
+      "description": "Configure pathology tests, parameters, review steps, report templates, and final reporting in one pathology laboratory workflow.",
+      "canonical": "/pathology-lab-software",
+      "index": true,
+      "priority": 0.8,
+      "changefreq": "monthly"
+    },
+    {
+      "path": "/laboratory-management-software",
+      "title": "Laboratory Management Software for Diagnostic Labs | PathMLT",
+      "description": "Manage patients, tests, samples, results, reports, users, and operational controls from one laboratory management workspace.",
+      "canonical": "/laboratory-management-software",
+      "index": true,
+      "priority": 0.8,
+      "changefreq": "monthly"
+    },
+    {
+      "path": "/lab-reporting-system",
+      "title": "Lab Reporting System for Verified Results | PathMLT",
+      "description": "Move structured laboratory results through entry, validation, verification, finalization, and professional PDF report generation.",
+      "canonical": "/lab-reporting-system",
+      "index": true,
+      "priority": 0.8,
+      "changefreq": "monthly"
+    },
+    {
+      "path": "/pathology-reporting-software",
+      "title": "Pathology Reporting Software for Consistent Reports | PathMLT",
+      "description": "Create consistent pathology reports with configurable parameters, reference information, review, finalization, and PDF output.",
+      "canonical": "/pathology-reporting-software",
+      "index": true,
+      "priority": 0.8,
+      "changefreq": "monthly"
+    },
+    {
+      "path": "/lims-software",
+      "title": "LIMS Software for Laboratory Reporting Workflows | PathMLT",
+      "description": "Connect patient, order, test, sample, result, verification, reporting, and workflow history in a focused LIMS-style workspace.",
+      "canonical": "/lims-software",
+      "index": true,
+      "priority": 0.8,
+      "changefreq": "monthly"
+    },
+    {
+      "path": "/lab-automation-software",
+      "title": "Laboratory Automation Software for Reporting Workflows | PathMLT",
+      "description": "Reduce repetitive laboratory reporting handoffs with reusable test configuration, result checks, verification, and report generation.",
+      "canonical": "/lab-automation-software",
+      "index": true,
+      "priority": 0.8,
+      "changefreq": "monthly"
+    },
+    {
+      "path": "/patient-management",
+      "title": "Patient Management Software for Diagnostic Laboratories | PathMLT",
+      "description": "Keep patient records, laboratory orders, tests, and completed reports connected with searchable, role-aware patient management.",
+      "canonical": "/patient-management",
+      "index": true,
+      "priority": 0.7,
+      "changefreq": "monthly"
+    },
+    {
+      "path": "/test-management",
+      "title": "Laboratory Test Management & Test Catalog Software | PathMLT",
+      "description": "Configure laboratory tests, parameters, specimen types, departments, methods, and reference information in a reusable test catalog.",
+      "canonical": "/test-management",
+      "index": true,
+      "priority": 0.7,
+      "changefreq": "monthly"
+    },
+    {
+      "path": "/sample-management",
+      "title": "Laboratory Sample Management Software | PathMLT",
+      "description": "Keep samples connected to patient orders and configured tests so laboratory teams can follow processing and reporting context.",
+      "canonical": "/sample-management",
+      "index": true,
+      "priority": 0.7,
+      "changefreq": "monthly"
+    },
+    {
+      "path": "/result-entry",
+      "title": "Laboratory Result Entry Software | PathMLT",
+      "description": "Enter numeric, text, select, boolean, date, and qualitative laboratory results against configured parameters for consistent reporting.",
+      "canonical": "/result-entry",
+      "index": true,
+      "priority": 0.7,
+      "changefreq": "monthly"
+    },
+    {
+      "path": "/result-verification",
+      "title": "Laboratory Result Verification Software | PathMLT",
+      "description": "Review laboratory values, flags, required parameters, reference information, and report context before final release.",
+      "canonical": "/result-verification",
+      "index": true,
+      "priority": 0.7,
+      "changefreq": "monthly"
+    },
+    {
+      "path": "/lab-reporting",
+      "title": "Laboratory Reporting Software from Verified Results | PathMLT",
+      "description": "Turn verified laboratory results into consistent patient reports with configured presentation, finalization, PDF output, and delivery.",
+      "canonical": "/lab-reporting",
+      "index": true,
+      "priority": 0.8,
+      "changefreq": "monthly"
+    },
+    {
+      "path": "/reference-ranges",
+      "title": "Laboratory Reference Range Management | PathMLT",
+      "description": "Manage parameter-level laboratory reference information so result review, flagging, and report context stay consistent.",
+      "canonical": "/reference-ranges",
+      "index": true,
+      "priority": 0.7,
+      "changefreq": "monthly"
+    },
+    {
+      "path": "/audit-trail",
+      "title": "Laboratory Audit Trail & Workflow History | PathMLT",
+      "description": "Review laboratory workflow events, actors, approvals, and important changes with an operational audit history.",
+      "canonical": "/audit-trail",
+      "index": true,
+      "priority": 0.7,
+      "changefreq": "monthly"
+    },
+    {
+      "path": "/role-based-access",
+      "title": "Role-Based Access for Laboratory Teams | PathMLT",
+      "description": "Separate laboratory responsibilities with authenticated, role-aware access for administrative, technical, and operational teams.",
+      "canonical": "/role-based-access",
+      "index": true,
+      "priority": 0.7,
+      "changefreq": "monthly"
+    },
+    {
+      "path": "/pdf-reports",
+      "title": "PDF Lab Report Software for Diagnostic Laboratories | PathMLT",
+      "description": "Generate professional PDF laboratory reports from finalized results using consistent report data, formatting, and laboratory identity.",
+      "canonical": "/pdf-reports",
+      "index": true,
+      "priority": 0.7,
+      "changefreq": "monthly"
+    },
+    {
+      "path": "/pathology-labs",
+      "title": "Laboratory Software for Pathology Labs | PathMLT",
+      "description": "Connect pathology patient, test, result, review, verification, and report workflows in one configurable laboratory workspace.",
+      "canonical": "/pathology-labs",
+      "index": true,
+      "priority": 0.7,
+      "changefreq": "monthly"
+    },
+    {
+      "path": "/diagnostic-labs",
+      "title": "Software for Diagnostic Laboratories | PathMLT",
+      "description": "Standardize diagnostic laboratory operations from patient registration and testing through verified report delivery.",
+      "canonical": "/diagnostic-labs",
+      "index": true,
+      "priority": 0.7,
+      "changefreq": "monthly"
+    },
+    {
+      "path": "/hospital-labs",
+      "title": "Laboratory Workflow Software for Hospital Labs | PathMLT",
+      "description": "Coordinate hospital laboratory patients, orders, results, team responsibilities, verification, and final reporting in one workspace.",
+      "canonical": "/hospital-labs",
+      "index": true,
+      "priority": 0.7,
+      "changefreq": "monthly"
+    },
+    {
+      "path": "/independent-labs",
+      "title": "Software for Independent Diagnostic Laboratories | PathMLT",
+      "description": "Give independent diagnostic laboratories a practical workspace for patient records, testing, verification, reporting, and access control.",
+      "canonical": "/independent-labs",
+      "index": true,
+      "priority": 0.7,
+      "changefreq": "monthly"
+    }
   ]
 }

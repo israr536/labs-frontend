@@ -1,5 +1,4 @@
 import { ArrowRight, CheckCircle2, ShieldCheck } from 'lucide-react';
-import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 export type SeoPageKey =
@@ -173,25 +172,6 @@ export default function SeoLandingPage({ pageKey }: { pageKey: SeoPageKey }) {
   const capabilityTitle = `Capabilities to evaluate for ${page.eyebrow.toLowerCase()}`;
   const useCaseTitle = `Practical ${page.eyebrow.toLowerCase()} use cases`;
 
-  useEffect(() => {
-    const id = 'pathmlt-seo-faq-schema';
-    document.getElementById(id)?.remove();
-    const script = document.createElement('script');
-    script.id = id;
-    script.type = 'application/ld+json';
-    script.textContent = JSON.stringify({
-      '@context': 'https://schema.org',
-      '@type': 'FAQPage',
-      mainEntity: depth.faq.map(([question, answer]) => ({
-        '@type': 'Question',
-        name: question,
-        acceptedAnswer: { '@type': 'Answer', text: answer }
-      }))
-    });
-    document.head.appendChild(script);
-    return () => document.getElementById(id)?.remove();
-  }, [depth.faq]);
-
   return <div className="public-saas-page seo-landing-page">
     <nav className="seo-breadcrumbs" aria-label="Breadcrumb"><Link to="/">Home</Link><span aria-hidden="true">/</span><span>{page.title}</span></nav>
 
@@ -202,7 +182,7 @@ export default function SeoLandingPage({ pageKey }: { pageKey: SeoPageKey }) {
         <p>{page.description}</p>
         <div className="seo-actions"><Link className="landing-primary" to="/signup">Create your laboratory workspace <ArrowRight size={16}/></Link><Link className="landing-secondary" to="/contact">Talk to the team</Link></div>
       </div>
-      <div className="seo-hero-card"><ShieldCheck size={22}/><strong>{page.eyebrow}: what the workflow should achieve</strong><p>{page.focus} The goal is a clear operational handoff from the work your team performs to the information the next person needs.</p></div>
+        <div className="seo-hero-card"><ShieldCheck size={22}/><strong>What a useful {page.eyebrow.toLowerCase()} workflow should achieve</strong><p>{page.focus} The goal is to give the next person the context, status, and configured information needed to continue the work.</p></div>
     </section>
 
     <section className="seo-intent">
@@ -217,7 +197,7 @@ export default function SeoLandingPage({ pageKey }: { pageKey: SeoPageKey }) {
       <div className="landing-section-heading">
         <span className="landing-eyebrow">{page.eyebrow}</span>
         <h2 id="seo-workflow-title">{workflowTitle}.</h2>
-        <p>These stages describe the operational path for this specific use case. The exact sequence and responsibilities should reflect the laboratory's own configured process.</p>
+        <p>These stages show how this capability can fit into a laboratory process. Your team can adapt the sequence and responsibilities to the tests, roles, and reporting standards used in your operation.</p>
       </div>
       <div className="seo-workflow-grid">{page.steps.map(([title,text],i)=><article key={title}><span>{String(i+1).padStart(2,'0')}</span><h3>{title}</h3><p>{text}</p></article>)}</div>
     </section>
@@ -226,7 +206,7 @@ export default function SeoLandingPage({ pageKey }: { pageKey: SeoPageKey }) {
       <div className="landing-section-heading">
         <span className="landing-eyebrow">What to look for</span>
         <h2>{capabilityTitle}.</h2>
-        <p>Useful laboratory software should support the specific work behind this search intent, not simply provide a generic document editor or a collection of disconnected screens.</p>
+        <p>Evaluate this capability by the work it supports: the records your team maintains, the decisions it reviews, and the handoff that must be reliable when a report moves forward.</p>
       </div>
       <div className="seo-benefit-grid">{page.benefits.map(item=><article key={item}><CheckCircle2 size={17}/><span>{item}</span></article>)}</div>
     </section>
@@ -235,15 +215,15 @@ export default function SeoLandingPage({ pageKey }: { pageKey: SeoPageKey }) {
       <div className="landing-section-heading">
         <span className="landing-eyebrow">Operational scenarios</span>
         <h2>{useCaseTitle}.</h2>
-        <p>Consider how this capability affects the people, records and handoffs involved in day-to-day laboratory work.</p>
+        <p>Use these scenarios to decide whether the workflow matches the people, records, and handoffs involved in your laboratory’s daily operation.</p>
       </div>
       <div className="seo-use-case-grid">{depth.useCases.map((item,index)=><article key={item}><span>{String(index+1).padStart(2,'0')}</span><p>{item}</p></article>)}</div>
     </section>
 
     <section className="seo-faq" aria-labelledby="seo-faq-title">
       <div className="landing-section-heading">
-        <span className="landing-eyebrow">Questions to consider</span>
-        <h2 id="seo-faq-title">Common questions about {page.eyebrow.toLowerCase()}.</h2>
+        <span className="landing-eyebrow">Questions before implementation</span>
+        <h2 id="seo-faq-title">Questions about {page.eyebrow.toLowerCase()}.</h2>
       </div>
       <div className="seo-faq-list">{depth.faq.map(([question,answer])=><details key={question}><summary>{question}</summary><p>{answer}</p></details>)}</div>
     </section>
@@ -252,7 +232,7 @@ export default function SeoLandingPage({ pageKey }: { pageKey: SeoPageKey }) {
       <div className="landing-section-heading">
         <span className="landing-eyebrow">Inside PathMLT</span>
         <h2 id="seo-product-evidence-title">See the product workflow behind this capability.</h2>
-        <p>PathMLT is built around connected laboratory records and configurable workflows. The examples below describe product workflows implemented in the application, rather than generic software promises.</p>
+        <p>PathMLT is built around connected laboratory records and configurable workflows. The examples below describe product workflows available in the application, while exact fields, permissions, and report configuration can vary by laboratory setup.</p>
       </div>
       <div className="seo-product-evidence-grid">
         <article>
@@ -281,8 +261,8 @@ export default function SeoLandingPage({ pageKey }: { pageKey: SeoPageKey }) {
         </article>
       </div>
       <div className="seo-evidence-note">
-        <strong>Product-specific, not placeholder copy.</strong>
-        <span>These examples are tied to PathMLT's current frontend workflow and test-catalog model. Exact fields, permissions and report configuration can vary by laboratory setup.</span>
+        <strong>Evaluate the workflow, not just the feature list.</strong>
+        <span>Use these product examples with your own panels, report standards, and team responsibilities during implementation planning.</span>
       </div>
     </section>
 
@@ -298,8 +278,8 @@ export default function SeoLandingPage({ pageKey }: { pageKey: SeoPageKey }) {
     <section className="seo-workflow-links" aria-labelledby="seo-workflow-links-title">
       <div className="landing-section-heading">
         <span className="landing-eyebrow">Continue through the workflow</span>
-        <h2 id="seo-workflow-links-title">Explore the connected laboratory workflow.</h2>
-        <p>These product areas are intentionally linked so visitors can move from the capability they are researching to the operational steps around it.</p>
+        <h2 id="seo-workflow-links-title">Connect this capability to the rest of laboratory reporting.</h2>
+        <p>Move from the feature you are researching to the operational steps around it, so your team can evaluate a complete workflow instead of an isolated screen.</p>
       </div>
       <div className="seo-related-links">
         <Link to="/patient-management"><span>Patient management</span><ArrowRight size={14}/></Link>
@@ -312,13 +292,13 @@ export default function SeoLandingPage({ pageKey }: { pageKey: SeoPageKey }) {
     </section>
 
     <section className="seo-related">
-      <div><span className="landing-eyebrow">Related workflows</span><h2>See how this connects to the rest of the laboratory.</h2><p>Explore adjacent PathMLT workflows rather than treating this capability as an isolated feature.</p></div>
+      <div><span className="landing-eyebrow">Related workflows</span><h2>See how this capability connects to the rest of the laboratory.</h2><p>Explore adjacent PathMLT workflows and compare the handoffs that surround this part of the operation.</p></div>
       <div className="seo-related-links">{page.related.filter((slug,index,array)=>array.indexOf(slug)===index).map(slug=><Link key={slug} to={'/'+slug}><span>{common[slug].title}</span><ArrowRight size={14}/></Link>)}</div>
     </section>
 
     <section className="landing-cta">
-      <div><span className="landing-eyebrow">Apply the workflow</span><h2>See how {page.eyebrow.toLowerCase()} could fit your laboratory.</h2><p>Start with the process your team performs most often and discuss the configuration, reporting and access requirements that matter to you.</p></div>
-      <Link className="landing-primary" to="/contact">Request a PathMLT walkthrough <ArrowRight size={16}/></Link>
+      <div><span className="landing-eyebrow">Apply the workflow</span><h2>See how {page.eyebrow.toLowerCase()} could fit your laboratory.</h2><p>Start with the process your team performs most often. Then discuss the configuration, report format, access responsibilities, and implementation support that matter to you.</p></div>
+      <Link className="landing-primary" to="/contact">Plan a workflow walkthrough <ArrowRight size={16}/></Link>
     </section>
   </div>;
 }

@@ -3,11 +3,11 @@ import { Link } from 'react-router-dom';
 
 export type SeoPageKey =
   | 'laboratory-reporting-software' | 'diagnostic-lab-software' | 'pathology-lab-software'
-  | 'laboratory-management-software' | 'lab-reporting-system' | 'pathology-lab-software'
+  | 'laboratory-management-software' | 'lab-reporting-system' | 'pathology-reporting-software'
   | 'lims-software' | 'lab-automation-software' | 'patient-management' | 'test-management'
-  | 'sample-management' | 'result-entry' | 'result-verification' | 'laboratory-reporting-software'
+  | 'sample-management' | 'result-entry' | 'result-verification' | 'lab-reporting'
   | 'report-templates' | 'reference-ranges' | 'audit-trail' | 'role-based-access'
-  | 'pdf-reports' | 'pathology-labs' | 'diagnostic-lab-software' | 'hospital-labs' | 'independent-labs';
+  | 'pdf-reports' | 'pathology-labs' | 'diagnostic-labs' | 'hospital-labs' | 'independent-labs';
 
 type PageData = {
   eyebrow: string; title: string; description: string; focus: string; audience: string;

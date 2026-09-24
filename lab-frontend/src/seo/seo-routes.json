@@ -6,8 +6,8 @@
   "routes": [
     {
       "path": "/",
-      "title": "Laboratory Reporting Software for Diagnostic Labs | PathMLT",
-      "description": "PathMLT connects patients, orders, tests, samples, results, verification, and professional laboratory reports in one workflow for diagnostic and pathology labs.",
+      "title": "PathMLT | Laboratory Reporting, Management & Workflow Software",
+      "description": "Connected laboratory reporting, management, result verification and workflow software for diagnostic and pathology labs.",
       "canonical": "/",
       "index": true,
       "priority": 1,

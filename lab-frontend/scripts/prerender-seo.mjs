@@ -1,26 +1,17 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const root = process.cwd();
+const seo = JSON.parse(fs.readFileSync(path.join(root, 'src/seo/seo-routes.json'), 'utf8'));
+const template = fs.readFileSync(path.join(root, 'dist/index.html'), 'utf8');
 
-const seo = JSON.parse(
-  fs.readFileSync(
-    path.join(root, 'src/seo/seo-routes.json'),
-    'utf8'
-  )
-);
+const serverEntry = path.join(root, 'dist-server', 'entry-server.js');
+if (!fs.existsSync(serverEntry)) {
+  throw new Error('SSR bundle not found. Run the Vite SSR build before prerendering.');
+}
 
-const template = fs.readFileSync(
-  path.join(root, 'dist/index.html'),
-  'utf8'
-);
-
-const faqSchema = JSON.parse(
-  fs.readFileSync(
-    path.join(root, 'src/seo/faq-schema.json'),
-    'utf8'
-  )
-);
+const { render } = await import(pathToFileURL(serverEntry).href);
 
 function escapeHtml(value) {
   return String(value)
@@ -34,133 +25,32 @@ function escapeRegExp(value) {
   return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-function pageHeading(entry) {
-  return entry.title.replace(/\s*\|\s*PathMLT$/, '');
-}
-
-function staticBody(entry) {
-  const heading = pageHeading(entry);
-  const relatedLinks = [
-    ['/solutions', 'Solutions'],
-    ['/laboratory-reporting-software', 'Laboratory reporting software'],
-    ['/patient-management', 'Patient management'],
-    ['/result-verification', 'Result verification'],
-    ['/lab-reporting', 'Lab reporting'],
-    ['/contact', 'Contact PathMLT']
-  ].filter(([href]) => href !== entry.path);
-
-  const links = relatedLinks
-    .map(([href, label]) => `<a href="${href}">${label}</a>`)
-    .join(' · ');
-
-  const faqContent = entry.path === '/faqs'
-    ? `<section aria-labelledby="faq-heading"><h2 id="faq-heading">Frequently asked questions</h2>${faqSchema.questions
-      .map(([question, answer]) => `<details><summary>${escapeHtml(question)}</summary><p>${escapeHtml(answer)}</p></details>`)
-      .join('')}</section>`
-    : '';
-
-  return `<main id="seo-content" data-seo-prerendered="true"><nav aria-label="Primary navigation"><a href="/">Home</a> · ${links}</nav><article><p class="seo-eyebrow">PathMLT laboratory software</p><h1>${escapeHtml(heading)}</h1><p>${escapeHtml(entry.description)}</p><h2>Connect your laboratory workflow</h2><p>PathMLT helps diagnostic and pathology laboratories organize patients, tests, samples, results, verification and professional reporting in one connected workspace. Explore the workflow, compare capabilities, and contact the team for an implementation discussion.</p><p><a href="/contact">Request a workflow review</a> · <a href="/pricing">View pricing</a></p>${faqContent}</article></main>`;
-}
-
-function injectStaticBody(html, entry) {
-  const body = staticBody(entry);
-  return html.replace(/<div id="root"><\/div>/i, `<div id="root">${body}</div>`);
-}
-
 function upsertMeta(html, name, content) {
-  const tag =
-    `<meta name="${escapeHtml(name)}" content="${escapeHtml(content)}" />`;
-
-  const escapedName = escapeRegExp(name);
-
-  const re = new RegExp(
-    `<meta\\s+name=["']${escapedName}["'][^>]*>`,
-    'i'
-  );
-
-  if (re.test(html)) {
-    return html.replace(re, tag);
-  }
-
-  return html.replace(
-    '</head>',
-    `    ${tag}\n  </head>`
-  );
+  const tag = `<meta name="${escapeHtml(name)}" content="${escapeHtml(content)}" />`;
+  const re = new RegExp(`<meta\\s+name=["']${escapeRegExp(name)}["'][^>]*>`, 'i');
+  return re.test(html) ? html.replace(re, tag) : html.replace('</head>', `    ${tag}\n  </head>`);
 }
 
 function upsertProperty(html, property, content) {
-  const tag =
-    `<meta property="${escapeHtml(property)}" content="${escapeHtml(content)}" />`;
-
-  const escapedProperty = escapeRegExp(property);
-
-  const re = new RegExp(
-    `<meta\\s+property=["']${escapedProperty}["'][^>]*>`,
-    'i'
-  );
-
-  if (re.test(html)) {
-    return html.replace(re, tag);
-  }
-
-  return html.replace(
-    '</head>',
-    `    ${tag}\n  </head>`
-  );
+  const tag = `<meta property="${escapeHtml(property)}" content="${escapeHtml(content)}" />`;
+  const re = new RegExp(`<meta\\s+property=["']${escapeRegExp(property)}["'][^>]*>`, 'i');
+  return re.test(html) ? html.replace(re, tag) : html.replace('</head>', `    ${tag}\n  </head>`);
 }
 
 function upsertCanonical(html, href) {
-  const tag =
-    `<link rel="canonical" href="${escapeHtml(href)}" />`;
-
+  const tag = `<link rel="canonical" href="${escapeHtml(href)}" />`;
   const re = /<link\s+rel=["']canonical["'][^>]*>/i;
-
-  if (re.test(html)) {
-    return html.replace(re, tag);
-  }
-
-  return html.replace(
-    '</head>',
-    `    ${tag}\n  </head>`
-  );
+  return re.test(html) ? html.replace(re, tag) : html.replace('</head>', `    ${tag}\n  </head>`);
 }
 
 function upsertTitle(html, title) {
-  const tag =
-    `<title>${escapeHtml(title)}</title>`;
-
+  const tag = `<title>${escapeHtml(title)}</title>`;
   const re = /<title>[^<]*<\/title>/i;
-
-  if (re.test(html)) {
-    return html.replace(re, tag);
-  }
-
-  return html.replace(
-    '</head>',
-    `    ${tag}\n  </head>`
-  );
-}
-
-function upsertJsonLd(html, data) {
-  const tag =
-    `<script id="pathmlt-structured-data" type="application/ld+json">${JSON.stringify(data)}</script>`;
-
-  const re =
-    /<script id=["']pathmlt-structured-data["'][^>]*>[\s\S]*?<\/script>/i;
-
-  if (re.test(html)) {
-    return html.replace(re, tag);
-  }
-
-  return html.replace(
-    '</head>',
-    `    ${tag}\n  </head>`
-  );
+  return re.test(html) ? html.replace(re, tag) : html.replace('</head>', `    ${tag}\n  </head>`);
 }
 
 function buildStructuredData(entry) {
   const canonicalUrl = seo.siteUrl + entry.canonical;
-
   const graph = [
     {
       '@type': 'Organization',
@@ -168,16 +58,14 @@ function buildStructuredData(entry) {
       name: seo.siteName,
       url: seo.siteUrl,
       email: 'support@pathmlt.com',
-      areaServed: 'IN'
+      areaServed: 'IN',
     },
     {
       '@type': 'WebSite',
       '@id': `${seo.siteUrl}/#website`,
       name: seo.siteName,
       url: seo.siteUrl,
-      publisher: {
-        '@id': `${seo.siteUrl}/#organization`
-      }
+      publisher: { '@id': `${seo.siteUrl}/#organization` },
     },
     {
       '@type': 'SoftwareApplication',
@@ -185,12 +73,9 @@ function buildStructuredData(entry) {
       name: seo.siteName,
       applicationCategory: 'BusinessApplication',
       operatingSystem: 'Web',
-      description:
-        'Laboratory reporting and management software for diagnostic and pathology laboratories.',
+      description: 'Laboratory reporting and management software for diagnostic and pathology laboratories.',
       url: seo.siteUrl,
-      publisher: {
-        '@id': `${seo.siteUrl}/#organization`
-      }
+      publisher: { '@id': `${seo.siteUrl}/#organization` },
     },
     {
       '@type': 'WebPage',
@@ -198,13 +83,9 @@ function buildStructuredData(entry) {
       name: entry.title,
       description: entry.description,
       url: canonicalUrl,
-      isPartOf: {
-        '@id': `${seo.siteUrl}/#website`
-      },
-      publisher: {
-        '@id': `${seo.siteUrl}/#organization`
-      }
-    }
+      isPartOf: { '@id': `${seo.siteUrl}/#website` },
+      publisher: { '@id': `${seo.siteUrl}/#organization` },
+    },
   ];
 
   if (entry.index && entry.path !== '/') {
@@ -212,218 +93,104 @@ function buildStructuredData(entry) {
       '@type': 'BreadcrumbList',
       '@id': `${canonicalUrl}#breadcrumb`,
       itemListElement: [
-        {
-          '@type': 'ListItem',
-          position: 1,
-          name: 'Home',
-          item: seo.siteUrl
-        },
-        {
-          '@type': 'ListItem',
-          position: 2,
-          name: entry.title.replace(/\s*\|\s*PathMLT$/, ''),
-          item: canonicalUrl
-        }
-      ]
+        { '@type': 'ListItem', position: 1, name: 'Home', item: seo.siteUrl },
+        { '@type': 'ListItem', position: 2, name: entry.title.replace(/\s*\|\s*PathMLT$/, ''), item: canonicalUrl },
+      ],
     });
   }
 
   if (entry.path === '/faqs') {
+    const faqSchema = JSON.parse(fs.readFileSync(path.join(root, 'src/seo/faq-schema.json'), 'utf8'));
     graph.push({
       '@type': 'FAQPage',
       '@id': `${canonicalUrl}#faq`,
       mainEntity: faqSchema.questions.map(([question, answer]) => ({
         '@type': 'Question',
         name: question,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: answer
-        }
-      }))
+        acceptedAnswer: { '@type': 'Answer', text: answer },
+      })),
     });
   }
 
-  return {
-    '@context': 'https://schema.org',
-    '@graph': graph
-  };
+  return { '@context': 'https://schema.org', '@graph': graph };
 }
 
-function render(entry) {
+function renderDocument(templateHtml, entry, body) {
   const canonicalUrl = seo.siteUrl + entry.canonical;
+  const robots = entry.index ? 'index, follow' : 'noindex, nofollow';
+  let html = templateHtml;
 
-  const robots = entry.index
-    ? 'index, follow'
-    : 'noindex, nofollow';
-
-  let html = template;
-
-  html = upsertTitle(
-    html,
-    entry.title
+  html = upsertTitle(html, entry.title);
+  html = upsertMeta(html, 'description', entry.description);
+  html = upsertMeta(html, 'robots', robots);
+  html = upsertMeta(html, 'googlebot', robots);
+  html = upsertMeta(html, 'author', seo.siteName);
+  html = upsertProperty(html, 'og:type', 'website');
+  html = upsertProperty(html, 'og:site_name', seo.siteName);
+  html = upsertProperty(html, 'og:title', entry.title);
+  html = upsertProperty(html, 'og:description', entry.description);
+  html = upsertProperty(html, 'og:url', canonicalUrl);
+  html = upsertProperty(html, 'og:locale', seo.defaultLocale);
+  html = upsertProperty(html, 'og:image', seo.ogImage);
+  html = upsertProperty(html, 'og:image:alt', 'PathMLT laboratory reporting software');
+  html = upsertProperty(html, 'og:image:type', 'image/png');
+  html = upsertProperty(html, 'og:image:width', '1200');
+  html = upsertProperty(html, 'og:image:height', '630');
+  html = upsertMeta(html, 'twitter:card', 'summary_large_image');
+  html = upsertMeta(html, 'twitter:title', entry.title);
+  html = upsertMeta(html, 'twitter:description', entry.description);
+  html = upsertMeta(html, 'twitter:image', seo.ogImage);
+  html = upsertMeta(html, 'twitter:image:alt', 'PathMLT laboratory reporting software');
+  html = upsertCanonical(html, canonicalUrl);
+  html = html.replace(
+    /<script id=["']pathmlt-structured-data["'][^>]*>[\s\S]*?<\/script>/i,
+    `<script id="pathmlt-structured-data" type="application/ld+json">${JSON.stringify(buildStructuredData(entry))}</script>`,
+  );
+  html = html.replace(
+    /<div id=["']root["'][^>]*><\/div>/i,
+    `<div id="root" data-prerendered="true">${body}</div>`,
   );
 
-  html = upsertMeta(
-    html,
-    'description',
-    entry.description
-  );
+  if (!html.includes('data-prerendered="true"')) {
+    throw new Error(`Could not inject prerendered content for ${entry.path}`);
+  }
 
-  html = upsertMeta(
-    html,
-    'robots',
-    robots
-  );
-
-  html = upsertMeta(
-    html,
-    'googlebot',
-    robots
-  );
-
-  html = upsertMeta(
-    html,
-    'author',
-    seo.siteName
-  );
-
-  html = upsertProperty(
-    html,
-    'og:type',
-    'website'
-  );
-
-  html = upsertProperty(
-    html,
-    'og:site_name',
-    seo.siteName
-  );
-
-  html = upsertProperty(
-    html,
-    'og:title',
-    entry.title
-  );
-
-  html = upsertProperty(
-    html,
-    'og:description',
-    entry.description
-  );
-
-  html = upsertProperty(
-    html,
-    'og:url',
-    canonicalUrl
-  );
-
-  html = upsertProperty(
-    html,
-    'og:locale',
-    seo.defaultLocale
-  );
-
-  html = upsertProperty(
-    html,
-    'og:image',
-    seo.ogImage
-  );
-
-  html = upsertProperty(
-    html,
-    'og:image:alt',
-    'PathMLT laboratory reporting software'
-  );
-
-  html = upsertProperty(
-    html,
-    'og:image:type',
-    'image/png'
-  );
-
-  html = upsertProperty(
-    html,
-    'og:image:width',
-    '1200'
-  );
-
-  html = upsertProperty(
-    html,
-    'og:image:height',
-    '630'
-  );
-
-  html = upsertMeta(
-    html,
-    'twitter:card',
-    'summary_large_image'
-  );
-
-  html = upsertMeta(
-    html,
-    'twitter:title',
-    entry.title
-  );
-
-  html = upsertMeta(
-    html,
-    'twitter:description',
-    entry.description
-  );
-
-  html = upsertMeta(
-    html,
-    'twitter:image',
-    seo.ogImage
-  );
-
-  html = upsertMeta(
-    html,
-    'twitter:image:alt',
-    'PathMLT laboratory reporting software'
-  );
-
-  html = upsertCanonical(
-    html,
-    canonicalUrl
-  );
-
-  html = upsertJsonLd(
-    html,
-    buildStructuredData(entry)
-  );
-
-  return injectStaticBody(html, entry);
+  return html;
 }
 
 const entries = seo.routes.filter(
   (entry) =>
-    entry.canonical === entry.path
+    entry.canonical === entry.path &&
+    entry.path !== '/dashboard' &&
+    entry.path !== '/report-templates'
 );
 
 for (const entry of entries) {
-  const route =
-    entry.path === '/'
-      ? ''
-      : entry.path.slice(1);
+  const pathname = entry.path === '/' ? '/' : entry.path;
+  const body = await render(pathname);
 
-  const outputDir = path.join(
-    root,
-    'dist',
-    route
-  );
+  const h1Count = (body.match(/<h1\b/gi) || []).length;
+  if (h1Count !== 1) {
+    throw new Error(`${entry.path} rendered ${h1Count} H1 elements; expected exactly one.`);
+  }
 
-  fs.mkdirSync(
-    outputDir,
-    { recursive: true }
-  );
+  const textLength = body
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .length;
 
-  fs.writeFileSync(
-    path.join(outputDir, 'index.html'),
-    render(entry)
-  );
+  if (entry.index && textLength < 700) {
+    throw new Error(`${entry.path} produced only ${textLength} characters of prerendered text.`);
+  }
+
+  const outputDir = entry.path === '/' ? path.join(root, 'dist') : path.join(root, 'dist', entry.path.slice(1));
+  fs.mkdirSync(outputDir, { recursive: true });
+  fs.writeFileSync(path.join(outputDir, 'index.html'), renderDocument(template, entry, body), 'utf8');
 }
 
-console.log(
-  `SEO prerendered ${entries.length} canonical routes.`
-);
+fs.rmSync(path.join(root, 'dist-server'), { recursive: true, force: true });
+
+console.log(`SEO prerendered ${entries.length} canonical routes with route-specific React HTML.`);

@@ -52,11 +52,9 @@ export default function Footer() {
           <h4>Features & Labs</h4>
           <nav className="footer-links">
             <Link to="/features">Laboratory software features</Link>
-          <nav className="footer-links">
             <Link to="/audit-trail">Audit trail</Link>
             <Link to="/role-based-access">Role-based access</Link>
             <Link to="/pathology-labs">Pathology labs</Link>
-            <Link to="/diagnostic-labs">Diagnostic labs</Link>
             <Link to="/hospital-labs">Hospital labs</Link>
             <Link to="/independent-labs">Independent labs</Link>
           </nav>
@@ -75,20 +73,10 @@ export default function Footer() {
           </nav>
 
           <div className="footer-contact-block">
-            <p className="footer-contact">
-              <a href="mailto:support@pathmlt.com">support@PathMLT.com</a>
-            </p>
-            <p className="footer-contact">
-              <a href="tel:+916388334513">+91 63883 34513</a>
-            </p>
-            <p className="footer-contact">
-              <strong>Hyderabad Office</strong><br />
-              Hyderabad, Telangana, India
-            </p>
-            <p className="footer-contact">
-              <strong>Noida Office</strong><br />
-              Noida, Uttar Pradesh, India
-            </p>
+            <p className="footer-contact"><a href="mailto:support@pathmlt.com">support@PathMLT.com</a></p>
+            <p className="footer-contact"><a href="tel:+916388334513">+91 63883 34513</a></p>
+            <p className="footer-contact"><strong>Hyderabad Office</strong><br />Hyderabad, Telangana, India</p>
+            <p className="footer-contact"><strong>Noida Office</strong><br />Noida, Uttar Pradesh, India</p>
           </div>
         </div>
       </div>

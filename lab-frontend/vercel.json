@@ -1,12 +1,35 @@
 {
   "redirects": [
-    { "source": "/faq", "destination": "/faqs", "permanent": true }
+    { "source": "/faq", "destination": "/faqs", "permanent": true },
+    { "source": "/lab-reporting-system", "destination": "/laboratory-reporting-software", "permanent": true },
+    { "source": "/lab-reporting", "destination": "/laboratory-reporting-software", "permanent": true },
+    { "source": "/pathology-reporting-software", "destination": "/pathology-lab-software", "permanent": true },
+    { "source": "/diagnostic-labs", "destination": "/diagnostic-lab-software", "permanent": true }
+  ],
+  "headers": [
+    {
+      "source": "/dashboard",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    },
+    {
+      "source": "/report-templates",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    },
+    {
+      "source": "/login",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    },
+    {
+      "source": "/signup",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    },
+    {
+      "source": "/forgot-password",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    }
   ],
   "rewrites": [
     { "source": "/dashboard", "destination": "/index.html" },
-    { "source": "/login", "destination": "/index.html" },
-    { "source": "/signup", "destination": "/index.html" },
-    { "source": "/forgot-password", "destination": "/index.html" },
     { "source": "/report-templates", "destination": "/index.html" }
   ]
 }

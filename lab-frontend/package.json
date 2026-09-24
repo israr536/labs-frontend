@@ -5,9 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && node scripts/generate-sitemap.mjs && node scripts/prerender-seo.mjs",
+    "build": "tsc -b && vite build && node scripts/generate-sitemap.mjs && vite build --ssr src/entry-server.tsx --outDir dist-server && node scripts/prerender-seo.mjs && node scripts/validate-seo.mjs",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "seo:validate": "node scripts/validate-seo.mjs",
+    "seo:production": "node scripts/check-production-seo.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.0.0",

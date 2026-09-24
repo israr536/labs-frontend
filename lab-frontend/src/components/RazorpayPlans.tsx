@@ -147,7 +147,7 @@ export default function RazorpayPlans({ onSuccess }: { onSuccess?: () => void | 
           <ul>
             <li><CheckCircle2 size={15} />Patient and report workflows</li>
             <li><CheckCircle2 size={15} />Team access</li>
-            <li><CheckCircle2 size={15} />Priority product updates</li>
+            <li><CheckCircle2 size={15} />Subscription billing through Razorpay</li>
           </ul>
           <RazorpayPaymentButton plan="MONTHLY" onSuccess={onSuccess} />
         </article>
@@ -159,7 +159,7 @@ export default function RazorpayPlans({ onSuccess }: { onSuccess?: () => void | 
           <ul>
             <li><CheckCircle2 size={15} />Everything in Monthly</li>
             <li><CheckCircle2 size={15} />Annual billing</li>
-            <li><CheckCircle2 size={15} />Priority support</li>
+            <li><CheckCircle2 size={15} />Support from the PathMLT team</li>
           </ul>
           <RazorpayPaymentButton plan="YEARLY" className="pricing-btn primary" onSuccess={onSuccess} />
         </article>

@@ -14,7 +14,7 @@ export default function Header({ onLogin, onSignup, isAuthenticated, userName, o
     <a className="skip-link" href="#main-content">Skip to main content</a>
     <header className="app-header"><div className="header-inner">
       <Link to={isAuthenticated ? '/dashboard' : '/'} className="brand" onClick={closeMobile}><span className="brand-mark"><Activity size={19} aria-hidden="true" /></span><span className="brand-text"><strong>PathMLT</strong><small>Laboratory OS</small></span></Link>
-      {!isAuthenticated && <nav className="nav-links" aria-label="Primary navigation"><Link to="/solutions">Solutions</Link><Link to="/lab-reporting">Features</Link><Link to="/pricing">Pricing</Link><Link to="/about">About</Link><Link to="/contact">Contact</Link><Link to="/faqs">FAQ</Link></nav>}
+      {!isAuthenticated && <nav className="nav-links" aria-label="Primary navigation"><Link to="/solutions">Solutions</Link><Link to="/features">Features</Link><Link to="/pricing">Pricing</Link><Link to="/about">About</Link><Link to="/contact">Contact</Link><Link to="/faqs">FAQ</Link></nav>}
       <div className="header-actions">
         {!isAuthenticated ? <><a className="header-demo" href="https://wa.me/916388334513?text=Hello%20PathMLT%2C%20I%20want%20to%20book%20a%20demo." target="_blank" rel="noreferrer">Book demo</a><button className="header-link" onClick={onLogin}><LogIn size={15} aria-hidden="true" /> Login</button><button className="header-cta" onClick={onSignup}><UserPlus size={15} aria-hidden="true" /> Register Here</button></> : <>
           <button className="header-dashboard" onClick={() => navigate('/dashboard')}><LayoutDashboard size={15} aria-hidden="true" /> Workspace</button>

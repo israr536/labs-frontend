@@ -39,6 +39,7 @@ const FaqPage = lazy(() => import('./pages/FaqPage'));
 const PatientsPage = lazy(() => import('./pages/PatientsPage'));
 const AuditLogPage = lazy(() => import('./pages/AuditLogPage'));
 const SolutionsPage = lazy(() => import('./pages/SolutionsPage'));
+const FeaturesPage = lazy(() => import('./pages/FeaturesPage'));
 const HelpCenterPage = lazy(() => import('./pages/HelpCenterPage'));
 const SeoLandingPage = lazy(() => import('./pages/SeoLandingPage'));
 import WhatsAppButton from './components/WhatsAppButton';
@@ -259,6 +260,7 @@ export default function App() {
           <Routes>
             <Route path="/pricing" element={<PricingPage isAuthenticated={isAuthenticated} onLogin={showLogin} />} />
             <Route path="/solutions" element={<SolutionsPage />} />
+            <Route path="/features" element={<FeaturesPage />} />
             {['laboratory-reporting-software','diagnostic-lab-software','pathology-lab-software','laboratory-management-software','lab-reporting-system','pathology-reporting-software','lims-software','lab-automation-software','patient-management','test-management','sample-management','result-entry','result-verification','lab-reporting','reference-ranges','audit-trail','role-based-access','pdf-reports','pathology-labs','diagnostic-labs','hospital-labs','independent-labs'].map(path => <Route key={path} path={'/'+path} element={<SeoLandingPage pageKey={path as import('./pages/SeoLandingPage').SeoPageKey} />} />)}
             <Route path="/help" element={<HelpCenterPage />} />
             <Route path="/privacy" element={<PrivacyPolicyPage />} />
@@ -271,7 +273,7 @@ export default function App() {
             <Route path="/forgot-password" element={<Modal onClose={closeAuthModal} title="Reset password" description="Recover access to your laboratory workspace securely."><ForgotPassword onBackToLogin={showLogin} /></Modal>} />
             <Route path="/signup" element={<Modal onClose={closeAuthModal} title="Create your account" description="Start your laboratory workspace in a few minutes."><Signup onSignupSuccess={() => { setAuthView('login'); navigate('/login'); }} onCancel={closeAuthModal} /></Modal>} />
             <Route path="/dashboard" element={dashboardPage} />
-            <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : authView === 'login' ? <Modal onClose={closeAuthModal} title="Sign in"><Login onLoginSuccess={handleLoginSuccess} onForgotPassword={showForgotPassword} onSignup={showSignup} /></Modal> : authView === 'signup' ? <Modal onClose={closeAuthModal} title="Create your account"><Signup onSignupSuccess={() => { setAuthView('login'); navigate('/login'); }} onCancel={closeAuthModal} /> </Modal> : authView === 'forgot-password' ? <Modal onClose={closeAuthModal} title="Reset password"><ForgotPassword onBackToLogin={showLogin} /></Modal> : <Landing onLoginClick={showLogin} onSignupClick={showSignup} />} />
+            <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : authView === 'login' ? <Modal onClose={closeAuthModal} title="Login"><Login onLoginSuccess={handleLoginSuccess} onForgotPassword={showForgotPassword} onSignup={showSignup} /></Modal> : authView === 'signup' ? <Modal onClose={closeAuthModal} title="Create your account"><Signup onSignupSuccess={() => { setAuthView('login'); navigate('/login'); }} onCancel={closeAuthModal} /> </Modal> : authView === 'forgot-password' ? <Modal onClose={closeAuthModal} title="Reset password"><ForgotPassword onBackToLogin={showLogin} /></Modal> : <Landing onLoginClick={showLogin} onSignupClick={showSignup} />} />
             <Route path="*" element={<Navigate to={isAuthenticated ? '/dashboard' : '/'} replace />} />
           </Routes>
         </Suspense>

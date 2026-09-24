@@ -19,22 +19,23 @@ export class ApiError extends Error {
 }
 
 function getStoredTokens() {
-  return { accessToken: localStorage.getItem('lab_access_token') };
+  if (typeof window === 'undefined') return { accessToken: null };
+  return { accessToken: window.localStorage.getItem('lab_access_token') };
 }
 
 export function setTokens(tokens: { accessToken?: string }) {
-  if (tokens.accessToken) {
-    localStorage.setItem('lab_access_token', tokens.accessToken);
-    scheduleTokenExpiry(tokens.accessToken);
-  }
+  if (typeof window === 'undefined' || !tokens.accessToken) return;
+  window.localStorage.setItem('lab_access_token', tokens.accessToken);
+  scheduleTokenExpiry(tokens.accessToken);
 }
 
 let tokenExpiryTimer: number | undefined;
 
 export function clearTokens() {
-  localStorage.removeItem('lab_access_token');
+  if (typeof window === 'undefined') return;
+  window.localStorage.removeItem('lab_access_token');
   // Remove the legacy refresh token if an older deployment stored one.
-  localStorage.removeItem('lab_refresh_token');
+  window.localStorage.removeItem('lab_refresh_token');
   if (tokenExpiryTimer !== undefined) window.clearTimeout(tokenExpiryTimer);
   tokenExpiryTimer = undefined;
 }
@@ -62,7 +63,9 @@ function scheduleTokenExpiry(token: string) {
   }
 }
 
-const initialAccessToken = localStorage.getItem('lab_access_token');
+const initialAccessToken = typeof window !== 'undefined'
+  ? window.localStorage.getItem('lab_access_token')
+  : null;
 if (initialAccessToken) scheduleTokenExpiry(initialAccessToken);
 
 // The loader tracks one logical request, not every internal fetch/retry.
@@ -91,7 +94,7 @@ async function waitForAnotherTabToRefresh(initialAccessToken: string | null) {
   while (Date.now() - startedAt < REFRESH_WAIT_TIMEOUT_MS) {
     if (getStoredTokens().accessToken !== initialAccessToken) return true;
     await sleep(100);
-    const lock = localStorage.getItem(REFRESH_LOCK_KEY);
+    const lock = window.localStorage.getItem(REFRESH_LOCK_KEY);
     if (!lock) return false;
     try {
       if (JSON.parse(lock).expiresAt <= Date.now()) return false;
@@ -108,7 +111,7 @@ function refreshAccessToken(initialAccessToken: string | null): Promise<boolean>
   refreshInFlight = (async () => {
     const owner = Math.random().toString(36).slice(2, 12);
     try {
-      const existingLock = localStorage.getItem(REFRESH_LOCK_KEY);
+      const existingLock = window.localStorage.getItem(REFRESH_LOCK_KEY);
       if (existingLock) {
         try {
           const lock = JSON.parse(existingLock) as { expiresAt?: number };
@@ -117,9 +120,9 @@ function refreshAccessToken(initialAccessToken: string | null): Promise<boolean>
           // Replace malformed stale locks.
         }
       }
-      localStorage.setItem(REFRESH_LOCK_KEY, JSON.stringify({ owner, expiresAt: Date.now() + REFRESH_LOCK_TTL_MS }));
+      window.localStorage.setItem(REFRESH_LOCK_KEY, JSON.stringify({ owner, expiresAt: Date.now() + REFRESH_LOCK_TTL_MS }));
       try {
-        const acquired = JSON.parse(localStorage.getItem(REFRESH_LOCK_KEY) ?? '{}') as { owner?: string; expiresAt?: number };
+        const acquired = JSON.parse(window.localStorage.getItem(REFRESH_LOCK_KEY) ?? '{}') as { owner?: string; expiresAt?: number };
         if (acquired.owner !== owner) return waitForAnotherTabToRefresh(initialAccessToken);
       } catch {
         return waitForAnotherTabToRefresh(initialAccessToken);
@@ -140,10 +143,10 @@ function refreshAccessToken(initialAccessToken: string | null): Promise<boolean>
       return false;
     } finally {
       try {
-        const lock = JSON.parse(localStorage.getItem(REFRESH_LOCK_KEY) ?? '{}') as { owner?: string };
-        if (lock.owner === owner) localStorage.removeItem(REFRESH_LOCK_KEY);
+        const lock = JSON.parse(window.localStorage.getItem(REFRESH_LOCK_KEY) ?? '{}') as { owner?: string };
+        if (lock.owner === owner) window.localStorage.removeItem(REFRESH_LOCK_KEY);
       } catch {
-        localStorage.removeItem(REFRESH_LOCK_KEY);
+        window.localStorage.removeItem(REFRESH_LOCK_KEY);
       }
       refreshInFlight = null;
     }

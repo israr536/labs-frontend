@@ -28,8 +28,6 @@ export default function Footer() {
             <Link to="/diagnostic-lab-software">Diagnostic lab software</Link>
             <Link to="/pathology-lab-software">Pathology lab software</Link>
             <Link to="/laboratory-management-software">Laboratory management software</Link>
-            <Link to="/lab-reporting-system">Lab reporting system</Link>
-            <Link to="/pathology-reporting-software">Pathology reporting software</Link>
             <Link to="/lims-software">LIMS software</Link>
             <Link to="/lab-automation-software">Lab automation software</Link>
           </nav>
@@ -52,6 +50,8 @@ export default function Footer() {
 
         <div>
           <h4>Features & Labs</h4>
+          <nav className="footer-links">
+            <Link to="/features">Laboratory software features</Link>
           <nav className="footer-links">
             <Link to="/audit-trail">Audit trail</Link>
             <Link to="/role-based-access">Role-based access</Link>

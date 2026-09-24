@@ -160,6 +160,7 @@ function renderDocument(templateHtml, entry, body) {
 
 const entries = seo.routes.filter(
   (entry) =>
+    entry.index === true &&
     entry.canonical === entry.path &&
     entry.path !== '/dashboard' &&
     entry.path !== '/report-templates'

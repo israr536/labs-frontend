@@ -3,15 +3,14 @@ import { useLocation } from 'react-router-dom';
 import seoData from '../seo/seo-routes.json';
 import faqSchema from '../seo/faq-schema.json';
 
-const { siteUrl: SITE_URL, siteName: SITE_NAME, ogImage: OG_IMAGE } = seoData;
+const { siteUrl: SITE_URL, siteName: SITE_NAME, ogImage: OG_IMAGE, defaultLocale: DEFAULT_LOCALE } = seoData;
 type SeoConfig = (typeof seoData.routes)[number];
 
 const routeMap = new Map(seoData.routes.map(route => [route.path, route] as const));
 
 function normalizePathname(pathname: string) {
   if (pathname === '/') return '/';
-  const normalized = pathname.replace(/\\/+$/, '');
-  return normalized || '/';
+  return pathname.replace(/\/+$/, '') || '/';
 }
 
 function configForPath(pathname: string): SeoConfig {
@@ -112,12 +111,7 @@ function buildStructuredData(config: SeoConfig) {
       '@id': `${canonicalUrl}#breadcrumb`,
       itemListElement: [
         { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
-        {
-          '@type': 'ListItem',
-          position: 2,
-          name: config.title.replace(/ \\| PathMLT$/, ''),
-          item: canonicalUrl,
-        },
+        { '@type': 'ListItem', position: 2, name: config.title.replace(/\s*\|\s*PathMLT$/, ''), item: canonicalUrl },
       ],
     });
   }
@@ -157,7 +151,7 @@ export default function SEO() {
     upsertProperty('og:title', config.title);
     upsertProperty('og:description', config.description);
     upsertProperty('og:url', canonicalUrl);
-    upsertProperty('og:locale', 'en_IN');
+    upsertProperty('og:locale', DEFAULT_LOCALE);
     upsertProperty('og:image', OG_IMAGE);
     upsertProperty('og:image:alt', 'PathMLT laboratory reporting software');
     upsertProperty('og:image:type', 'image/png');

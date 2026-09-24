@@ -10,8 +10,6 @@ const fail = (message) => {
   throw new Error(`SEO validation failed: ${message}`);
 };
 
-const escapeRegExp = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-const entityPattern = (value) => escapeRegExp(value).replace(/\s+/g, '\\s+');
 const htmlText = (value) => value
   .replace(/<script[\s\S]*?<\/script>/gi, ' ')
   .replace(/<style[\s\S]*?<\/style>/gi, ' ')

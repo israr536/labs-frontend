@@ -17,6 +17,13 @@ const decodeHtml = (value) => value
   .replace(/\s+/g, ' ')
   .trim();
 
+const decodeEntities = (value) => value
+  .replace(/&amp;/gi, '&')
+  .replace(/&quot;/gi, '"')
+  .replace(/&#39;/gi, "'")
+  .replace(/&lt;/gi, '<')
+  .replace(/&gt;/gi, '>');
+
 const get = async (url, options = {}) => {
   const started = performance.now();
   const response = await fetch(url, {
@@ -60,8 +67,8 @@ for (const entry of indexable) {
 
   const finalUrl = result.response.url.replace(/\/$/, '');
   const html = await result.response.text();
-  const title = html.match(/<title>([\s\S]*?)<\/title>/i)?.[1] ?? '';
-  const description = html.match(/<meta\s+name=["']description["']\s+content=["']([^"']*)["']/i)?.[1] ?? '';
+  const title = decodeEntities(html.match(/<title>([\s\S]*?)<\/title>/i)?.[1] ?? '');
+  const description = decodeEntities(html.match(/<meta\s+name=["']description["']\s+content=["']([^"']*)["']/i)?.[1] ?? '');
   const canonical = html.match(/<link\s+rel=["']canonical["']\s+href=["']([^"']*)["']/i)?.[1] ?? '';
   const robotsMeta = html.match(/<meta\s+name=["']robots["']\s+content=["']([^"']*)["']/i)?.[1] ?? '';
   const h1Count = (html.match(/<h1\b/gi) || []).length;

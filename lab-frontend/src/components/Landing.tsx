@@ -28,7 +28,7 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
           <p>PathMLT connects patients, orders, tests, samples, results, verification, report templates, and PDF delivery in one workspace for diagnostic, pathology, hospital, and independent laboratories.</p>
           <div className="landing-v2-actions">
             <button className="landing-v2-primary" onClick={onSignupClick}>Create a laboratory workspace <ArrowRight size={17} /></button>
-            <button className="landing-v2-secondary" onClick={onLoginClick}>Sign in</button>
+            <button className="landing-v2-secondary" onClick={onLoginClick}>Login</button>
           </div>
           <div className="landing-v2-reassurance">
             <span><Check size={15} /> 30-day free trial</span>
@@ -38,9 +38,9 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
         </div>
 
         <div className="landing-v2-product" aria-label="PathMLT laboratory workspace preview">
-          <div className="product-topbar"><div className="product-brand"><span>A</span><strong>PathMLT</strong></div><div className="product-status"><i /> Workspace online</div></div>
+          <div className="product-topbar"><div className="product-brand"><span>A</span><strong>PathMLT</strong></div><div className="product-status"><i /> Illustrative workflow</div></div>
           <div className="product-body">
-            <aside className="product-sidebar"><small>WORKSPACE</small>{['Overview', 'Orders', 'Patients', 'Reports', 'Tests'].map((item, i) => <div key={item} className={i === 0 ? 'active' : ''}><span>{item === 'Overview' ? '⌂' : item === 'Orders' ? '◫' : item === 'Patients' ? '◉' : item === 'Reports' ? '▤' : '◇'}</span>{item}</div>)}</aside>
+            <aside className="product-sidebar"><small>ILLUSTRATIVE WORKSPACE</small>{['Overview', 'Orders', 'Patients', 'Reports', 'Tests'].map((item, i) => <div key={item} className={i === 0 ? 'active' : ''}><span>{item === 'Overview' ? '⌂' : item === 'Orders' ? '◫' : item === 'Patients' ? '◉' : item === 'Reports' ? '▤' : '◇'}</span>{item}</div>)}</aside>
             <div className="product-main">
               <div className="product-heading"><div><small>LABORATORY WORKSPACE</small><strong>Reporting operations</strong></div><button>+ New order</button></div>
               <div className="product-kpis"><div><small>Orders today</small><strong>128</strong><span>Patient and test context</span></div><div><small>Reports in review</small><strong>24</strong><span>Ready for verification</span></div><div><small>Workflow status</small><strong>03</strong><span>Needs attention</span></div></div>

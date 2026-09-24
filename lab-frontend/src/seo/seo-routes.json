@@ -23,6 +23,15 @@
       "changefreq": "monthly"
     },
     {
+      "path": "/features",
+      "title": "Laboratory Software Features | Patient, Test, Result & Reporting | PathMLT",
+      "description": "Explore PathMLT features for patient and order management, test configuration, result entry, verification, report templates, PDF reports, access controls, and workflow history.",
+      "canonical": "/features",
+      "index": true,
+      "priority": 0.8,
+      "changefreq": "monthly"
+    },
+    {
       "path": "/pricing",
       "title": "Laboratory Management Software Pricing | PathMLT",
       "description": "Compare PathMLT pricing for laboratory reporting software, including the 30-day trial, Monthly and Yearly plans, report generation, and team workflows.",
@@ -149,8 +158,8 @@
       "path": "/lab-reporting-system",
       "title": "Lab Reporting System for Verified Results | PathMLT",
       "description": "Move structured laboratory results through entry, validation, verification, finalization, and professional PDF report generation.",
-      "canonical": "/lab-reporting-system",
-      "index": true,
+      "canonical": "/laboratory-reporting-software",
+      "index": false,
       "priority": 0.8,
       "changefreq": "monthly"
     },
@@ -158,8 +167,8 @@
       "path": "/pathology-reporting-software",
       "title": "Pathology Reporting Software for Consistent Reports | PathMLT",
       "description": "Create consistent pathology reports with configurable parameters, reference information, review, finalization, and PDF output.",
-      "canonical": "/pathology-reporting-software",
-      "index": true,
+      "canonical": "/pathology-lab-software",
+      "index": false,
       "priority": 0.8,
       "changefreq": "monthly"
     },
@@ -230,8 +239,8 @@
       "path": "/lab-reporting",
       "title": "Laboratory Reporting Software from Verified Results | PathMLT",
       "description": "Turn verified laboratory results into consistent patient reports with configured presentation, finalization, PDF output, and delivery.",
-      "canonical": "/lab-reporting",
-      "index": true,
+      "canonical": "/laboratory-reporting-software",
+      "index": false,
       "priority": 0.8,
       "changefreq": "monthly"
     },
@@ -284,8 +293,8 @@
       "path": "/diagnostic-labs",
       "title": "Software for Diagnostic Laboratories | PathMLT",
       "description": "Standardize diagnostic laboratory operations from patient registration and testing through verified report delivery.",
-      "canonical": "/diagnostic-labs",
-      "index": true,
+      "canonical": "/diagnostic-lab-software",
+      "index": false,
       "priority": 0.7,
       "changefreq": "monthly"
     },

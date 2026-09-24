@@ -32,7 +32,10 @@ const get = async (url, options = {}) => {
 };
 
 const indexable = seo.routes.filter((entry) => entry.index && entry.canonical === entry.path);
-const aliases = seo.routes.filter((entry) => entry.path !== entry.canonical);
+const aliases = [
+  ...seo.routes.filter((entry) => entry.path !== entry.canonical),
+  { path: '/faq', canonical: '/faqs' },
+];
 
 const robots = await get(siteUrl + '/robots.txt');
 if (!robots.response.ok) fail('robots.txt returned HTTP ' + robots.response.status);

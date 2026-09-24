@@ -8,12 +8,19 @@ type SeoConfig = (typeof seoData.routes)[number];
 
 const routeMap = new Map(seoData.routes.map(route => [route.path, route] as const));
 
+function normalizePathname(pathname: string) {
+  if (pathname === '/') return '/';
+  const normalized = pathname.replace(/\\/+$/, '');
+  return normalized || '/';
+}
+
 function configForPath(pathname: string): SeoConfig {
-  return routeMap.get(pathname) ?? {
-    path: pathname,
+  const normalizedPath = normalizePathname(pathname);
+  return routeMap.get(normalizedPath) ?? {
+    path: normalizedPath,
     title: `${SITE_NAME} | Laboratory Reporting Software`,
     description: 'PathMLT connects diagnostic laboratory workflows for patients, tests, results, verification and reporting.',
-    canonical: '/',
+    canonical: normalizedPath,
     index: false,
   };
 }

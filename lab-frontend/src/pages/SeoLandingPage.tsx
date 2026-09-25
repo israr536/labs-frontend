@@ -211,6 +211,156 @@ const intentGuides: Partial<Record<SeoPageKey, IntentGuide>> = {
       { title: 'Printing, sharing, and delivery', body: 'Evaluate page breaks, long test panels, typography, print behavior, file naming, preview, download, and the way completed reports are shared with the intended recipient. A visually attractive template is not enough if a multi-page report becomes confusing when printed or sent.' },
       { title: 'When should a PDF be generated?', body: 'The safest workflow is to generate or release the final PDF after required results have been entered, flagged values have been reviewed, and an authorized user has finalized the report. This keeps the document aligned with the controlled result state rather than an unfinished draft.' }
     ]
+  },
+  'diagnostic-lab-software': {
+    title: 'Diagnostic lab software for the daily testing cycle',
+    intro: 'Diagnostic laboratories need software that supports a repeatable cycle: patient intake, order creation, specimen processing, testing, result review, and report delivery. The best fit is the system that makes this everyday path visible to each team member.',
+    sections: [
+      { title: 'Start with intake and orders', body: 'A diagnostic workflow begins before a result exists. Staff need to capture patient identity, requested tests, collection details, and order status once, then carry that context forward without retyping it at each stage.' },
+      { title: 'Support routine and multi-test work', body: 'Diagnostic orders often contain several tests with different parameters and turnaround expectations. Evaluate whether the catalog handles reusable test definitions while keeping each result tied to the same order and patient.' },
+      { title: 'Make exceptions visible', body: 'Missing samples, delayed tests, incomplete values, and abnormal results should be visible as workflow states rather than hidden in notes or spreadsheets. Clear status and ownership help staff decide what needs attention next.' },
+      { title: 'Measure the handoff to reporting', body: 'The final test is whether verified results can become a consistent report without another manual reconciliation step. Review how the system handles finalization, corrections, PDF output, and report history.' }
+    ]
+  },
+  'pathology-lab-software': {
+    title: 'Pathology lab software for case-based reporting',
+    intro: 'Pathology workflows are case-based and detail-heavy. Software should preserve the relationship between the case, specimen, configured examination, observations, review, and final report while allowing the laboratory to maintain its own terminology and report structure.',
+    sections: [
+      { title: 'Keep case context intact', body: 'A pathology case can involve multiple specimens, examinations, observations, and review steps. The system should make the relevant patient, accession, specimen, and test context available when results and report content are entered.' },
+      { title: 'Configure the information the case needs', body: 'Pathology teams often need parameter-specific fields, qualitative values, narrative observations, reference information, and reusable report structures. Configuration should reduce omissions without forcing every case into an inflexible template.' },
+      { title: 'Separate review from capture', body: 'The person entering observations and the person releasing a report may have different responsibilities. Evaluate whether the workflow shows incomplete data, supports review, and prevents premature finalization.' },
+      { title: 'Design for consistency and traceability', body: 'Consistent headings, terminology, report identity, correction history, and audit events make recurring pathology output easier to review. These controls are as important as the ability to generate the final document.' }
+    ]
+  },
+  'laboratory-management-software': {
+    title: 'Laboratory management software beyond a feature list',
+    intro: 'Laboratory management software should help a team run its operation, not merely store isolated records. Look for a connected workspace that joins people, patients, tests, orders, results, reports, permissions, and operational history.',
+    sections: [
+      { title: 'Manage the operating model', body: 'A management workspace should reflect how the laboratory actually works: who registers patients, who configures tests, who enters results, who verifies them, and who manages users or settings. The value comes from clear ownership across those responsibilities.' },
+      { title: 'Connect records instead of creating silos', body: 'Patient, order, test, sample, result, and report records should be searchable and related. When staff must move between disconnected tools, they spend time checking whether information is current and complete.' },
+      { title: 'Give administrators useful control', body: 'Management functions include role-aware access, settings, test configuration, report templates, workflow history, and visibility into operational status. Controls should be understandable to administrators without making daily technical work harder.' },
+      { title: 'Plan for adoption', body: 'Evaluate the first workflow you will implement, the data you must migrate, the roles that need training, and the reports that must remain consistent. A practical rollout usually starts with a high-volume workflow before expanding to every process.' }
+    ]
+  },
+  'lab-automation-software': {
+    title: 'Laboratory automation that keeps review visible',
+    intro: 'Laboratory automation software is most useful when it removes repeatable administrative effort without hiding professional judgment. Automate configuration, validation, routing, and document preparation while keeping exceptions and release decisions visible.',
+    sections: [
+      { title: 'Automate repetition first', body: 'Good candidates include reusable test setup, default parameters, required-field checks, numeric flags, status transitions, report templates, and consistent file generation. These tasks consume time because they are repeated, not because they require unique judgment.' },
+      { title: 'Keep exceptions in the workflow', body: 'Automation should make unusual values, incomplete orders, failed checks, and corrections easier to find. A system that silently proceeds through an exception creates more risk than a manual process that makes the exception obvious.' },
+      { title: 'Separate automated checks from approval', body: 'A rule can identify an out-of-range value; it does not necessarily replace review. Evaluate whether the system records the automated check, routes the item to the right person, and requires an explicit release decision when appropriate.' },
+      { title: 'Measure the operational gain', body: 'Before implementation, record how long setup, checking, report preparation, and correction currently take. Use those baselines to judge automation by fewer handoffs and faster reliable completion, not by the number of automated features.' }
+    ]
+  },
+  'patient-management': {
+    title: 'Patient management software for laboratory intake',
+    intro: 'Patient management is the anchor for a laboratory workflow. A useful system makes identity, contact information, orders, tests, and completed reports easy to find while reducing duplicate registration and context loss at the front desk.',
+    sections: [
+      { title: 'Create one dependable patient record', body: 'Search and registration should help staff find an existing patient before creating another record. Fields should support the information the laboratory actually needs while making duplicate or incomplete records easier to detect.' },
+      { title: 'Connect patients to orders', body: 'Patient management becomes operationally valuable when a new order, selected tests, collection context, and status remain attached to the patient. Staff should not have to search separate systems to understand what is pending.' },
+      { title: 'Support recurring visits', body: 'Diagnostic laboratories often serve returning patients. Evaluate search, prior order visibility, contact updates, and the ability to begin a new order without losing historical reports or creating unnecessary duplicate information.' },
+      { title: 'Protect sensitive information', body: 'Patient data needs role-aware access, authenticated sessions, clear permissions, and careful report delivery. The workflow should make it obvious who can view, edit, finalize, or download patient-facing information.' }
+    ]
+  },
+  'test-management': {
+    title: 'Laboratory test management and catalog design',
+    intro: 'A laboratory test catalog is the configuration layer behind result entry and reporting. It should define the parameters, input types, specimen context, methods, departments, reference information, and presentation rules that recurring work depends on.',
+    sections: [
+      { title: 'Define the test once', body: 'A reusable test definition should contain the information staff need when the test is ordered and performed. Clear names, categories, departments, specimen types, methods, turnaround expectations, and active status reduce ambiguity during daily work.' },
+      { title: 'Design parameters for real results', body: 'Numeric, text, select, multiline, boolean, date, and qualitative values behave differently. Configure each parameter with the right input type, required status, units, and reference context so result entry reflects the actual test.' },
+      { title: 'Keep configuration maintainable', body: 'Catalogs change as methods, ranges, and reporting requirements change. Evaluate versioning, active or inactive states, ownership, and the effect of editing a test that is already used in an order or report.' },
+      { title: 'Test the path to the final report', body: 'A catalog is successful only when its definitions flow through order selection, result entry, verification, and report output. Test a representative panel end to end before creating dozens of similar definitions.' }
+    ]
+  },
+  'sample-management': {
+    title: 'Sample management for traceable laboratory processing',
+    intro: 'Sample management preserves the link between a specimen and the work it represents. The essential question is whether staff can see what was received, which order it belongs to, what processing state it is in, and what result work remains.',
+    sections: [
+      { title: 'Receive with the right context', body: 'At intake, associate the sample with the patient, order, requested tests, collection details, and any identifier the laboratory uses. A sample record without order context is difficult to act on safely.' },
+      { title: 'Make status actionable', body: 'Received, processing, pending, rejected, completed, and ready-for-review states should answer what happens next and who owns it. Status labels are useful when they drive a real handoff rather than simply decorate a record.' },
+      { title: 'Handle exceptions clearly', body: 'Insufficient, mislabeled, delayed, or rejected samples require an explicit path. Record the exception, connect it to the affected order, and make the impact on result and report completion visible.' },
+      { title: 'Carry specimen context into reporting', body: 'When results are entered and verified, the operator should not need to reconstruct which sample or order they belong to. Traceability is preserved when the same context follows the sample through the final report.' }
+    ]
+  },
+  'result-entry': {
+    title: 'Structured laboratory result entry software',
+    intro: 'Result entry is where observations become structured laboratory data. The interface should make the correct patient, order, test, parameter, input type, unit, and reference context available so values can move cleanly into verification and reporting.',
+    sections: [
+      { title: 'Enter values against configured parameters', body: 'Structured fields reduce ambiguity compared with typing values into a free-form document. Numeric, qualitative, select, text, date, and boolean parameters should each use input behavior that matches the result being recorded.' },
+      { title: 'Validate before submission', body: 'Required fields, numeric constraints, units, option lists, and reference information can identify incomplete or inconsistent entry before the result reaches review. Validation should guide the operator rather than silently changing a value.' },
+      { title: 'Preserve patient and test context', body: 'The result-entry screen should clearly identify the patient, order, sample, and test. This is especially important when one order contains multiple tests or when the laboratory processes similar names in parallel.' },
+      { title: 'Move a complete set to verification', body: 'Submission should create a clear next state: incomplete values remain actionable, while a complete result set can be reviewed. The boundary between entry and verification should be visible to both the operator and the reviewer.' }
+    ]
+  },
+  'report-templates': {
+    title: 'Laboratory report templates that stay connected to data',
+    intro: 'A laboratory report template is more than a visual document layout. It defines how patient details, test parameters, results, reference ranges, laboratory identity, and final status are presented consistently to the report recipient.',
+    sections: [
+      { title: 'Define the report contract', body: 'Before designing a template, identify the fields a final report must show: patient and order identifiers, specimen context, test name, result, units, reference information, dates, notes, and sign-off or laboratory identity.' },
+      { title: 'Connect fields to configured data', body: 'Reusable templates are valuable when they draw from the same structured data used in orders and results. Avoid layouts that require staff to copy values manually into a second document.' },
+      { title: 'Design for long and varied output', body: 'Test panels can contain different numbers of parameters and long text values. Review page breaks, headings, whitespace, repeated headers, and print behavior with realistic reports rather than a short sample.' },
+      { title: 'Review before reuse', body: 'A template should be previewed and approved before it becomes routine. Check patient identity, value alignment, flags, ranges, laboratory branding, and the distinction between draft and finalized output.' }
+    ]
+  },
+  'reference-ranges': {
+    title: 'Reference range management in laboratory workflows',
+    intro: 'Reference ranges give result review and reporting the context needed to interpret a value. They should be maintained close to the parameter and test definition, with enough detail for the laboratory to explain how a result was flagged or displayed.',
+    sections: [
+      { title: 'Attach context to the parameter', body: 'Reference information is most useful when it belongs to the parameter it describes, including units, display text, and the test or specimen context. This reduces the chance that a report uses a range copied from the wrong configuration.' },
+      { title: 'Support meaningful flags', body: 'Numeric values may be compared with configured boundaries, while qualitative results may use different interpretation or display rules. Evaluate whether flagged values are visible during entry and verification without replacing professional review.' },
+      { title: 'Account for laboratory variation', body: 'Ranges may depend on method, specimen, population, or laboratory policy. A practical system should make the active configuration understandable and changes reviewable instead of treating every range as a universal constant.' },
+      { title: 'Keep reports consistent', body: 'The reference context shown in the final report should match the configuration used for the result. Test a report after changing a parameter or range to ensure the patient-facing output remains accurate and legible.' }
+    ]
+  },
+  'audit-trail': {
+    title: 'Laboratory audit trail and workflow history',
+    intro: 'An audit trail helps authorized users understand what happened to a laboratory record. It should connect an event to an actor, time, affected entity, and meaningful action so the history supports investigation rather than becoming an unreadable stream of technical noise.',
+    sections: [
+      { title: 'Record meaningful events', body: 'Useful events include creation, edits to important configuration, result corrections, verification, finalization, access changes, and report actions. Record the actions that explain workflow state and accountability.' },
+      { title: 'Keep actor and entity context', body: 'A history entry should help answer who acted, what they changed, which patient, order, test, or report was affected, and when it occurred. Without entity context, an audit list is difficult to use during an investigation.' },
+      { title: 'Support operational review', body: 'Administrators may use history to trace a corrected result, understand why a report changed, or investigate an unexpected workflow state. Search and filtering should help them reach the relevant events quickly.' },
+      { title: 'Treat history as a control layer', body: 'An audit trail does not replace permissions, verification, or good workflow design. Its value is strongest when it complements role-based access and makes important transitions visible after the action has occurred.' }
+    ]
+  },
+  'role-based-access': {
+    title: 'Role-based access for laboratory responsibilities',
+    intro: 'Role-based access maps application permissions to the work people are responsible for. In a laboratory, that may mean different access for reception, technicians, verifiers, administrators, and report or configuration owners.',
+    sections: [
+      { title: 'Start with responsibilities', body: 'Define what each role needs to view, create, edit, verify, finalize, configure, or administer. A role model should reflect the actual workflow instead of simply creating broad “staff” and “admin” accounts.' },
+      { title: 'Protect sensitive transitions', body: 'Actions such as changing configuration, correcting results, verifying values, finalizing reports, and managing users may need tighter controls than routine data entry. Make these boundaries explicit and reviewable.' },
+      { title: 'Keep access practical', body: 'Overly restrictive permissions can cause workarounds, while broad permissions reduce accountability. Test common tasks with real user roles to confirm staff can complete their work without unnecessary access.' },
+      { title: 'Review access as the lab changes', body: 'Teams, responsibilities, and workflows evolve. Include role review in onboarding, offboarding, periodic access checks, and implementation changes so permissions remain aligned with current operations.' }
+    ]
+  },
+  'pathology-labs': {
+    title: 'Software workflows for pathology laboratories',
+    intro: 'Pathology laboratories need software that respects case context and detailed review. The workflow should connect patient and accession information to specimens, configured examinations, observations, verification, and a consistent final report.',
+    sections: [
+      { title: 'Organize by case and specimen', body: 'Pathology work may involve several specimens or examinations under one patient case. Evaluate whether the system keeps those relationships clear when staff move between registration, processing, observation, review, and reporting.' },
+      { title: 'Support narrative and structured data', body: 'Some pathology information is numeric or selected from configured options; other information may be narrative. A useful workflow accommodates both without losing the ability to validate required elements or maintain report structure.' },
+      { title: 'Make review explicit', body: 'Before a pathology report is released, reviewers should be able to inspect the completed case, required fields, relevant findings, and report presentation. The system should expose what is pending rather than relying on informal handoffs.' },
+      { title: 'Standardize without flattening the case', body: 'Reusable configurations and report templates can improve consistency, but pathology teams still need laboratory-specific language and case detail. Evaluate how easily configuration can be adapted without creating a new manual process.' }
+    ]
+  },
+  'hospital-labs': {
+    title: 'Laboratory workflow software for hospital labs',
+    intro: 'Hospital laboratories coordinate laboratory work inside a larger care environment. Software should support high-volume orders, multiple responsibilities, clear result status, controlled reporting, and the operational history needed when work crosses teams or departments.',
+    sections: [
+      { title: 'Coordinate volume and priority', body: 'Hospital workflows may contain routine, urgent, recurring, and multi-test orders. Evaluate whether staff can see what is pending, what requires attention, and which results are ready for review without losing patient context.' },
+      { title: 'Separate team responsibilities', body: 'Reception, collection, technical, verification, administrative, and reporting responsibilities may be distributed across teams. Role-aware access and clear status transitions help prevent duplicate work and unclear ownership.' },
+      { title: 'Keep reports controlled', body: 'A hospital report may be consumed by clinicians and connected to broader patient care. The laboratory workflow should distinguish entered, reviewed, finalized, and delivered states and preserve the context behind corrections.' },
+      { title: 'Plan integration boundaries', body: 'During implementation, define how the laboratory system exchanges patient, order, result, and report information with hospital systems, instruments, or existing identity services. Clear boundaries reduce duplicate entry and unexpected responsibility gaps.' }
+    ]
+  },
+  'independent-labs': {
+    title: 'Practical software for independent diagnostic labs',
+    intro: 'Independent laboratories often need a dependable core workflow without the complexity or cost of adopting every enterprise laboratory module at once. Prioritize the processes that repeat most and expand from a stable foundation.',
+    sections: [
+      { title: 'Begin with high-volume work', body: 'Start by mapping the patient, order, test, result, verification, and report process that consumes the most staff time. A focused first workflow creates a useful baseline for configuration and training.' },
+      { title: 'Standardize recurring tests', body: 'Reusable test definitions, parameters, reference information, and report templates help a smaller team avoid rebuilding the same setup for every patient or new staff member.' },
+      { title: 'Keep administration manageable', body: 'Independent labs usually need practical user management, settings, access control, search, and workflow history without a large specialist team to maintain the system. Evaluate clarity as well as feature depth.' },
+      { title: 'Grow without re-platforming', body: 'Ask whether the initial workflow can later support more tests, users, reports, and operational controls. The right starting point should be focused, but it should not discard the data and process structure needed for growth.' }
+    ]
   }
 };
 

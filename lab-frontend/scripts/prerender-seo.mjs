@@ -196,3 +196,4 @@ for (const entry of entries) {
 fs.rmSync(path.join(root, 'dist-server'), { recursive: true, force: true });
 
 console.log(`SEO prerendered ${entries.length} canonical routes with route-specific React HTML.`);
+process.exit(0);

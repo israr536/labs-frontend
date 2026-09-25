@@ -26,10 +26,23 @@
     {
       "source": "/forgot-password",
       "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    },
+    {
+      "source": "/privacy",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, follow" }]
+    },
+    {
+      "source": "/terms",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, follow" }]
     }
   ],
   "rewrites": [
     { "source": "/dashboard", "destination": "/index.html" },
-    { "source": "/report-templates", "destination": "/index.html" }
+    { "source": "/report-templates", "destination": "/index.html" },
+    { "source": "/privacy", "destination": "/index.html" },
+    { "source": "/terms", "destination": "/index.html" },
+    { "source": "/login", "destination": "/index.html" },
+    { "source": "/signup", "destination": "/index.html" },
+    { "source": "/forgot-password", "destination": "/index.html" }
   ]
 }

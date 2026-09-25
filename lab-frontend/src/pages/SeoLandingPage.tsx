@@ -29,7 +29,7 @@ const common: Record<SeoPageKey, PageData> = {
 'sample-management':{eyebrow:'Sample management',title:'Laboratory Sample Management for Traceable Workflows',description:'Keep samples connected to patient orders and testing so laboratory teams can see what is being processed and what comes next.',focus:'Preserve the relationship between sample, patient, order and result throughout the workflow.',audience:'Laboratories that need clearer operational handoffs around specimen processing.',benefits:['Sample-linked orders','Status-aware workflow','Connected results','Clear operational ownership'],steps:[['Receive','Connect the sample to its order.'],['Process','Move it through testing.'],['Record','Attach results to the correct context.'],['Complete','Continue to verification and reporting.']],related:['test-management','result-entry','laboratory-reporting-software']},
 'result-entry':{eyebrow:'Laboratory result entry',title:'Laboratory Result Entry Software for Structured Reporting',description:'Enter qualitative and quantitative laboratory results against configured parameters with validation and reference information.',focus:'Make result entry structured enough to support consistent verification and reporting later in the workflow.',audience:'Technicians and laboratory teams entering routine test results.',benefits:['Parameter-specific inputs','Numeric validation','Configured qualitative options','Required-result checks'],steps:[['Open','Select the correct patient and order.'],['Enter','Record each configured parameter.'],['Check','Review validation and flags.'],['Submit','Move results to verification.']],related:['result-verification','reference-ranges','laboratory-reporting-software']},
 'result-verification':{eyebrow:'Laboratory result verification',title:'Laboratory Result Verification Before Final Report Release',description:'Review laboratory values, flags and required results before reports are finalized and released.',focus:'Put a deliberate review step between result entry and final reporting.',audience:'Laboratory teams responsible for checking results before report release.',benefits:['Role-aware finalization','Flagged-value visibility','Required-result validation','Controlled final-report workflow'],steps:[['Review','Open the completed result set.'],['Check','Inspect values and flags.'],['Verify','Confirm required information.'],['Finalize','Release the report when ready.']],related:['result-entry','audit-trail','pdf-reports']},
-'lab-reporting':{eyebrow:'Laboratory reporting',title:'Laboratory Reporting from Verified Results',description:'Turn verified laboratory results into consistent, professional patient reports without rebuilding the same document manually.',focus:'Make the final reporting step a predictable output of the laboratory workflow.',audience:'Labs that want consistent reports built from structured and verified data.',benefits:['Report generation from configured tests','Patient and order context','Final status controls','PDF output'],steps:[['Collect','Use the completed result set.'],['Review','Confirm the report context.'],['Finalize','Lock the reporting state.'],['Deliver','Preview, download or print.']],related:['laboratory-reporting-software','laboratory-reporting-software','pdf-reports']},
+  'lab-reporting':{eyebrow:'Laboratory reporting',title:'Laboratory Reporting from Verified Results',description:'Turn verified laboratory results into consistent, professional patient reports without rebuilding the same document manually.',focus:'Make the final reporting step a predictable output of the laboratory workflow.',audience:'Labs that want consistent reports built from structured and verified data.',benefits:['Report generation from configured tests','Patient and order context','Final status controls','PDF output'],steps:[['Collect','Use the completed result set.'],['Review','Confirm the report context.'],['Finalize','Lock the reporting state.'],['Deliver','Preview, download or print.']],related:['laboratory-reporting-software','result-verification','pdf-reports']},
 'report-templates':{eyebrow:'Laboratory report templates',title:'Laboratory Report Templates for Consistent PDF Reporting',description:'Create reusable laboratory report layouts that keep your lab identity, parameters and results consistent across reports.',focus:'Standardize presentation without recreating the same report structure for every patient.',audience:'Laboratories that want repeatable report design and professional PDF output.',benefits:['Reusable layouts','Laboratory identity','Configured parameters and ranges','Consistent PDF presentation'],steps:[['Design','Set the report structure.'],['Configure','Connect fields and parameters.'],['Review','Check the presentation.'],['Reuse','Apply the template to reports.']],related:['pathology-lab-software','laboratory-reporting-software','pdf-reports']},
 'reference-ranges':{eyebrow:'Reference range management',title:'Laboratory Reference Range Management Software',description:'Configure parameter-level reference information and keep reporting context consistent with your laboratory workflow.',focus:'Keep reference information close to the result configuration so review and reporting have the right context.',audience:'Laboratories maintaining reference information across many tests and parameters.',benefits:['Parameter-level reference data','Clear display ranges','Result flagging','Historical reporting context'],steps:[['Define','Set reference information.'],['Attach','Connect it to test parameters.'],['Review','Use it during result checking.'],['Report','Preserve the reporting context.']],related:['test-management','result-entry','laboratory-reporting-software']},
 'audit-trail':{eyebrow:'Laboratory audit trail',title:'Laboratory Audit Trail and Workflow History',description:'Keep important laboratory workflow events, actors and approvals traceable with an operational audit history.',focus:'Make important changes and workflow actions easier to understand after they happen.',audience:'Laboratory administrators and teams that need traceable operational history.',benefits:['Recorded workflow events','Actor and entity context','Approval history','Administrative visibility'],steps:[['Act','A user performs a workflow action.'],['Record','The event is captured.'],['Review','Authorized users inspect history.'],['Trace','Use the history to understand workflow activity.']],related:['role-based-access','result-verification','laboratory-management-software']},
@@ -197,7 +197,7 @@ export default function SeoLandingPage({ pageKey }: { pageKey: SeoPageKey }) {
       <div className="landing-section-heading">
         <span className="landing-eyebrow">{page.eyebrow}</span>
         <h2 id="seo-workflow-title">{workflowTitle}.</h2>
-        <p>These stages show how this capability can fit into a laboratory process. Your team can adapt the sequence and responsibilities to the tests, roles, and reporting standards used in your operation.</p>
+        <p>{seoInsights[pageKey].intro} The stages below show where this capability creates a clear handoff in that process.</p>
       </div>
       <div className="seo-workflow-grid">{page.steps.map(([title,text],i)=><article key={title}><span>{String(i+1).padStart(2,'0')}</span><h3>{title}</h3><p>{text}</p></article>)}</div>
     </section>
@@ -206,7 +206,7 @@ export default function SeoLandingPage({ pageKey }: { pageKey: SeoPageKey }) {
       <div className="landing-section-heading">
         <span className="landing-eyebrow">What to look for</span>
         <h2>{capabilityTitle}.</h2>
-        <p>Evaluate this capability by the work it supports: the records your team maintains, the decisions it reviews, and the handoff that must be reliable when a report moves forward.</p>
+        <p>{seoInsights[pageKey].points[0]} Use the remaining capabilities below to assess the records, decisions, and handoffs that matter to this workflow.</p>
       </div>
       <div className="seo-benefit-grid">{page.benefits.map(item=><article key={item}><CheckCircle2 size={17}/><span>{item}</span></article>)}</div>
     </section>
@@ -215,7 +215,7 @@ export default function SeoLandingPage({ pageKey }: { pageKey: SeoPageKey }) {
       <div className="landing-section-heading">
         <span className="landing-eyebrow">Operational scenarios</span>
         <h2>{useCaseTitle}.</h2>
-        <p>Use these scenarios to decide whether the workflow matches the people, records, and handoffs involved in your laboratory’s daily operation.</p>
+        <p>For {page.audience.toLowerCase()}, these scenarios show how the workflow can support the daily records and handoffs that need to remain dependable.</p>
       </div>
       <div className="seo-use-case-grid">{depth.useCases.map((item,index)=><article key={item}><span>{String(index+1).padStart(2,'0')}</span><p>{item}</p></article>)}</div>
     </section>
@@ -232,7 +232,7 @@ export default function SeoLandingPage({ pageKey }: { pageKey: SeoPageKey }) {
       <div className="landing-section-heading">
         <span className="landing-eyebrow">Inside PathMLT</span>
         <h2 id="seo-product-evidence-title">See the product workflow behind this capability.</h2>
-        <p>PathMLT is built around connected laboratory records and configurable workflows. The examples below describe product workflows available in the application, while exact fields, permissions, and report configuration can vary by laboratory setup.</p>
+        <p>For {page.audience.toLowerCase()}, the product evidence below shows how PathMLT connects this capability to configurable laboratory records and workflows. Exact fields, permissions, and report configuration can vary by laboratory setup.</p>
       </div>
       <div className="seo-product-evidence-grid">
         <article>
@@ -279,7 +279,7 @@ export default function SeoLandingPage({ pageKey }: { pageKey: SeoPageKey }) {
       <div className="landing-section-heading">
         <span className="landing-eyebrow">Continue through the workflow</span>
         <h2 id="seo-workflow-links-title">Connect this capability to the rest of laboratory reporting.</h2>
-        <p>Move from the feature you are researching to the operational steps around it, so your team can evaluate a complete workflow instead of an isolated screen.</p>
+        <p>Use {page.eyebrow.toLowerCase()} as an entry point, then follow the linked operational steps to evaluate the complete workflow rather than an isolated screen.</p>
       </div>
       <div className="seo-related-links">
         <Link to="/patient-management"><span>Patient management</span><ArrowRight size={14}/></Link>
@@ -292,7 +292,7 @@ export default function SeoLandingPage({ pageKey }: { pageKey: SeoPageKey }) {
     </section>
 
     <section className="seo-related">
-      <div><span className="landing-eyebrow">Related workflows</span><h2>See how this capability connects to the rest of the laboratory.</h2><p>Explore adjacent PathMLT workflows and compare the handoffs that surround this part of the operation.</p></div>
+      <div><span className="landing-eyebrow">Related workflows</span><h2>See how this capability connects to the rest of the laboratory.</h2><p>Compare {page.eyebrow.toLowerCase()} with the adjacent workflows below to understand the handoffs around this part of the operation.</p></div>
       <div className="seo-related-links">{page.related.filter((slug,index,array)=>array.indexOf(slug)===index).map(slug=><Link key={slug} to={'/'+slug}><span>{common[slug].title}</span><ArrowRight size={14}/></Link>)}</div>
     </section>
 

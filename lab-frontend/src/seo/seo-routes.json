@@ -15,8 +15,8 @@
     },
     {
       "path": "/solutions",
-      "title": "Diagnostic Lab Software Solutions | LIMS, Reporting & Workflow | PathMLT",
-      "description": "Explore laboratory software for patient management, test configuration, sample workflows, result verification, PDF reports, access control, and audit history.",
+      "title": "Diagnostic Lab Software Solutions | PathMLT",
+      "description": "Explore PathMLT solutions for patient management, test configuration, verification, reporting, access control, and laboratory workflow.",
       "canonical": "/solutions",
       "index": true,
       "priority": 0.8,
@@ -24,8 +24,8 @@
     },
     {
       "path": "/features",
-      "title": "Laboratory Software Features | Patient, Test, Result & Reporting | PathMLT",
-      "description": "Explore PathMLT features for patient and order management, test configuration, result entry, verification, report templates, PDF reports, access controls, and workflow history.",
+      "title": "Laboratory Software Features | PathMLT",
+      "description": "Explore PathMLT features for patient management, test setup, result entry, verification, report templates, access, and workflow history.",
       "canonical": "/features",
       "index": true,
       "priority": 0.8,

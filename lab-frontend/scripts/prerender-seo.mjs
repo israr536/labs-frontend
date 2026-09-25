@@ -59,6 +59,30 @@ function buildStructuredData(entry) {
       url: seo.siteUrl,
       email: 'support@pathmlt.com',
       areaServed: 'IN',
+      logo: `${seo.siteUrl}/favicon.svg`,
+      image: seo.ogImage,
+      telephone: '+91 63883 34513',
+      address: [
+        {
+          '@type': 'PostalAddress',
+          addressLocality: 'Hyderabad',
+          addressRegion: 'Telangana',
+          addressCountry: 'IN',
+        },
+        {
+          '@type': 'PostalAddress',
+          addressLocality: 'Noida',
+          addressRegion: 'Uttar Pradesh',
+          addressCountry: 'IN',
+        },
+      ],
+      contactPoint: {
+        '@type': 'ContactPoint',
+        telephone: '+91 63883 34513',
+        contactType: 'sales',
+        areaServed: 'IN',
+        availableLanguage: ['en'],
+      },
     },
     {
       '@type': 'WebSite',

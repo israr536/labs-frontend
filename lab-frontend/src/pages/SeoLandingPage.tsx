@@ -162,12 +162,62 @@ const seoInsights: Record<SeoPageKey, { title: string; intro: string; points: st
   'pathology-labs': { title: 'Focus pathology software on repeatable case workflows', intro: 'Pathology laboratories can benefit from software that connects case context, configured testing, review and final reporting.', points: ['Keep patient and order information available throughout the case.', 'Use reusable test and report configuration for recurring workflows.', 'Make verification visible before a pathology report is finalized.'] },
   'diagnostic-labs': { title: 'Standardize the recurring diagnostic laboratory journey', intro: 'Independent diagnostic workflows become easier to manage when common patient, test and reporting steps are configured once and reused.', points: ['Connect intake and orders to the tests actually performed.', 'Support multi-test work without losing patient context.', 'Move verified results into a consistent final report workflow.'] },
   'hospital-labs': { title: 'Support coordinated hospital laboratory responsibilities', intro: 'Hospital laboratories often need connected records plus clear boundaries between operational and administrative responsibilities.', points: ['Keep patient and order context available across multiple laboratory stages.', 'Use role-aware access to separate routine work from sensitive administrative actions.', 'Retain workflow history so teams can review important operational events.'] },
-  'independent-labs': { title: 'Start with the workflows an independent lab repeats most', intro: 'Independent laboratories can get more value from software when implementation begins with their highest-volume patient, testing and reporting processes.', points: ['Standardize core patient and test workflows before adding complexity.', 'Configure recurring reports and tests once for consistent reuse.', 'Add access and operational controls as the team and workload grow.'] }
+	'independent-labs': { title: 'Start with the workflows an independent lab repeats most', intro: 'Independent laboratories can get more value from software when implementation begins with their highest-volume patient, testing and reporting processes.', points: ['Standardize core patient and test workflows before adding complexity.', 'Configure recurring reports and tests once for consistent reuse.', 'Add access and operational controls as the team and workload grow.'] }
+};
+
+type IntentGuide = {
+  title: string;
+  intro: string;
+  sections: { title: string; body: string }[];
+};
+
+const intentGuides: Partial<Record<SeoPageKey, IntentGuide>> = {
+  'laboratory-reporting-software': {
+    title: 'A practical guide to laboratory reporting software',
+    intro: 'Laboratory reporting software turns completed laboratory work into a controlled, repeatable reporting process. The important distinction is that a report is produced from structured patient, order, test, and result data rather than rebuilt manually in a document editor.',
+    sections: [
+      { title: 'What problem does it solve?', body: 'Manual reporting creates repeated data entry, inconsistent formatting, unclear review ownership, and avoidable transcription risk. A reporting workspace keeps the patient and order context attached to the result while the report moves through entry, validation, verification, finalization, and delivery.' },
+      { title: 'What should the workflow include?', body: 'Evaluate patient and order capture, configurable tests and parameters, required-result checks, reference information, result verification, report templates, PDF generation, and a clear final status. These pieces matter because report quality depends on the workflow before the document is generated.' },
+      { title: 'Structured reporting versus manual documents', body: 'A manual document can reproduce a final layout, but it does not inherently know whether every required parameter was entered or verified. Structured reporting uses configured fields and workflow states so the final report reflects a known result set and can be reproduced consistently.' },
+      { title: 'Questions to ask before choosing a system', body: 'Ask how a laboratory configures tests, handles abnormal or missing values, separates entry from verification, controls release, preserves report history, and supports the formats patients and clinicians actually receive. A useful system should explain these handoffs clearly, not only show a feature list.' }
+    ]
+  },
+  'lims-software': {
+    title: 'How to evaluate LIMS software for reporting workflows',
+    intro: 'LIMS means laboratory information management system. In practice, LIMS evaluation is less about the acronym and more about whether the system keeps laboratory records connected from sample intake through testing, results, review, reporting, and history.',
+    sections: [
+      { title: 'What usually belongs in a LIMS?', body: 'Common LIMS concerns include patient or client context, orders and accessions, sample tracking, test catalogs, instruments or methods, result management, verification, reports, user permissions, and audit history. The right scope depends on the laboratory’s operating model and integration requirements.' },
+      { title: 'LIMS versus focused reporting software', body: 'A broad LIMS may coordinate complex sample, instrument, inventory, quality, and multi-department operations. A focused reporting system may be more appropriate when the immediate need is structured result entry, verification, templates, and final PDF reporting. Compare the actual workflow rather than selecting on terminology alone.' },
+      { title: 'Sample and test management are foundational', body: 'A result is more useful when it remains connected to the correct sample, patient, order, method, and configured test. During evaluation, follow one specimen through accession, processing, result entry, verification, and report release to identify where context might be lost.' },
+      { title: 'Integration and implementation questions', body: 'Check available APIs, import and export formats, identity and access controls, report delivery options, data ownership, migration support, and the boundaries between the LIMS and existing instruments or hospital systems. A clear implementation boundary prevents a reporting project from becoming an undefined replacement of every laboratory system.' }
+    ]
+  },
+  'result-verification': {
+    title: 'Why laboratory result verification deserves its own workflow',
+    intro: 'Result entry and result verification are different responsibilities. Entry records the observed or received value; verification checks whether the completed result set is coherent, complete, and ready to become a final patient-facing report.',
+    sections: [
+      { title: 'Why verification exists', body: 'Verification creates a deliberate checkpoint before release. It gives an authorized reviewer a place to inspect required parameters, flags, reference information, test context, and report readiness instead of allowing report generation to be an automatic consequence of data entry.' },
+      { title: 'Entry versus verification', body: 'Entry focuses on capturing values against configured fields. Verification focuses on interpretation and release readiness: are required values present, do flagged results need attention, is the correct patient and order attached, and is the final report based on the intended test configuration?' },
+      { title: 'Useful verification scenarios', body: 'Examples include a missing required parameter, an out-of-range numeric value, a qualitative result that needs review, a corrected result, a multi-test order with one incomplete component, or a report that must remain unreleased until an authorized role confirms it.' },
+      { title: 'Controls to evaluate', body: 'Look for visible result status, role-aware permissions, required-field validation, flag visibility, correction history, an explicit finalization action, and an audit trail. These controls should make it clear who reviewed the result and what state the report was in when it was released.' }
+    ]
+  },
+  'pdf-reports': {
+    title: 'What to evaluate in PDF laboratory report software',
+    intro: 'A PDF laboratory report is the final presentation of structured and verified data. Good PDF generation is therefore not only a formatting feature; it should preserve patient identity, test context, result values, reference information, laboratory branding, and the final workflow state.',
+    sections: [
+      { title: 'Report structure and patient context', body: 'Check whether the generated document clearly identifies the patient, order, specimen or sample context, test name, result values, units, reference ranges, flags, dates, and responsible laboratory. The layout should make the information understandable without requiring staff to reconstruct missing context.' },
+      { title: 'Templates and consistency', body: 'Templates should define recurring layout, laboratory identity, headings, parameter presentation, and footer or sign-off information. The goal is consistent output across patients and tests while retaining the configured values that make each report specific.' },
+      { title: 'Printing, sharing, and delivery', body: 'Evaluate page breaks, long test panels, typography, print behavior, file naming, preview, download, and the way completed reports are shared with the intended recipient. A visually attractive template is not enough if a multi-page report becomes confusing when printed or sent.' },
+      { title: 'When should a PDF be generated?', body: 'The safest workflow is to generate or release the final PDF after required results have been entered, flagged values have been reviewed, and an authorized user has finalized the report. This keeps the document aligned with the controlled result state rather than an unfinished draft.' }
+    ]
+  }
 };
 
 export default function SeoLandingPage({ pageKey }: { pageKey: SeoPageKey }) {
   const page = common[pageKey];
   const depth = seoDepth[pageKey];
+  const intentGuide = intentGuides[pageKey];
   const workflowTitle = `How ${page.eyebrow.toLowerCase()} fits into a laboratory workflow`;
   const capabilityTitle = `Capabilities to evaluate for ${page.eyebrow.toLowerCase()}`;
   const useCaseTitle = `Practical ${page.eyebrow.toLowerCase()} use cases`;
@@ -184,6 +234,20 @@ export default function SeoLandingPage({ pageKey }: { pageKey: SeoPageKey }) {
       </div>
         <div className="seo-hero-card"><ShieldCheck size={22}/><strong>What a useful {page.eyebrow.toLowerCase()} workflow should achieve</strong><p>{page.focus} The goal is to give the next person the context, status, and configured information needed to continue the work.</p></div>
     </section>
+
+    {intentGuide && <section className="seo-intent-guide" aria-labelledby="seo-intent-guide-title">
+      <div className="landing-section-heading">
+        <span className="landing-eyebrow">In-depth guide</span>
+        <h2 id="seo-intent-guide-title">{intentGuide.title}</h2>
+        <p>{intentGuide.intro}</p>
+      </div>
+      <div className="seo-intent-guide-grid">
+        {intentGuide.sections.map((section) => <article key={section.title}>
+          <h3>{section.title}</h3>
+          <p>{section.body}</p>
+        </article>)}
+      </div>
+    </section>}
 
     <section className="seo-intent">
       <div className="landing-section-heading">

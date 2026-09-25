@@ -238,25 +238,25 @@ export default function SeoLandingPage({ pageKey }: { pageKey: SeoPageKey }) {
         <article>
           <span className="seo-evidence-number">01</span>
           <h3>Configurable test catalog</h3>
-          <p>Tests can include categories, departments, specimen information, methods, turnaround time and reusable parameters. Parameters support numeric, text, select, multiline, boolean, date and qualitative inputs.</p>
+          <p>For {page.eyebrow.toLowerCase()}, tests can include categories, departments, specimen information, methods, turnaround time and reusable parameters. Parameters support numeric, text, select, multiline, boolean, date and qualitative inputs.</p>
           <Link to="/test-management">Explore test management <ArrowRight size={14}/></Link>
         </article>
         <article>
           <span className="seo-evidence-number">02</span>
           <h3>Structured result entry</h3>
-          <p>The report workflow loads a laboratory test configuration and its parameters so results can be entered against defined fields instead of rebuilding report content manually.</p>
+          <p>In a {page.eyebrow.toLowerCase()} workflow, the report process loads a laboratory test configuration and its parameters so results can be entered against defined fields instead of rebuilding report content manually.</p>
           <Link to="/result-entry">Explore result entry <ArrowRight size={14}/></Link>
         </article>
         <article>
           <span className="seo-evidence-number">03</span>
           <h3>Verification before reporting</h3>
-          <p>PathMLT separates result entry from review and finalization, giving teams a deliberate checkpoint for required values, flags and completed result sets before release.</p>
+          <p>For teams evaluating {page.eyebrow.toLowerCase()}, PathMLT separates result entry from review and finalization, giving them a deliberate checkpoint for required values, flags and completed result sets before release.</p>
           <Link to="/result-verification">Explore result verification <ArrowRight size={14}/></Link>
         </article>
         <article>
           <span className="seo-evidence-number">04</span>
           <h3>Final report generation</h3>
-          <p>After the workflow is completed, PathMLT can turn the structured result data into a patient-facing laboratory report, including PDF output for delivery or printing.</p>
+          <p>Once {page.eyebrow.toLowerCase()} is complete, PathMLT can turn the structured result data into a patient-facing laboratory report, including PDF output for delivery or printing.</p>
           <Link to="/pdf-reports">Explore PDF reports <ArrowRight size={14}/></Link>
         </article>
       </div>
@@ -297,7 +297,7 @@ export default function SeoLandingPage({ pageKey }: { pageKey: SeoPageKey }) {
     </section>
 
     <section className="landing-cta">
-      <div><span className="landing-eyebrow">Apply the workflow</span><h2>See how {page.eyebrow.toLowerCase()} could fit your laboratory.</h2><p>Start with the process your team performs most often. Then discuss the configuration, report format, access responsibilities, and implementation support that matter to you.</p></div>
+      <div><span className="landing-eyebrow">Apply the workflow</span><h2>See how {page.eyebrow.toLowerCase()} could fit your laboratory.</h2><p>Start with the {page.eyebrow.toLowerCase()} process your team performs most often. Then discuss the configuration, report format, access responsibilities, and implementation support that matter to you.</p></div>
       <Link className="landing-primary" to="/contact">Plan a workflow walkthrough <ArrowRight size={16}/></Link>
     </section>
   </div>;

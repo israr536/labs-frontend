@@ -9,7 +9,7 @@ const sitemap = fs.readFileSync(path.join(root, 'public/sitemap.xml'), 'utf8');
 const fail = (message) => {
   throw new Error(`SEO validation failed: ${message}`);
 };
-   
+     
 const decodeHtmlEntities = (value) => value
   .replace(/&nbsp;/gi, ' ')
   .replace(/&amp;/gi, '&')

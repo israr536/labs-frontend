@@ -11750,8 +11750,25 @@ tbody tr.inactive {
   font-size: .78rem;
   line-height: 1.55;
 }
+.landing-v2-real-report {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  padding: 80px 0;
+  display: grid;
+  grid-template-columns: minmax(280px, .72fr) minmax(0, 1.28fr);
+  gap: 42px;
+  align-items: center;
+}
+.landing-v2-real-report-copy { display: grid; gap: 14px; }
+.landing-v2-real-report-copy h2 { font-size: clamp(1.8rem, 3vw, 2.8rem); line-height: 1.12; color: var(--text-bold); }
+.landing-v2-real-report-copy p { color: var(--text); line-height: 1.75; }
+.landing-v2-real-report-copy a { color: var(--primary); font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 7px; }
+.landing-v2-real-report-figure { margin: 0; padding: 12px; border: 1px solid var(--border); border-radius: 22px; background: var(--panel-bg); box-shadow: var(--shadow); }
+.landing-v2-real-report-figure img { display: block; width: 100%; max-height: 720px; object-fit: contain; border-radius: 14px; background: #fff; }
+.landing-v2-real-report-figure figcaption { padding: 11px 4px 0; color: var(--text); font-size: .76rem; line-height: 1.5; }
 @media (max-width: 700px) {
   .seo-product-proof { width: min(100% - 28px, 1180px); padding: 48px 0; }
   .seo-product-proof-figure { padding: 8px; border-radius: 18px; }
   .seo-product-proof-figure img { border-radius: 12px; }
+  .landing-v2-real-report { width: min(100% - 28px, 1180px); padding: 52px 0; grid-template-columns: 1fr; gap: 26px; }
 }

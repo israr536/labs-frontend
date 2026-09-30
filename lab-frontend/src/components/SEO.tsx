@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import seoData from '../seo/seo-routes.json';
 import faqSchema from '../seo/faq-schema.json';
+import customerProof from '../seo/customer-proof.json';
+import { buildCustomerProofGraph } from '../seo/customer-proof-schema';
 
 const { siteUrl: SITE_URL, siteName: SITE_NAME, ogImage: OG_IMAGE, defaultLocale: DEFAULT_LOCALE } = seoData;
 type SeoConfig = (typeof seoData.routes)[number];
@@ -151,6 +153,8 @@ function buildStructuredData(config: SeoConfig) {
       })),
     });
   }
+
+  graph.push(...buildCustomerProofGraph(customerProof, SITE_NAME, SITE_URL, config.path));
 
   return { '@context': 'https://schema.org', '@graph': graph };
 }

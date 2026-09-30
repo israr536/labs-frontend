@@ -4,6 +4,7 @@ import { pathToFileURL } from 'node:url';
 
 const root = process.cwd();
 const seo = JSON.parse(fs.readFileSync(path.join(root, 'src/seo/seo-routes.json'), 'utf8'));
+const customerProof = JSON.parse(fs.readFileSync(path.join(root, 'src/seo/customer-proof.json'), 'utf8'));
 const template = fs.readFileSync(path.join(root, 'dist/index.html'), 'utf8');
 
 const serverEntry = path.join(root, 'dist-server', 'entry-server.js');
@@ -47,6 +48,61 @@ function upsertTitle(html, title) {
   const tag = `<title>${escapeHtml(title)}</title>`;
   const re = /<title>[^<]*<\/title>/i;
   return re.test(html) ? html.replace(re, tag) : html.replace('</head>', `    ${tag}\n  </head>`);
+}
+
+function requireApproval(record, kind) {
+  if (!record.approval?.approved || !record.approval.consentReference || !record.approval.approvedAt || !record.approval.approvedBy) {
+    throw new Error(`${kind} cannot be published without explicit approval, consent reference, approver, and approval date.`);
+  }
+}
+
+function customerProofGraph(pathname) {
+  const graph = [];
+  for (const story of customerProof.caseStudies ?? []) {
+    if (story.url !== pathname && story.url !== `${seo.siteUrl}${pathname}`) continue;
+    requireApproval(story, 'Case study');
+    const url = story.url.startsWith('http') ? story.url : `${seo.siteUrl}${story.url}`;
+    graph.push({
+      '@type': 'Article',
+      '@id': `${url}#case-study`,
+      mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+      headline: story.headline,
+      description: story.description,
+      datePublished: story.datePublished,
+      dateModified: story.dateModified || story.datePublished,
+      author: { '@type': 'Person', name: story.authorName, ...(story.authorUrl ? { url: story.authorUrl } : {}) },
+      publisher: { '@type': 'Organization', name: seo.siteName, url: seo.siteUrl },
+      about: { '@type': 'SoftwareApplication', name: seo.siteName, applicationCategory: 'BusinessApplication', operatingSystem: 'Web' },
+      articleSection: 'Customer case study',
+      keywords: [story.customerType, 'laboratory software', 'laboratory workflow'],
+      ...(story.image ? { image: story.image.startsWith('http') ? story.image : `${seo.siteUrl}${story.image}` } : {}),
+      ...(story.customerName ? { audience: { '@type': 'Organization', name: story.customerName } } : {}),
+    });
+  }
+  for (const review of customerProof.reviews ?? []) {
+    if (review.itemReviewedUrl !== pathname && review.itemReviewedUrl !== `${seo.siteUrl}${pathname}`) continue;
+    requireApproval(review, 'Customer review');
+    graph.push({
+      '@type': 'Review',
+      '@id': `${seo.siteUrl}/customer-reviews/${encodeURIComponent(review.id)}#review`,
+      reviewBody: review.body,
+      datePublished: review.datePublished,
+      author: {
+        '@type': 'Person',
+        name: review.authorName,
+        ...(review.authorJobTitle ? { jobTitle: review.authorJobTitle } : {}),
+        ...(review.authorOrganization ? { worksFor: { '@type': 'Organization', name: review.authorOrganization } } : {}),
+      },
+      itemReviewed: {
+        '@type': 'SoftwareApplication',
+        name: review.itemReviewedName || seo.siteName,
+        url: review.itemReviewedUrl.startsWith('http') ? review.itemReviewedUrl : `${seo.siteUrl}${review.itemReviewedUrl}`,
+        applicationCategory: 'BusinessApplication',
+        operatingSystem: 'Web',
+      },
+    });
+  }
+  return graph;
 }
 
 function buildStructuredData(entry) {
@@ -135,6 +191,8 @@ function buildStructuredData(entry) {
       })),
     });
   }
+
+  graph.push(...customerProofGraph(entry.path));
 
   return { '@context': 'https://schema.org', '@graph': graph };
 }

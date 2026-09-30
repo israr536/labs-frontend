@@ -171,6 +171,27 @@ type IntentGuide = {
   sections: { title: string; body: string }[];
 };
 
+type ProductScreenshot = {
+  src: string;
+  alt: string;
+  title: string;
+  caption: string;
+};
+
+const productScreenshots: Partial<Record<SeoPageKey, ProductScreenshot>> = {
+  'laboratory-reporting-software': { src: '/screenshots/laboratory-report-pdf.webp', alt: 'Anonymized PathMLT laboratory report PDF showing patient context, test results, flags, units, and report status', title: 'A report generated from structured laboratory data', caption: 'An anonymized product example showing patient context, test descriptions, entered results, report status, and a patient-ready PDF layout.' },
+  'pdf-reports': { src: '/screenshots/laboratory-report-pdf.webp', alt: 'Anonymized PathMLT PDF laboratory report with result entry, reference range, unit, and barcode sections', title: 'Patient-ready PDF report output', caption: 'This anonymized report example shows how configured results are presented with report identity, result values, flags, units, and delivery-ready formatting.' },
+  'result-entry': { src: '/screenshots/result-entry-workflow.webp', alt: 'PathMLT result-entry screen showing a selected Haptoglobin test, observed value field, qualitative status, clinical notes, and save report action', title: 'Result entry against a configured test', caption: 'A real PathMLT workflow example showing test selection, a required result field, qualitative status, clinical notes, and the save-report action.' },
+  'diagnostic-lab-software': { src: '/screenshots/result-entry-workflow.webp', alt: 'PathMLT diagnostic laboratory result-entry workflow with selected Haptoglobin test and clinical notes', title: 'A diagnostic result-entry workflow', caption: 'The product workflow connects a selected test to a structured result field, qualitative status, clinical notes, and the next report action.' },
+  'pathology-lab-software': { src: '/screenshots/result-entry-workflow.webp', alt: 'PathMLT laboratory result-entry screen showing a configured test and clinical notes field', title: 'Configured result capture for laboratory work', caption: 'This real screen shows how a configured test exposes its result parameter and notes field before the report moves to review.' },
+  'lab-automation-software': { src: '/screenshots/result-entry-workflow.webp', alt: 'PathMLT workflow screen showing selected test configuration and completed result-entry state', title: 'Repeatable entry with configured fields', caption: 'The screen demonstrates a repeatable test-selection and result-entry step rather than free-form document preparation.' },
+  'laboratory-management-software': { src: '/screenshots/laboratory-workspace-overview.webp', alt: 'Anonymized PathMLT laboratory workspace overview showing plan, team, patient, test, order, critical alerts, and quick operations', title: 'A workspace view for laboratory operations', caption: 'An anonymized product example showing workspace status, team and patient counts, orders, critical alerts, report templates, and quick operations.' },
+  'patient-management': { src: '/screenshots/laboratory-workspace-overview.webp', alt: 'Anonymized PathMLT laboratory workspace showing patient and order counts with report operations', title: 'Patient and order activity at a glance', caption: 'The workspace overview gives laboratory teams a compact view of patient volume, order activity, report operations, and work requiring attention.' },
+  'hospital-labs': { src: '/screenshots/laboratory-workspace-overview.webp', alt: 'Anonymized PathMLT laboratory workspace overview with operational counts and critical alerts panel', title: 'Operational visibility for a laboratory team', caption: 'This anonymized workspace view shows operational counts, critical-result visibility, report-template access, and a start-report action.' },
+  'independent-labs': { src: '/screenshots/laboratory-workspace-overview.webp', alt: 'Anonymized PathMLT workspace overview for an independent laboratory showing plan, patients, tests, and orders', title: 'A focused workspace for an independent lab', caption: 'The overview demonstrates a focused operating surface for team members, patients, tests, orders, reports, and alerts.' },
+  'report-templates': { src: '/screenshots/laboratory-report-pdf.webp', alt: 'Anonymized PathMLT final PDF report showing configured laboratory report structure and result columns', title: 'The output of a configured report template', caption: 'The anonymized PDF demonstrates the final presentation layer: laboratory identity, patient context, test description, result, flag, reference range, unit, and barcode.' },
+};
+
 const intentGuides: Partial<Record<SeoPageKey, IntentGuide>> = {
   'laboratory-reporting-software': {
     title: 'A practical guide to laboratory reporting software',
@@ -368,6 +389,7 @@ export default function SeoLandingPage({ pageKey }: { pageKey: SeoPageKey }) {
   const page = common[pageKey];
   const depth = seoDepth[pageKey];
   const intentGuide = intentGuides[pageKey];
+  const productScreenshot = productScreenshots[pageKey];
   const workflowTitle = `How ${page.eyebrow.toLowerCase()} fits into a laboratory workflow`;
   const capabilityTitle = `Capabilities to evaluate for ${page.eyebrow.toLowerCase()}`;
   const useCaseTitle = `Practical ${page.eyebrow.toLowerCase()} use cases`;
@@ -397,6 +419,18 @@ export default function SeoLandingPage({ pageKey }: { pageKey: SeoPageKey }) {
           <p>{section.body}</p>
         </article>)}
       </div>
+    </section>}
+
+    {productScreenshot && <section className="seo-product-proof" aria-labelledby="seo-product-proof-title">
+      <div className="landing-section-heading">
+        <span className="landing-eyebrow">Product evidence</span>
+        <h2 id="seo-product-proof-title">{productScreenshot.title}</h2>
+        <p>{productScreenshot.caption}</p>
+      </div>
+      <figure className="seo-product-proof-figure">
+        <img src={productScreenshot.src} alt={productScreenshot.alt} loading="lazy" width="2048" height="1331" />
+        <figcaption>Product screenshot supplied by PathMLT; personal and account identifiers have been anonymized for public use.</figcaption>
+      </figure>
     </section>}
 
     <section className="seo-intent">

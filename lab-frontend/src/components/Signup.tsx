@@ -136,12 +136,14 @@ export default function Signup({ onSignupSuccess, onCancel }: Props) {
         otp,
       });
 
+      const session = await authService.login({ email, password });
+
       toast.show({
         type: 'success',
-        message: 'Workspace created. Please sign in.',
+        message: 'Workspace created. You are now logged in.',
       });
 
-      onSignupSuccess(res.user ?? res);
+      onSignupSuccess(session.user);
     } catch (err: any) {
       const message = err?.message || 'Verification failed.';
       setError(message);

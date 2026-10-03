@@ -5,6 +5,7 @@ import { useToast } from './Toast';
 import type { LabReport } from '../data/samples';
 import { downloadReportPdf, getReport, getSavedReportTemplate, listReports, openReportPdf, saveReportTemplate, type ReportTemplateId } from '../services/reportsService';
 import Pagination from './Pagination';
+import analyticsService from '../services/analyticsService';
 
 interface ReportListProps {
   onDeleteReport: (id: string) => Promise<void>;
@@ -82,6 +83,7 @@ export default function ReportList({ onDeleteReport, onEditReport, selectedRepor
     try {
       setBusyId(`${report.id}:download`);
       await downloadReportPdf(report.id, undefined, template);
+      analyticsService.trackFunnelEvent('report_downloaded', { reportId: report.id });
       toast.update(toastId, { type: 'success', message: `Downloaded ${template} PDF for ${report.id}.` });
     } catch (error: any) {
       toast.update(toastId, { type: 'error', message: error?.message || 'PDF download failed' });

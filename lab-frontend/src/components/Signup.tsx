@@ -135,7 +135,7 @@ export default function Signup({ onSignupSuccess, onCancel }: Props) {
         requestId,
         otp,
       });
-
+     console.log(res)
       const session = await authService.login({ email, password });
 
       toast.show({

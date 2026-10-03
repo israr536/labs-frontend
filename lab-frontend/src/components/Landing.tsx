@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { ArrowRight, Check, ClipboardCheck, FileCheck2, FlaskConical, ShieldCheck, Sparkles, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { faqItems } from '../data/faqData';
@@ -24,8 +25,7 @@ const workflow = [
 export default function Landing({ onLoginClick, onSignupClick }: Props) {
   const sampleReport: LabReport = { id: 'PATHMLT-DEMO-10482', patientName: 'Sample Patient', age: 32, gender: 'Male', phone: '+91 98765 43210', email: 'patient@example.com', referredBy: 'Dr. Self / Walk-in', dateCollected: new Date().toISOString(), dateReported: new Date().toISOString(), testType: 'Complete Blood Count (CBC)', status: 'Completed', parameters: [{ name: 'Hemoglobin', value: '14.2', unit: 'g/dL', refRange: '13.5 - 17.5', minRef: 13.5, maxRef: 17.5, status: 'Normal' }, { name: 'White Blood Cells (WBC)', value: '7.4', unit: 'K/µL', refRange: '4.5 - 11.0', minRef: 4.5, maxRef: 11, status: 'Normal' }, { name: 'Platelet Count', value: '248', unit: 'K/µL', refRange: '150 - 450', minRef: 150, maxRef: 450, status: 'Normal' }], interpretation: 'Demonstration report generated using the PathMLT reporting workflow.' };
   const startTrial = () => { analyticsService.trackFunnelEvent('trial_clicked'); onSignupClick(); };
-  useEffect; // placeholder
-  analyticsService.trackFunnelEvent('landing_view');
+  useEffect(() => { analyticsService.trackFunnelEvent('landing_view'); }, []);
   return (
     <div className="landing-page landing-v2">
       <section className="landing-v2-hero">

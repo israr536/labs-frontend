@@ -1,6 +1,9 @@
 import { ArrowRight, Check, ClipboardCheck, FileCheck2, FlaskConical, ShieldCheck, Sparkles, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { faqItems } from '../data/faqData';
+import analyticsService from '../services/analyticsService';
+import ReportPrintView from './ReportPrintView';
+import { DEFAULT_SETTINGS, type LabReport } from '../data/samples';
 
 type Props = { onLoginClick: () => void; onSignupClick: () => void };
 
@@ -19,15 +22,19 @@ const workflow = [
 ];
 
 export default function Landing({ onLoginClick, onSignupClick }: Props) {
+  const sampleReport: LabReport = { id: 'PATHMLT-DEMO-10482', patientName: 'Sample Patient', age: 32, gender: 'Male', phone: '+91 98765 43210', email: 'patient@example.com', referredBy: 'Dr. Self / Walk-in', dateCollected: new Date().toISOString(), dateReported: new Date().toISOString(), testType: 'Complete Blood Count (CBC)', status: 'Completed', parameters: [{ name: 'Hemoglobin', value: '14.2', unit: 'g/dL', refRange: '13.5 - 17.5', minRef: 13.5, maxRef: 17.5, status: 'Normal' }, { name: 'White Blood Cells (WBC)', value: '7.4', unit: 'K/µL', refRange: '4.5 - 11.0', minRef: 4.5, maxRef: 11, status: 'Normal' }, { name: 'Platelet Count', value: '248', unit: 'K/µL', refRange: '150 - 450', minRef: 150, maxRef: 450, status: 'Normal' }], interpretation: 'Demonstration report generated using the PathMLT reporting workflow.' };
+  const startTrial = () => { analyticsService.trackFunnelEvent('trial_clicked'); onSignupClick(); };
+  useEffect; // placeholder
+  analyticsService.trackFunnelEvent('landing_view');
   return (
     <div className="landing-page landing-v2">
       <section className="landing-v2-hero">
         <div className="landing-v2-copy">
           <div className="landing-v2-badge"><span><Sparkles size={14} /> Laboratory operations platform</span></div>
-          <h1>Run your laboratory on one <span>calm, connected workflow.</span></h1>
-          <p>PathMLT brings patients, tests, samples, results and final reports into one focused workspace built for diagnostic and pathology laboratories.</p>
+          <h1>Professional lab reports, faster <span>without expensive LIS software.</span></h1>
+          <p>Create, review and deliver professional diagnostic reports from one focused workflow. PathMLT gives growing laboratories the core reporting tools they need without the cost and complexity of a traditional LIS.</p>
           <div className="landing-v2-actions">
-            <button className="landing-v2-primary" onClick={onSignupClick}>Start free <ArrowRight size={17} /></button>
+            <button className="landing-v2-primary" onClick={startTrial}>Start 30-Day Free Trial <ArrowRight size={17} /></button>
             <button className="landing-v2-secondary" onClick={onLoginClick}>Sign in</button>
           </div>
           <div className="landing-v2-reassurance">
@@ -68,7 +75,7 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
         <div><strong>Patients</strong><b>→</b><strong>Orders</strong><b>→</b><strong>Samples</strong><b>→</b><strong>Results</strong><b>→</b><strong>Verification</strong><b>→</b><strong>Reports</strong></div>
       </section>
 
-      <div className="landing-v2-action-rail"><span>See how PathMLT fits your lab before you commit.</span><div><a className="landing-v2-demo-btn" href="https://wa.me/916388334513?text=Hello%20PathMLT%2C%20I%20want%20to%20book%20a%20demo." target="_blank" rel="noreferrer">Book a demo <ArrowRight size={14} /></a><button className="landing-v2-login-btn" onClick={onLoginClick}>Login</button><button className="landing-v2-register-btn" onClick={onSignupClick}>Register</button></div></div>
+      <div className="landing-v2-action-rail"><span>See the report your lab can deliver with PathMLT.</span><div><a className="landing-v2-demo-btn" href="https://wa.me/916388334513?text=Hello%20PathMLT%2C%20I%20want%20to%20book%20a%20demo." target="_blank" rel="noreferrer">Book a demo <ArrowRight size={14} /></a><button className="landing-v2-login-btn" onClick={onLoginClick}>Login</button><button className="landing-v2-register-btn" onClick={startTrial}>Start Free Trial</button></div></div>
 
       <section className="landing-v2-section">
         <div className="landing-v2-section-head">
@@ -88,8 +95,8 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
       <div className="landing-v2-action-rail"><span>Ready to move from manual handoffs to a connected workflow?</span><div><a className="landing-v2-demo-btn" href="https://wa.me/916388334513?text=Hello%20PathMLT%2C%20I%20want%20to%20book%20a%20demo." target="_blank" rel="noreferrer">Book a demo <ArrowRight size={14} /></a><button className="landing-v2-login-btn" onClick={onLoginClick}>Login</button><button className="landing-v2-register-btn" onClick={onSignupClick}>Register</button></div></div>
 
       <section className="landing-v2-showcase">
-        <div><span className="landing-v2-eyebrow">Reporting without the clutter</span><h2>Professional reports, built from verified results.</h2><p>Configure your laboratory identity once, keep parameters readable, and give reviewers a focused finalization step.</p><Link to="/report-templates">Explore report templates <ArrowRight size={15} /></Link></div>
-        <div className="report-mock"><div className="report-mock-head"><div><span>A</span><b>PATHMLT DIAGNOSTICS</b></div><em>FINAL REPORT</em></div><div className="report-mock-patient"><span><small>Patient</small><b>Sample patient</b></span><span><small>Report ID</small><b>LAB-10482</b></span><span><small>Status</small><b>Verified</b></span></div><div className="report-mock-table"><div><span>Parameter</span><span>Result</span><span>Reference</span><span>Status</span></div>{[['Hemoglobin','12.8 g/dL','12.0 – 16.0'],['WBC count','7.4 ×10⁹/L','4.0 – 11.0'],['Platelets','248 ×10⁹/L','150 – 450']].map(r=><div key={r[0]}><span>{r[0]}</span><b>{r[1]}</b><span>{r[2]}</span><i><Check size={10}/> Normal</i></div>)}</div><div className="report-mock-footer"><span><ShieldCheck size={14}/> Verified by technician</span><strong>Ready to share</strong></div></div>
+        <div><span className="landing-v2-eyebrow">Reporting proof</span><h2>A real PathMLT report output.</h2><p>This preview uses the same report-rendering component used by the application, so visitors can see the finished patient-ready format before signing up.</p><Link to="/report-templates">Explore report templates <ArrowRight size={15} /></Link></div>
+        <div className="report-mock report-proof-real"><ReportPrintView report={sampleReport} settings={DEFAULT_SETTINGS} /></div><div className="report-mock-head"><div><span>A</span><b>PATHMLT DIAGNOSTICS</b></div><em>FINAL REPORT</em></div><div className="report-mock-patient"><span><small>Patient</small><b>Sample patient</b></span><span><small>Report ID</small><b>LAB-10482</b></span><span><small>Status</small><b>Verified</b></span></div><div className="report-mock-table"><div><span>Parameter</span><span>Result</span><span>Reference</span><span>Status</span></div>{[['Hemoglobin','12.8 g/dL','12.0 – 16.0'],['WBC count','7.4 ×10⁹/L','4.0 – 11.0'],['Platelets','248 ×10⁹/L','150 – 450']].map(r=><div key={r[0]}><span>{r[0]}</span><b>{r[1]}</b><span>{r[2]}</span><i><Check size={10}/> Normal</i></div>)}</div><div className="report-mock-footer"><span><ShieldCheck size={14}/> Verified by technician</span><strong>Ready to share</strong></div></div>
       </section>
 
       <section className="landing-v2-faq" aria-labelledby="home-faq-title">
@@ -112,7 +119,7 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 
       <section className="landing-v2-bottom">
         <div><span className="landing-v2-eyebrow">Built to grow with your laboratory</span><h2>Start with the workflow you use every day.</h2><p>Configure your core panels, invite your team and move a representative order from registration to final report.</p></div>
-        <div className="landing-v2-bottom-actions"><button className="landing-v2-primary" onClick={onSignupClick}>Create workspace <ArrowRight size={17}/></button><Link to="/contact">Talk to the team</Link></div>
+        <div className="landing-v2-bottom-actions"><button className="landing-v2-primary" onClick={startTrial}>Start 30-Day Free Trial <ArrowRight size={17}/></button><Link to="/contact">Talk to the team</Link></div>
       </section>
     </div>
   );

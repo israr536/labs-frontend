@@ -20,7 +20,7 @@ import { DEFAULT_SETTINGS, type LabReport, type LabSettings } from './data/sampl
 import reportsService from './services/reportsService';
 import labsService from './services/labsService';
 import authService from './services/authService';
-import { clearTokens, setTokens } from './services/api';
+import { clearTokens } from './services/api';
 import subscriptionService, { type SubscriptionStatus } from './services/subscriptionService';
 
 const TeamPage = lazy(() => import('./pages/TeamPage'));

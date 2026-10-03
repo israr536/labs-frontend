@@ -22,6 +22,12 @@ export default function Signup({ onSignupSuccess, onCancel }: Props) {
   const [resendSeconds, setResendSeconds] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
+  const normalizePhoneInput = (value: string) => value.replace(/[^\d+\s().-]/g, '').replace(/(?!^)\+/g, '');
+  const isValidPhone = (value: string) => {
+    const compact = value.replace(/[\s().-]/g, '');
+    return /^\d{10}$/.test(compact) || /^\+[1-9]\d{7,14}$/.test(compact);
+  };
+
   useEffect(() => {
     if (resendSeconds <= 0) return;
     const timer = window.setInterval(() => setResendSeconds((seconds) => Math.max(0, seconds - 1)), 1000);
@@ -31,11 +37,12 @@ export default function Signup({ onSignupSuccess, onCancel }: Props) {
   const requestOtp = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault(); setError(null);
     if (password.length < 8) { setError('Password must be at least 8 characters.'); return; }
+    if (!isValidPhone(mobile)) { setError('Enter a valid mobile number. Use 10 digits for India or include the country code for international numbers, e.g. +1 415 555 2671.'); return; }
     setLoading(true);
     try {
       const res = await authService.requestSignupOtp({ labName, mobile, email, address, password });
       setRequestId(res.requestId); setDevOtp(res.devOtp ?? ''); setOtp(res.devOtp ?? ''); setResendSeconds(60); setStep('otp');
-      toast.show({ type: 'success', message: 'Verification code sent by SMS to your mobile number.' });
+      toast.show({ type: 'success', message: 'Verification code generated successfully.' });
     } catch (err: any) { const message = err?.message || 'Could not start signup.'; setError(message); toast.show({ type: 'error', message }); }
     finally { setLoading(false); }
   };
@@ -46,7 +53,7 @@ export default function Signup({ onSignupSuccess, onCancel }: Props) {
     try {
       const res = await authService.resendSignupOtp(requestId);
       setRequestId(res.requestId || requestId); setDevOtp(res.devOtp ?? ''); setOtp(res.devOtp ?? ''); setResendSeconds(60);
-      toast.show({ type: 'success', message: 'A new verification code was sent by SMS.' });
+      toast.show({ type: 'success', message: 'A new verification code has been generated.' });
     } catch (err: any) { const message = err?.message || 'Could not resend the verification code.'; setError(message); toast.show({ type: 'error', message }); }
     finally { setResending(false); }
   };
@@ -61,14 +68,14 @@ export default function Signup({ onSignupSuccess, onCancel }: Props) {
     finally { setLoading(false); }
   };
 
-  const maskedMobile = mobile.replace(/\s/g, '').replace(/^(\+?91)?(\d{2})\d{4}(\d{2})$/, '$1$2••••$3');
+  const maskedMobile = mobile.replace(/[^\d+]/g, '').replace(/(\d{4})$/, '••••');
 
   return <>
     <div className="saas-signup-header">
       <div>
         <span className="saas-signup-eyebrow">PathMLT Register Here • 30-day free trial</span>
-        <h3>{step === 'details' ? 'Register your laboratory' : 'Verify your mobile number'}</h3>
-        <p>{step === 'details' ? 'Enter your laboratory details to create your PathMLT account. No payment details are required for the trial.' : 'Enter the 6-digit verification code sent by SMS to your registered mobile number.'}</p>
+        <h3>{step === 'details' ? 'Register your laboratory' : 'Enter verification code'}</h3>
+        <p>{step === 'details' ? 'Enter your laboratory details to create your PathMLT account. No payment details are required for the trial.' : 'Enter the 6-digit verification code to complete your registration. It expires in 10 minutes.'}</p>
       </div>
       <button type="button" className="saas-signup-cancel" onClick={onCancel}>Cancel</button>
     </div>
@@ -79,7 +86,7 @@ export default function Signup({ onSignupSuccess, onCancel }: Props) {
         <div className="saas-signup-grid">
           <label className="saas-signup-field"><span>Lab name</span><input value={labName} onChange={(e) => setLabName(e.target.value)} required placeholder="Apex Clinical Diagnostics" /></label>
           {/* <label className="saas-signup-field"><span>Lab code <em>optional</em></span><input value={labCode} onChange={(e) => setLabCode(e.target.value.toUpperCase())} placeholder="AUTO-GENERATED" /></label> */}
-          <label className="saas-signup-field"><span>Mobile number</span><input type="tel" value={mobile} onChange={(e) => setMobile(e.target.value)} required placeholder="+91 98765 43210" autoComplete="tel" /></label>
+          <label className="saas-signup-field"><span>Mobile number</span><input type="tel" value={mobile} onChange={(e) => setMobile(normalizePhoneInput(e.target.value))} required placeholder="98765 43210 or +1 415 555 2671" autoComplete="tel" inputMode="tel" maxLength={20} /></label>
           <label className="saas-signup-field"><span>Admin email</span><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" placeholder="admin@lab.com" /></label>
           <label className="saas-signup-field saas-signup-full"><span>Address <em>optional</em></span><textarea value={address} onChange={(e) => setAddress(e.target.value)} rows={2} placeholder="Full laboratory address" /></label>
         </div>
@@ -97,11 +104,11 @@ export default function Signup({ onSignupSuccess, onCancel }: Props) {
         <button type="submit" className="saas-signup-primary" disabled={loading}><ShieldCheck size={15} />{loading ? 'Sending code…' : 'Continue'}</button>
       </div>
     </form> : <form onSubmit={verifyOtp} className="saas-signup-form">
-      <div className="saas-otp-card"><div className="saas-otp-icon"><Smartphone size={21} /></div><div><h4>SMS verification</h4><p>We sent a one-time code by SMS to <strong>{maskedMobile || mobile}</strong>. It expires in 10 minutes.</p></div></div>
-      {devOtp && <div className="saas-dev-otp">Development code: <strong>{devOtp}</strong></div>}
+      <div className="saas-otp-card"><div className="saas-otp-icon"><Smartphone size={21} /></div><div><h4>Verification code</h4><p>Your one-time verification code has been generated for <strong>{maskedMobile || mobile}</strong>. It expires in 10 minutes.</p></div></div>
+      {devOtp && <div className="saas-dev-otp">Verification code: <strong>{devOtp}</strong></div>}
       <label className="saas-signup-field"><span>6-digit verification code</span><input value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))} required placeholder="000000" inputMode="numeric" autoComplete="one-time-code" maxLength={6} /></label>
       {error && <div className="saas-signup-error">{error}</div>}
-      <div className="saas-signup-resend"><span>Didn't receive the SMS?</span><button type="button" onClick={resendOtp} disabled={resendSeconds > 0 || resending}>{resending ? 'Sending…' : resendSeconds > 0 ? `Resend in ${resendSeconds}s` : <><RefreshCw size={13} />Resend code</>}</button></div>
+      <div className="saas-signup-resend"><span>Didn't receive a verification code?</span><button type="button" onClick={resendOtp} disabled={resendSeconds > 0 || resending}>{resending ? 'Sending…' : resendSeconds > 0 ? `Resend in ${resendSeconds}s` : <><RefreshCw size={13} />Resend code</>}</button></div>
       <div className="saas-signup-actions"><button type="button" className="saas-signup-secondary" onClick={() => { setError(null); setStep('details'); }}><ArrowLeft size={15} />Edit details</button><button type="submit" className="saas-signup-primary" disabled={loading || otp.length < 6}><CheckCircle2 size={15} />{loading ? 'Verifying…' : 'Create workspace'}</button></div>
     </form>}
 

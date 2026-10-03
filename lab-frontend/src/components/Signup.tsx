@@ -34,7 +34,7 @@ export default function Signup({ onSignupSuccess, onCancel }: Props) {
     setLoading(true);
     try {
       const res = await authService.requestSignupOtp({ labName, mobile, email, address, password });
-      setRequestId(res.requestId); setDevOtp(res.devOtp ?? ''); setOtp(''); setResendSeconds(60); setStep('otp');
+      setRequestId(res.requestId); setDevOtp(res.devOtp ?? ''); setOtp(res.devOtp ?? ''); setResendSeconds(60); setStep('otp');
       toast.show({ type: 'success', message: 'Verification code sent by SMS to your mobile number.' });
     } catch (err: any) { const message = err?.message || 'Could not start signup.'; setError(message); toast.show({ type: 'error', message }); }
     finally { setLoading(false); }
@@ -45,7 +45,7 @@ export default function Signup({ onSignupSuccess, onCancel }: Props) {
     setError(null); setResending(true);
     try {
       const res = await authService.resendSignupOtp(requestId);
-      setRequestId(res.requestId || requestId); setDevOtp(res.devOtp ?? ''); setOtp(''); setResendSeconds(60);
+      setRequestId(res.requestId || requestId); setDevOtp(res.devOtp ?? ''); setOtp(res.devOtp ?? ''); setResendSeconds(60);
       toast.show({ type: 'success', message: 'A new verification code was sent by SMS.' });
     } catch (err: any) { const message = err?.message || 'Could not resend the verification code.'; setError(message); toast.show({ type: 'error', message }); }
     finally { setResending(false); }

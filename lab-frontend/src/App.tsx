@@ -20,7 +20,7 @@ import { DEFAULT_SETTINGS, type LabReport, type LabSettings } from './data/sampl
 import reportsService from './services/reportsService';
 import labsService from './services/labsService';
 import authService from './services/authService';
-import { clearTokens } from './services/api';
+import { clearTokens, setTokens } from './services/api';
 import subscriptionService, { type SubscriptionStatus } from './services/subscriptionService';
 
 const TeamPage = lazy(() => import('./pages/TeamPage'));
@@ -41,6 +41,8 @@ const SolutionsPage = lazy(() => import('./pages/SolutionsPage'));
 const HelpCenterPage = lazy(() => import('./pages/HelpCenterPage'));
 const SeoLandingPage = lazy(() => import('./pages/SeoLandingPage'));
 import WhatsAppButton from './components/WhatsAppButton';
+import OnboardingPage from './pages/OnboardingPage';
+import analyticsService from './services/analyticsService';
 
 interface SessionUser { id: string; username?: string; email?: string; role?: string; isActive?: boolean; }
 
@@ -148,6 +150,8 @@ export default function App() {
   const showSignup = () => { setAuthView('signup'); navigate('/signup'); };
   const showForgotPassword = () => { setAuthView('forgot-password'); navigate('/forgot-password'); };
 
+  useEffect(() => { if (isAuthenticated && location.pathname === '/dashboard' && new URLSearchParams(location.search).get('newReport') === '1') setActiveTab('new-report'); }, [isAuthenticated, location.pathname, location.search]);
+
   const handleLoginSuccess = (nextUser: SessionUser) => {
     setUser(nextUser);
     setIsAuthenticated(true);
@@ -157,11 +161,14 @@ export default function App() {
     navigate('/dashboard', { replace: true });
   };
 
+  const handleSignupSuccess = (nextUser: SessionUser) => { setUser(nextUser); setIsAuthenticated(true); setAuthView('landing'); queryClient.clear(); navigate('/onboarding', { replace: true }); };
+
   const handleSaveReport = async (report: LabReport) => {
     setEditingReport(null);
     setSelectedReportId(report.id);
     queryClient.setQueryData(['report', report.id], report);
     await queryClient.invalidateQueries({ queryKey: ['reports'] });
+    if (!editingReport) analyticsService.trackFunnelEvent('first_report_generated');
     setActiveTab('reports');
   };
 
@@ -215,6 +222,7 @@ export default function App() {
         <Suspense fallback={<LoadingScreen />}>
           <Routes>
             <Route path="/pricing" element={<PricingPage />} />
+            <Route path="/onboarding" element={isAuthenticated ? <OnboardingPage /> : <Navigate to="/signup" replace />} />
             <Route path="/solutions" element={<SolutionsPage />} />
             {['laboratory-reporting-software','diagnostic-lab-software','pathology-lab-software','laboratory-management-software','lab-reporting-system','pathology-reporting-software','lims-software','lab-automation-software','patient-management','test-management','sample-management','result-entry','result-verification','lab-reporting','report-templates','reference-ranges','audit-trail','role-based-access','pdf-reports','pathology-labs','diagnostic-labs','hospital-labs','independent-labs'].map(path => <Route key={path} path={'/'+path} element={<SeoLandingPage pageKey={path as import('./pages/SeoLandingPage').SeoPageKey} />} />)}
             <Route path="/help" element={<HelpCenterPage />} />
@@ -227,7 +235,7 @@ export default function App() {
             <Route path="/report-templates" element={isAuthenticated ? <ReportTemplatesPage /> : <Navigate to="/login" replace />} />
             <Route path="/login" element={<Modal onClose={closeAuthModal} title="Sign in" description="Access your laboratory workspace securely."><Login onLoginSuccess={handleLoginSuccess} onForgotPassword={showForgotPassword} onSignup={showSignup} /></Modal>} />
             <Route path="/forgot-password" element={<Modal onClose={closeAuthModal} title="Reset password" description="Recover access to your laboratory workspace securely."><ForgotPassword onBackToLogin={showLogin} /></Modal>} />
-            <Route path="/signup" element={<Modal onClose={closeAuthModal} title="Create your account" description="Start your laboratory workspace in a few minutes."><Signup onSignupSuccess={() => { setAuthView('login'); navigate('/login'); }} onCancel={closeAuthModal} /></Modal>} />
+            <Route path="/signup" element={<Modal onClose={closeAuthModal} title="Create your account" description="Start your laboratory workspace in a few minutes."><Signup onSignupSuccess={handleSignupSuccess} onCancel={closeAuthModal} /></Modal>} />
             <Route path="/dashboard" element={dashboardPage} />
             <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : authView === 'login' ? <Modal onClose={closeAuthModal} title="Sign in"><Login onLoginSuccess={handleLoginSuccess} onForgotPassword={showForgotPassword} onSignup={showSignup} /></Modal> : authView === 'signup' ? <Modal onClose={closeAuthModal} title="Create your account"><Signup onSignupSuccess={() => { setAuthView('login'); navigate('/login'); }} onCancel={closeAuthModal} /> </Modal> : authView === 'forgot-password' ? <Modal onClose={closeAuthModal} title="Reset password"><ForgotPassword onBackToLogin={showLogin} /></Modal> : <Landing onLoginClick={showLogin} onSignupClick={showSignup} />} />
             <Route path="*" element={<Navigate to={isAuthenticated ? '/dashboard' : '/'} replace />} />

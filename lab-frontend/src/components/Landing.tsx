@@ -96,7 +96,7 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
 
       <section className="landing-v2-showcase">
         <div><span className="landing-v2-eyebrow">Reporting proof</span><h2>A real PathMLT report output.</h2><p>This preview uses the same report-rendering component used by the application, so visitors can see the finished patient-ready format before signing up.</p><Link to="/report-templates">Explore report templates <ArrowRight size={15} /></Link></div>
-        <div className="report-mock report-proof-real"><ReportPrintView report={sampleReport} settings={DEFAULT_SETTINGS} /></div><div className="report-mock-head"><div><span>A</span><b>PATHMLT DIAGNOSTICS</b></div><em>FINAL REPORT</em></div><div className="report-mock-patient"><span><small>Patient</small><b>Sample patient</b></span><span><small>Report ID</small><b>LAB-10482</b></span><span><small>Status</small><b>Verified</b></span></div><div className="report-mock-table"><div><span>Parameter</span><span>Result</span><span>Reference</span><span>Status</span></div>{[['Hemoglobin','12.8 g/dL','12.0 – 16.0'],['WBC count','7.4 ×10⁹/L','4.0 – 11.0'],['Platelets','248 ×10⁹/L','150 – 450']].map(r=><div key={r[0]}><span>{r[0]}</span><b>{r[1]}</b><span>{r[2]}</span><i><Check size={10}/> Normal</i></div>)}</div><div className="report-mock-footer"><span><ShieldCheck size={14}/> Verified by technician</span><strong>Ready to share</strong></div></div>
+        <div className="report-mock report-proof-real"><ReportPrintView report={sampleReport} settings={DEFAULT_SETTINGS} /></div>
       </section>
 
       <section className="landing-v2-faq" aria-labelledby="home-faq-title">

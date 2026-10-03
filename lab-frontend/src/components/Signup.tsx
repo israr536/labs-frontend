@@ -34,11 +34,7 @@ export default function Signup({ onSignupSuccess, onCancel }: Props) {
   const [resendSeconds, setResendSeconds] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
-  const normalizePhoneInput = (value: string) => value.replace(/[^\d+\s().-]/g, '').replace(/(?!^)\+/g, '');
-  const isValidPhone = (value: string) => {
-    const compact = value.replace(/[\s().-]/g, '');
-    return /^\d{10}$/.test(compact) || /^\+[1-9]\d{7,14}$/.test(compact);
-  };
+  
 
   useEffect(() => {
     if (resendSeconds <= 0) return;

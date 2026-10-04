@@ -27,13 +27,13 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
           <h1>Run your laboratory reporting workflow from <span>patient registration to verified report.</span></h1>
           <p>PathMLT connects patients, orders, tests, samples, results, verification, report templates, and PDF delivery in one workspace for diagnostic, pathology, hospital, and independent laboratories.</p>
           <div className="landing-v2-actions">
-            <button className="landing-v2-primary" onClick={onSignupClick}>Create a laboratory workspace <ArrowRight size={17} /></button>
-            <button className="landing-v2-secondary" onClick={onLoginClick}>Login</button>
+            <button className="landing-v2-primary" onClick={onSignupClick}>Start your 30-day free trial <ArrowRight size={17} /></button>
+            <a className="landing-v2-secondary" href="https://wa.me/916388334513?text=Hello%20PathMLT%2C%20I%20want%20to%20book%20a%20demo." target="_blank" rel="noreferrer">Book a live demo</a>
           </div>
           <div className="landing-v2-reassurance">
             <span><Check size={15} /> 30-day free trial</span>
-            <span><Check size={15} /> Structured result verification</span>
-            <span><Check size={15} /> Professional PDF reporting</span>
+            <span><Check size={15} /> No payment details required to start</span>
+            <span><Check size={15} /> Cancel before renewal</span>
           </div>
         </div>
 
@@ -50,11 +50,13 @@ export default function Landing({ onLoginClick, onSignupClick }: Props) {
         </div>
       </section>
 
-      <section className="landing-v2-trust"><span>ONE CONNECTED LABORATORY WORKFLOW</span><div><strong>Patients</strong><b>→</b><strong>Orders</strong><b>→</b><strong>Samples</strong><b>→</b><strong>Results</strong><b>→</b><strong>Verification</strong><b>→</b><strong>Reports</strong></div></section>
+      <section className="landing-v2-trust"><span>BUILT FOR REAL LABORATORY WORK</span><div><strong>Patients</strong><b>→</b><strong>Orders</strong><b>→</b><strong>Samples</strong><b>→</b><strong>Results</strong><b>→</b><strong>Verification</strong><b>→</b><strong>Reports</strong></div></section>
 
       <div className="landing-v2-action-rail"><span>See how PathMLT fits your laboratory before you commit.</span><div><a className="landing-v2-demo-btn" href="https://wa.me/916388334513?text=Hello%20PathMLT%2C%20I%20want%20to%20book%20a%20demo." target="_blank" rel="noreferrer">Book a workflow demo <ArrowRight size={14} /></a><button className="landing-v2-login-btn" onClick={onLoginClick}>Login</button><button className="landing-v2-register-btn" onClick={onSignupClick}>Start trial</button></div></div>
 
       <section className="landing-v2-section"><div className="landing-v2-section-head"><div><span className="landing-v2-eyebrow">Built around laboratory work</span><h2>Keep every reporting stage in context.</h2></div><p>Replace disconnected spreadsheets, manual handoffs, and scattered report files with a repeatable process that your team can configure, review, and improve.</p></div><div className="landing-v2-feature-grid">{features.map(({ icon: Icon, title, text }) => <article key={title}><span className="feature-icon"><Icon size={20} /></span><h3>{title}</h3><p>{text}</p><Link to="/solutions">Explore this capability <ArrowRight size={14} /></Link></article>)}</div></section>
+
+      <section className="landing-v2-proof-strip" aria-label="PathMLT product proof"><div><strong>See the actual product</strong><span>Use your own test panel, result workflow and report format during the free trial.</span></div><div><strong>Start small</strong><span>Move one representative order from registration to final report first.</span></div><div><strong>Get implementation help</strong><span>Talk through your workflow with the PathMLT team before committing.</span></div></section>
 
       <section className="landing-v2-workflow"><div className="workflow-v2-copy"><span className="landing-v2-eyebrow">A laboratory reporting workflow with clear ownership</span><h2>Make the next laboratory action obvious.</h2><p>Each stage carries the patient, order, test, sample, and result context forward so the next person can act without rebuilding the record.</p><div className="workflow-v2-list">{workflow.map(([n,t,d]) => <div key={n}><b>{n}</b><span><strong>{t}</strong><small>{d}</small></span></div>)}</div></div><div className="workflow-v2-card"><div className="workflow-card-head"><span><Zap size={15} /> Live workflow</span><small>Order in progress</small></div>{workflow.map(([n,t],i)=><div className={`workflow-card-row ${i < 3 ? 'complete' : 'next'}`} key={n}><span className="workflow-node">{i < 3 ? <Check size={13}/> : n}</span><div><strong>{t}</strong><small>{i < 3 ? 'Completed' : 'Next action'}</small></div>{i < 3 && <em>Done</em>}</div>)}<div className="workflow-card-footer"><ShieldCheck size={15}/> Verification history stays with the workflow.</div></div></section>
 

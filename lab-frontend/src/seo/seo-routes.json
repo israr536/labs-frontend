@@ -315,6 +315,51 @@
       "index": true,
       "priority": 0.7,
       "changefreq": "monthly"
+    },
+    {
+      "path": "/resources/pathology-lab-software-india",
+      "title": "How to Choose Pathology Lab Software in India | PathMLT",
+      "description": "A practical guide for pathology and diagnostic labs comparing software, workflows, pricing and support.",
+      "canonical": "/resources/pathology-lab-software-india",
+      "index": true,
+      "priority": 0.8,
+      "changefreq": "monthly"
+    },
+    {
+      "path": "/resources/pathology-lab-software-price-india",
+      "title": "Pathology Lab Software Price in India | PathMLT",
+      "description": "Compare pathology laboratory software pricing, trial terms, workflow features and support.",
+      "canonical": "/resources/pathology-lab-software-price-india",
+      "index": true,
+      "priority": 0.8,
+      "changefreq": "monthly"
+    },
+    {
+      "path": "/resources/free-pathology-lab-software",
+      "title": "Free Pathology Lab Software for Small Labs | PathMLT",
+      "description": "A practical checklist for evaluating free or low-cost pathology lab software.",
+      "canonical": "/resources/free-pathology-lab-software",
+      "index": true,
+      "priority": 0.8,
+      "changefreq": "monthly"
+    },
+    {
+      "path": "/resources/lis-vs-lims-vs-lab-software",
+      "title": "LIS vs LIMS vs Laboratory Management Software | PathMLT",
+      "description": "Understand LIS, LIMS and laboratory management software by comparing real laboratory workflows.",
+      "canonical": "/resources/lis-vs-lims-vs-lab-software",
+      "index": true,
+      "priority": 0.8,
+      "changefreq": "monthly"
+    },
+    {
+      "path": "/resources/manual-reporting-vs-lab-software",
+      "title": "Manual Lab Reporting vs Laboratory Software | PathMLT",
+      "description": "Compare manual reporting with a connected laboratory workflow and identify repeated work to improve.",
+      "canonical": "/resources/manual-reporting-vs-lab-software",
+      "index": true,
+      "priority": 0.8,
+      "changefreq": "monthly"
     }
   ]
 }

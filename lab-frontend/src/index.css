@@ -11772,3 +11772,11 @@ tbody tr.inactive {
   .seo-product-proof-figure img { border-radius: 12px; }
   .landing-v2-real-report { width: min(100% - 28px, 1180px); padding: 52px 0; grid-template-columns: 1fr; gap: 26px; }
 }
+
+
+/* Acquisition proof strip: keeps the conversion message visible without inventing customer claims. */
+.landing-v2-proof-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;margin:0 auto;max-width:1180px;border:1px solid rgba(15,23,42,.10);border-radius:18px;overflow:hidden;background:rgba(15,23,42,.08)}
+.landing-v2-proof-strip>div{padding:24px;background:#fff}
+.landing-v2-proof-strip strong{display:block;font-size:15px;margin-bottom:7px}
+.landing-v2-proof-strip span{display:block;font-size:13px;line-height:1.6;opacity:.76}
+@media (max-width:800px){.landing-v2-proof-strip{grid-template-columns:1fr;margin:0 16px}.landing-v2-proof-strip>div{padding:18px}}

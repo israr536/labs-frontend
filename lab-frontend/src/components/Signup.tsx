@@ -131,7 +131,7 @@ export default function Signup({ onSignupSuccess, onCancel }: Props) {
     setLoading(true);
 
     try {
-      const res = await authService.verifySignupOtp({
+      await authService.verifySignupOtp({
         requestId,
         otp,
       });

@@ -19,8 +19,8 @@ function configForPath(pathname: string): SeoConfig {
   const normalizedPath = normalizePathname(pathname);
   return routeMap.get(normalizedPath) ?? {
     path: normalizedPath,
-    title: `${SITE_NAME} | Laboratory Reporting Software`,
-    description: 'PathMLT connects diagnostic laboratory workflows for patients, tests, results, verification and reporting.',
+    title: `Lab Software for Diagnostic Laboratories | ${SITE_NAME}`,
+    description: 'PathMLT connects diagnostic laboratory patients, tests, results, verification and reporting in one lab software workspace.',
     canonical: normalizedPath,
     index: false,
   };

@@ -8,9 +8,9 @@ const plans = [
   { name: 'Custom', price: 'Custom', period: '', description: 'For laboratory groups that need workflow planning, onboarding support, or a conversation about their operating model.', features: ['Everything in Yearly', 'Workflow planning', 'Test and report configuration support', 'Custom onboarding', 'Workflow planning with the PathMLT team', 'Integration planning'], featured: false },
 ];
 
-interface PricingPageProps { isAuthenticated: boolean; onLogin: () => void; onSignup: () => void; }
+interface PricingPageProps { isAuthenticated: boolean; onSignup: () => void; }
 
-export default function PricingPage({ isAuthenticated, onLogin, onSignup }: PricingPageProps) {
+export default function PricingPage({ isAuthenticated, onSignup }: PricingPageProps) {
   const navigate = useNavigate();
   const handlePaymentSuccess = () => { navigate('/dashboard', { replace: true }); window.location.reload(); };
   return (

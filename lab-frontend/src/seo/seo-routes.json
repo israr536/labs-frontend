@@ -6,8 +6,8 @@
   "routes": [
     {
       "path": "/",
-      "title": "PathMLT | Laboratory Reporting, Management & Workflow Software",
-      "description": "Connected laboratory reporting, management, result verification and workflow software for diagnostic and pathology labs.",
+      "title": "Lab Software for Diagnostic Laboratories | PathMLT",
+      "description": "Lab software for diagnostic laboratories connecting patients, orders, tests, results, verification, report templates and PDF reporting.",
       "canonical": "/",
       "index": true,
       "priority": 1,
@@ -120,8 +120,8 @@
     },
     {
       "path": "/laboratory-reporting-software",
-      "title": "Laboratory Reporting Software for Diagnostic Labs | PathMLT",
-      "description": "Run patient, order, test, result, verification, and final report workflows in one laboratory reporting workspace.",
+      "title": "Laboratory Reporting Software | PathMLT",
+      "description": "Connect patient, order, test, result, verification and final PDF reporting workflows in one laboratory workspace.",
       "canonical": "/laboratory-reporting-software",
       "index": true,
       "priority": 0.8,
@@ -129,7 +129,7 @@
     },
     {
       "path": "/diagnostic-lab-software",
-      "title": "Diagnostic Lab Software for Modern Laboratory Operations | PathMLT",
+      "title": "Diagnostic Lab Software for Laboratories | PathMLT",
       "description": "Connect recurring patient, testing, verification, and report operations with software designed for diagnostic laboratories.",
       "canonical": "/diagnostic-lab-software",
       "index": true,
@@ -138,7 +138,7 @@
     },
     {
       "path": "/pathology-lab-software",
-      "title": "Pathology Lab Software for Reporting & Result Workflows | PathMLT",
+      "title": "Pathology Lab Software | Reporting & Results | PathMLT",
       "description": "Configure pathology tests, parameters, review steps, report templates, and final reporting in one pathology laboratory workflow.",
       "canonical": "/pathology-lab-software",
       "index": true,
@@ -183,7 +183,7 @@
     },
     {
       "path": "/lab-automation-software",
-      "title": "Laboratory Automation Software for Reporting Workflows | PathMLT",
+      "title": "Laboratory Automation Software | PathMLT",
       "description": "Reduce repetitive laboratory reporting handoffs with reusable test configuration, result checks, verification, and report generation.",
       "canonical": "/lab-automation-software",
       "index": true,
@@ -192,7 +192,7 @@
     },
     {
       "path": "/patient-management",
-      "title": "Patient Management Software for Diagnostic Laboratories | PathMLT",
+      "title": "Patient Management Software for Labs | PathMLT",
       "description": "Keep patient records, laboratory orders, tests, and completed reports connected with searchable, role-aware patient management.",
       "canonical": "/patient-management",
       "index": true,
@@ -201,7 +201,7 @@
     },
     {
       "path": "/test-management",
-      "title": "Laboratory Test Management & Test Catalog Software | PathMLT",
+      "title": "Laboratory Test Management Software | PathMLT",
       "description": "Configure laboratory tests, parameters, specimen types, departments, methods, and reference information in a reusable test catalog.",
       "canonical": "/test-management",
       "index": true,

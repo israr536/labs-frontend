@@ -430,7 +430,7 @@ export default function SeoLandingPage({ pageKey }: { pageKey: SeoPageKey }) {
       </div>
       <figure className="seo-product-proof-figure">
         <img src={productScreenshot.src} alt={productScreenshot.alt} loading="lazy" width="2048" height="1331" />
-        <figcaption>Product screenshot supplied by PathMLT; personal and account identifiers have been anonymized for public use.</figcaption>
+        <figcaption>Product screenshot supplied by PathMLT; names, contact details, dates, identifiers, and barcode data have been anonymized for public use.</figcaption>
       </figure>
     </section>}
 

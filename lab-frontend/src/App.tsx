@@ -259,7 +259,7 @@ export default function App() {
       <main id="main-content" className="main-content">
         <Suspense fallback={<LoadingScreen />}>
           <Routes>
-            <Route path="/pricing" element={<PricingPage isAuthenticated={isAuthenticated} onLogin={showLogin} onSignup={showSignup} />} />
+            <Route path="/pricing" element={<PricingPage isAuthenticated={isAuthenticated} onSignup={showSignup} />} />
             <Route path="/solutions" element={<SolutionsPage />} />
             <Route path="/features" element={<FeaturesPage />} />
             {['laboratory-reporting-software','diagnostic-lab-software','pathology-lab-software','laboratory-management-software','lab-reporting-system','pathology-reporting-software','lims-software','lab-automation-software','patient-management','test-management','sample-management','result-entry','result-verification','lab-reporting','reference-ranges','audit-trail','role-based-access','pdf-reports','pathology-labs','diagnostic-labs','hospital-labs','independent-labs'].map(path => <Route key={path} path={'/'+path} element={<SeoLandingPage pageKey={path as import('./pages/SeoLandingPage').SeoPageKey} />} />)}

@@ -221,7 +221,7 @@ export default function App() {
             <button className="saas-secondary-btn" type="button" onClick={() => setActiveTab('billing')}>
               View billing
             </button>
-          </div>
+          </div> 
         </div>
         <SubscriptionCard subscription={subscription ?? null} loading={subscriptionLoading} onUpgrade={() => navigate('/pricing')} />
         <RazorpayPlans onSuccess={handleSubscriptionPaymentSuccess} />

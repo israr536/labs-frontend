@@ -11780,3 +11780,62 @@ tbody tr.inactive {
 .landing-v2-proof-strip strong{display:block;font-size:15px;margin-bottom:7px}
 .landing-v2-proof-strip span{display:block;font-size:13px;line-height:1.6;opacity:.76}
 @media (max-width:800px){.landing-v2-proof-strip{grid-template-columns:1fr;margin:0 16px}.landing-v2-proof-strip>div{padding:18px}}
+
+/* SEO growth branch: normalize oversized landing-page spacing without changing app-wide layouts. */
+.seo-landing-page {
+  --seo-section-space: clamp(2.5rem, 5vw, 4rem);
+}
+.seo-landing-page > section {
+  margin-block: 0;
+  padding-block: var(--seo-section-space);
+}
+.seo-landing-page .landing-section-heading {
+  margin-bottom: 1.5rem;
+}
+.seo-landing-page .seo-landing-hero {
+  padding-block: clamp(2.75rem, 5vw, 4.25rem);
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+}
+.seo-landing-page .seo-intent-guide-grid,
+.seo-landing-page .seo-workflow-grid,
+.seo-landing-page .seo-benefit-grid,
+.seo-landing-page .seo-use-case-grid,
+.seo-landing-page .seo-product-evidence-grid,
+.seo-landing-page .seo-implementation-grid {
+  gap: 1rem;
+}
+.seo-landing-page .seo-intent-guide-grid > article,
+.seo-landing-page .seo-workflow-grid > article,
+.seo-landing-page .seo-benefit-grid > article,
+.seo-landing-page .seo-use-case-grid > article,
+.seo-landing-page .seo-product-evidence-grid > article,
+.seo-landing-page .seo-implementation-grid > article {
+  padding: clamp(1rem, 2vw, 1.35rem);
+}
+.seo-landing-page .seo-product-proof-figure {
+  padding: 0.75rem;
+}
+.seo-landing-page .seo-related-links {
+  gap: 0.75rem;
+}
+.seo-landing-page .landing-cta {
+  margin-block: 0;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  gap: 1.25rem;
+}
+.seo-landing-page .seo-reporting-evaluation {
+  padding-block: var(--seo-section-space);
+}
+@media (max-width: 700px) {
+  .seo-landing-page > section,
+  .seo-landing-page .seo-reporting-evaluation {
+    padding-block: 2.25rem;
+  }
+  .seo-landing-page .seo-landing-hero {
+    padding-block: 2.5rem;
+  }
+  .seo-landing-page .seo-product-proof-figure {
+    padding: 0.5rem;
+  }
+}
+

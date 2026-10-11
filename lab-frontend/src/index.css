@@ -1134,14 +1134,14 @@ h6 {
 .landing-cta {
   width: min(1180px, 100%);
   margin: 0 auto;
-  padding: 34px 38px;
-  border-radius: 22px;
+  padding: 24px 28px;
+  border-radius: 18px;
   background: var(--text-bold);
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 30px;
+  gap: 20px;
 }
 
 .landing-cta .landing-eyebrow {
@@ -1618,7 +1618,7 @@ h6 {
   }
 
   .landing-cta {
-    padding: 25px;
+    padding: 18px;
     align-items: flex-start;
     flex-direction: column;
   }
@@ -11453,19 +11453,19 @@ tbody tr.inactive {
 .seo-product-evidence {
   width: min(1180px, 100%);
   margin: 0 auto;
-  padding: 86px 0;
+  padding: 48px 0;
 }
 .seo-product-evidence-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-  margin-top: 34px;
+  gap: 12px;
+  margin-top: 22px;
 }
 .seo-product-evidence-grid article {
   display: flex;
   flex-direction: column;
-  min-height: 265px;
-  padding: 24px;
+  min-height: 0;
+  padding: 16px;
   border: 1px solid var(--border);
   border-radius: 18px;
   background: var(--panel-bg);
@@ -11476,7 +11476,7 @@ tbody tr.inactive {
   font-weight: 900;
   letter-spacing: 0.12em;
   color: var(--primary);
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 .seo-product-evidence-grid h3 {
   margin: 0 0 10px;
@@ -11494,7 +11494,7 @@ tbody tr.inactive {
   align-items: center;
   gap: 7px;
   margin-top: auto;
-  padding-top: 20px;
+  padding-top: 12px;
   color: var(--primary);
   font-size: 0.75rem;
   font-weight: 800;
@@ -11507,8 +11507,8 @@ tbody tr.inactive {
   display: flex;
   gap: 12px;
   align-items: flex-start;
-  margin-top: 20px;
-  padding: 18px 20px;
+  margin-top: 14px;
+  padding: 12px 14px;
   border: 1px solid var(--border);
   border-radius: 14px;
   background: var(--panel-bg);
@@ -11527,7 +11527,7 @@ tbody tr.inactive {
 }
 @media (max-width: 600px) {
   .seo-product-evidence {
-    padding: 60px 16px;
+    padding: 34px 14px;
   }
   .seo-product-evidence-grid {
     grid-template-columns: 1fr;

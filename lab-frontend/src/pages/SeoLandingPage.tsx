@@ -408,6 +408,38 @@ export default function SeoLandingPage({ pageKey }: { pageKey: SeoPageKey }) {
         <div className="seo-hero-card"><ShieldCheck size={22}/><strong>What a useful {page.eyebrow.toLowerCase()} workflow should achieve</strong><p>{page.focus} The goal is to give the next person the context, status, and configured information needed to continue the work.</p></div>
     </section>
 
+    {pageKey === 'laboratory-reporting-software' && <section className="seo-reporting-evaluation" aria-labelledby="seo-reporting-evaluation-title">
+      <div className="landing-section-heading">
+        <span className="landing-eyebrow">Evaluate PathMLT</span>
+        <h2 id="seo-reporting-evaluation-title">See the complete path from patient record to final laboratory report.</h2>
+        <p>Use a live walkthrough to check how PathMLT handles the reporting steps your laboratory performs every day. Bring one representative test panel and your current report format so you can evaluate fit against your real workflow.</p>
+      </div>
+      <div className="seo-product-evidence-grid">
+        <article>
+          <span className="seo-evidence-number">01</span>
+          <h3>Review the result workflow</h3>
+          <p>See how configured test parameters are used during result entry and what information is available before a report is finalized.</p>
+          <Link to="/result-entry">Explore result entry <ArrowRight size={14}/></Link>
+        </article>
+        <article>
+          <span className="seo-evidence-number">02</span>
+          <h3>Inspect report output</h3>
+          <p>Review the available product example and assess report structure, values, units, flags, and reference information for your needs.</p>
+          <Link to="/pdf-reports">View PDF reporting details <ArrowRight size={14}/></Link>
+        </article>
+        <article>
+          <span className="seo-evidence-number">03</span>
+          <h3>Understand verification</h3>
+          <p>Discuss the review and finalization steps your team needs, including how responsibilities should be handled in your workflow.</p>
+          <Link to="/result-verification">Explore result verification <ArrowRight size={14}/></Link>
+        </article>
+      </div>
+      <div className="landing-cta">
+        <div><span className="landing-eyebrow">Next step</span><h2>Evaluate PathMLT with your laboratory workflow.</h2><p>Start a 30-day free trial or contact the team to discuss a live walkthrough before deciding whether the product fits your laboratory.</p></div>
+        <div className="seo-actions"><Link className="landing-primary" to="/signup">Start your 30-day free trial <ArrowRight size={16}/></Link><Link className="landing-secondary" to="/contact">Book a walkthrough</Link></div>
+      </div>
+    </section>}
+
     {intentGuide && <section className="seo-intent-guide" aria-labelledby="seo-intent-guide-title">
       <div className="landing-section-heading">
         <span className="landing-eyebrow">In-depth guide</span>
